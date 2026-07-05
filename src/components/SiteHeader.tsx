@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { JoinCommunityCta } from "./JoinCommunityCta";
 import { Logo } from "./Logo";
 
 export function SiteHeader() {
@@ -30,12 +31,9 @@ export function SiteHeader() {
             </Link>
           </nav>
           <div className="hidden md:flex">
-            <Link
-              to="/app"
-              className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
-            >
+            <JoinCommunityCta className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90">
               Rejoindre la communauté
-            </Link>
+            </JoinCommunityCta>
           </div>
           <button
             className="md:hidden"
@@ -71,13 +69,12 @@ export function SiteHeader() {
             <Link to="/app" onClick={() => setOpen(false)}>
               Entrer
             </Link>
-            <Link
-              to="/app"
-              onClick={() => setOpen(false)}
+            <JoinCommunityCta
+              onBeforeOpen={() => setOpen(false)}
               className="rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground"
             >
               Rejoindre la communauté
-            </Link>
+            </JoinCommunityCta>
           </div>
         </div>
       </header>
