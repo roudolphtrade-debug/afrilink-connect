@@ -16,11 +16,11 @@ export function SiteHeader() {
           <a href="/#comment" className="text-sm font-medium hover:text-accent">Comment ça marche</a>
           <a href="/#univers" className="text-sm font-medium hover:text-accent">Univers</a>
           <a href="/#temoignages" className="text-sm font-medium hover:text-accent">Communauté</a>
-          <Link to="/demo" className="text-sm font-medium hover:text-accent">Démo</Link>
+          <Link to="/app" className="text-sm font-medium hover:text-accent">Entrer</Link>
         </nav>
         <div className="hidden md:flex">
           <Link
-            to="/demo"
+            to="/app"
             className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
           >
             Rejoindre la communauté
@@ -37,8 +37,8 @@ export function SiteHeader() {
             <a href="/#comment" onClick={() => setOpen(false)}>Comment ça marche</a>
             <a href="/#univers" onClick={() => setOpen(false)}>Univers</a>
             <a href="/#temoignages" onClick={() => setOpen(false)}>Communauté</a>
-            <Link to="/demo" onClick={() => setOpen(false)}>Démo</Link>
-            <Link to="/demo" onClick={() => setOpen(false)} className="rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground">
+            <Link to="/app" onClick={() => setOpen(false)}>Entrer</Link>
+            <Link to="/app" onClick={() => setOpen(false)} className="rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground">
               Rejoindre la communauté
             </Link>
           </div>

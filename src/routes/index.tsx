@@ -77,7 +77,7 @@ function LandingPage() {
               Trouvez les bonnes personnes avant les bonnes adresses.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/demo" className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated transition hover:opacity-90">
+              <Link to="/app" className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated transition hover:opacity-90">
                 Rejoindre la communauté
               </Link>
               <a href="#solution" className="rounded-full border border-forest/20 bg-white px-6 py-3.5 text-sm font-semibold text-forest hover:border-forest/40">
@@ -344,7 +344,7 @@ function LandingPage() {
             Les bonnes personnes. Les bons plans. La bonne connexion.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/demo" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated hover:opacity-90">
+            <Link to="/app" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated hover:opacity-90">
               Découvrir la plateforme <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
