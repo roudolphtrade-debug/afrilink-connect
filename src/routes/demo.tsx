@@ -1,32 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Upload,
-  Check, ArrowRight, ArrowLeft, User, Briefcase,
+  Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
+  Bell, Plus, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
+  Compass, Bookmark, HelpCircle, PenSquare,
 } from "lucide-react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
-import { PROS, CATEGORIES, CITIES, MOCK_REVIEWS, MOCK_CONVERSATIONS, type Pro } from "@/lib/mock-data";
+import {
+  PROS, CATEGORIES, CITIES, MOCK_REVIEWS, MOCK_CONVERSATIONS,
+  CURRENT_USER, FEED, NOTIFICATIONS,
+  type Pro, type FeedPost,
+} from "@/lib/mock-data";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
-      { title: "Démo — AfriLink" },
-      { name: "description", content: "Explorez la plateforme AfriLink avec des données fictives." },
+      { title: "AfriLink — Votre réseau" },
+      { name: "description", content: "Fil d'actualité, recommandations et messagerie AfriLink." },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: DemoPage,
+  component: AppShell,
 });
 
-type Tab = "search" | "favorites" | "messages" | "signup";
+type Tab = "feed" | "search" | "favorites" | "messages" | "profile";
 
-function DemoPage() {
-  const [tab, setTab] = useState<Tab>("search");
-  const [favorites, setFavorites] = useState<string[]>([]);
+export function AppShell() {
+  const [tab, setTab] = useState<Tab>("feed");
+  const [favorites, setFavorites] = useState<string[]>(["pro-4", "pro-8"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
-  const [activeConv, setActiveConv] = useState<string | null>(null);
+  const [activeConv, setActiveConv] = useState<string | null>("c1");
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
@@ -37,53 +42,155 @@ function DemoPage() {
     setTab("messages");
   };
 
+  const nav: { id: Tab; label: string; icon: typeof HomeIcon; badge?: number }[] = [
+    { id: "feed", label: "Accueil", icon: HomeIcon },
+    { id: "search", label: "Explorer", icon: Compass },
+    { id: "messages", label: "Messages", icon: MessageCircle, badge: 3 },
+    { id: "favorites", label: "Favoris", icon: Bookmark, badge: favorites.length || undefined },
+    { id: "profile", label: "Profil", icon: User },
+  ];
+
+  const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
+
   return (
-    <div className="min-h-screen bg-cream/60">
-      <SiteHeader />
-
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-bold md:text-4xl">Découvrir la plateforme</h1>
-            <p className="mt-2 text-muted-foreground">Aperçu interactif — le vrai backend arrive bientôt.</p>
+    <div className="min-h-screen bg-cream/40">
+      {/* TOP BAR */}
+      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 md:px-6">
+          <Link to="/" className="shrink-0"><Logo /></Link>
+          <div className="hidden flex-1 md:flex">
+            <div className="relative w-full max-w-xl">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                placeholder="Rechercher un pro, un service, une ville…"
+                onFocus={() => setTab("search")}
+                className="w-full rounded-full border border-border bg-muted/40 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white"
+              />
+            </div>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-accent/60 bg-accent/15 px-4 py-2 text-xs font-bold uppercase tracking-wide text-accent">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            Démo — données fictives
-          </span>
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-2 rounded-full border border-border bg-white p-1.5 shadow-soft w-fit">
-          {[
-            { id: "search", label: "Recherche", icon: Search },
-            { id: "favorites", label: `Favoris${favorites.length ? ` (${favorites.length})` : ""}`, icon: Heart },
-            { id: "messages", label: "Messagerie", icon: MessageCircle },
-            { id: "signup", label: "Inscription", icon: User },
-          ].map((t) => (
+          <div className="ml-auto flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen((o) => !o)}
+                className="relative rounded-full border border-border bg-white p-2.5 hover:border-primary/40"
+                aria-label="Notifications"
+              >
+                <Bell className="h-4 w-4" />
+                {unreadNotif > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                    {unreadNotif}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
+                  <div className="border-b border-border p-3 text-sm font-semibold">Notifications</div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {NOTIFICATIONS.map((n) => (
+                      <div key={n.id} className={`flex items-start gap-3 border-b border-border p-3 text-sm last:border-0 ${n.unread ? "bg-accent/5" : ""}`}>
+                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.unread ? "bg-accent" : "bg-transparent"}`} />
+                        <div className="flex-1">
+                          <p>{n.text}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{n.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <button
-              key={t.id}
-              onClick={() => setTab(t.id as Tab)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                tab === t.id ? "bg-primary text-primary-foreground" : "text-forest hover:bg-muted"
+              onClick={() => setTab("profile")}
+              className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-primary/40"
+            >
+              <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={32} />
+              <span className="hidden text-sm font-semibold md:inline">{CURRENT_USER.name}</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 md:grid-cols-[220px_1fr] md:px-6 lg:grid-cols-[240px_1fr_320px]">
+        {/* SIDEBAR */}
+        <aside className="hidden md:block">
+          <nav className="sticky top-24 space-y-1 rounded-2xl border border-border bg-white p-2 shadow-soft">
+            {nav.map((n) => (
+              <button
+                key={n.id}
+                onClick={() => setTab(n.id)}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
+                  tab === n.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                }`}
+              >
+                <n.icon className="h-4 w-4" />
+                <span className="flex-1">{n.label}</span>
+                {n.badge && (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tab === n.id ? "bg-white/20" : "bg-accent text-accent-foreground"}`}>
+                    {n.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+            <div className="my-2 h-px bg-border" />
+            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+              <Settings className="h-4 w-4" /> Paramètres
+            </button>
+            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+              <HelpCircle className="h-4 w-4" /> Aide
+            </button>
+          </nav>
+        </aside>
+
+        {/* MAIN */}
+        <main className="min-w-0">
+          {tab === "feed" && <FeedView onOpenSearch={() => setTab("search")} />}
+          {tab === "search" && <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} />}
+          {tab === "profile" && <ProfileView />}
+        </main>
+
+        {/* RIGHT RAIL */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 space-y-4">
+            <TrendingCard />
+            <SuggestedProsCard onOpen={setOpenPro} />
+            <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-xs text-muted-foreground">
+              <p className="font-semibold text-accent">Vous êtes en aperçu</p>
+              <p className="mt-1">Cette version utilise des données fictives pour la démonstration. Les vraies connexions arrivent bientôt.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* MOBILE BOTTOM NAV */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-white/95 backdrop-blur md:hidden">
+        <div className="grid grid-cols-5">
+          {nav.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => setTab(n.id)}
+              className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold ${
+                tab === n.id ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <t.icon className="h-4 w-4" /> {t.label}
+              <n.icon className="h-5 w-5" />
+              {n.label}
+              {n.badge && (
+                <span className="absolute right-4 top-1.5 rounded-full bg-accent px-1.5 text-[9px] font-bold text-accent-foreground">{n.badge}</span>
+              )}
             </button>
           ))}
         </div>
+      </nav>
+      <div className="h-16 md:hidden" />
 
-        <div className="mt-8">
-          {tab === "search" && (
-            <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />
-          )}
-          {tab === "favorites" && (
-            <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />
-          )}
-          {tab === "messages" && (
-            <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} />
-          )}
-          {tab === "signup" && <SignupView />}
-        </div>
+      {/* DISCREET DEMO BADGE */}
+      <div className="pointer-events-none fixed bottom-20 right-4 z-30 md:bottom-4">
+        <span className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-accent/50 bg-white/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-accent shadow-soft">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          Démo
+        </span>
       </div>
 
       {openPro && (
@@ -95,8 +202,198 @@ function DemoPage() {
           onClose={() => setOpenPro(null)}
         />
       )}
+    </div>
+  );
+}
 
-      <SiteFooter />
+/* ---------------- FEED ---------------- */
+
+function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
+  const [posts, setPosts] = useState(FEED);
+  const [liked, setLiked] = useState<Record<string, boolean>>({});
+  const [composer, setComposer] = useState("");
+
+  const toggleLike = (id: string) => {
+    setLiked((l) => ({ ...l, [id]: !l[id] }));
+    setPosts((ps) => ps.map((p) => p.id === id ? { ...p, likes: p.likes + (liked[id] ? -1 : 1) } : p));
+  };
+
+  const publish = () => {
+    if (!composer.trim()) return;
+    const newPost: FeedPost = {
+      id: "new-" + Date.now(),
+      kind: "demande",
+      author: { name: CURRENT_USER.name, initials: CURRENT_USER.initials, color: CURRENT_USER.color, city: CURRENT_USER.city },
+      time: "à l'instant",
+      title: composer.slice(0, 80),
+      body: composer,
+      replies: 0,
+      likes: 0,
+    };
+    setPosts((ps) => [newPost, ...ps]);
+    setComposer("");
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* WELCOME */}
+      <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {CURRENT_USER.name.split(" ")[0]}</p>
+            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {CURRENT_USER.city} 👋</h1>
+            <p className="mt-2 max-w-md text-forest-foreground/80">
+              Voici ce qui se passe autour de vous aujourd'hui.
+            </p>
+          </div>
+          <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
+            <Compass className="h-4 w-4" /> Explorer les pros
+          </button>
+        </div>
+      </div>
+
+      {/* COMPOSER */}
+      <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
+        <div className="flex gap-3">
+          <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} />
+          <div className="flex-1">
+            <textarea
+              value={composer}
+              onChange={(e) => setComposer(e.target.value)}
+              placeholder="Posez une question à la communauté, partagez un bon plan…"
+              rows={2}
+              className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-white"
+            />
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex gap-1.5 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">Demande</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">Bon plan</span>
+              </div>
+              <button
+                onClick={publish}
+                disabled={!composer.trim()}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40"
+              >
+                <PenSquare className="h-3.5 w-3.5" /> Publier
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CATEGORY CHIPS */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        <button className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground">Pour vous</button>
+        {CATEGORIES.slice(0, 6).map((c) => (
+          <button key={c.slug} className="shrink-0 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-semibold hover:border-primary/40">
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      {/* POSTS */}
+      {posts.map((p) => (
+        <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
+      ))}
+    </div>
+  );
+}
+
+function PostCard({ post, liked, onLike }: { post: FeedPost; liked: boolean; onLike: () => void }) {
+  const cat = CATEGORIES.find((c) => c.slug === post.category);
+  const kindLabel: Record<FeedPost["kind"], { label: string; className: string }> = {
+    demande: { label: "Demande", className: "bg-forest/10 text-forest" },
+    "bon-plan": { label: "Bon plan", className: "bg-accent/15 text-accent" },
+    annonce: { label: "Annonce", className: "bg-blue-500/10 text-blue-700" },
+    verif: { label: "AfriLink", className: "bg-primary text-primary-foreground" },
+  };
+  const k = kindLabel[post.kind];
+  return (
+    <article className="rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:shadow-elevated">
+      <div className="flex items-start gap-3">
+        <Avatar initials={post.author.initials} color={post.author.color} />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold">{post.author.name}</p>
+            {post.author.verified && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-accent">
+                <ShieldCheck className="h-2.5 w-2.5" /> Vérifié
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground">·</span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" /> {post.author.city}
+            </span>
+            <span className="text-xs text-muted-foreground">· {post.time}</span>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${k.className}`}>{k.label}</span>
+            {cat && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{cat.label}</span>}
+          </div>
+        </div>
+      </div>
+      <h3 className="mt-3 font-display text-lg font-semibold leading-snug">{post.title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-forest/85">{post.body}</p>
+      <div className="mt-4 flex items-center gap-4 border-t border-border pt-3 text-xs">
+        <button onClick={onLike} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${liked ? "bg-accent/15 text-accent" : "text-muted-foreground hover:bg-muted"}`}>
+          <ThumbsUp className={`h-3.5 w-3.5 ${liked ? "fill-accent" : ""}`} /> {post.likes}
+        </button>
+        <button className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold text-muted-foreground hover:bg-muted">
+          <MessageCircle className="h-3.5 w-3.5" /> {post.replies} réponses
+        </button>
+        <button className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold text-muted-foreground hover:bg-muted">
+          <Bookmark className="h-3.5 w-3.5" /> Enregistrer
+        </button>
+      </div>
+    </article>
+  );
+}
+
+/* ---------------- RIGHT RAIL ---------------- */
+
+function TrendingCard() {
+  const trends = [
+    { tag: "#Bonapriso", posts: "42 posts cette semaine" },
+    { tag: "#PermisDeConduire", posts: "28 discussions" },
+    { tag: "#Kribi", posts: "19 bons plans" },
+    { tag: "#RetourAuBled", posts: "15 posts" },
+  ];
+  return (
+    <div className="rounded-2xl border border-border bg-white p-4 shadow-soft">
+      <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-accent" /> Tendances au Cameroun</h3>
+      <ul className="mt-3 space-y-2">
+        {trends.map((t) => (
+          <li key={t.tag} className="rounded-xl p-2 hover:bg-muted">
+            <p className="text-sm font-semibold">{t.tag}</p>
+            <p className="text-xs text-muted-foreground">{t.posts}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
+  const suggested = PROS.filter((p) => p.verified && ["Douala", "Yaoundé", "Kribi"].includes(p.city)).slice(0, 3);
+  return (
+    <div className="rounded-2xl border border-border bg-white p-4 shadow-soft">
+      <h3 className="font-semibold">Suggestions près de vous</h3>
+      <ul className="mt-3 space-y-3">
+        {suggested.map((p) => (
+          <li key={p.id}>
+            <button onClick={() => onOpen(p)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted">
+              <Avatar initials={p.initials} color={p.color} size={40} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{p.name}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -157,7 +454,7 @@ function SearchView({
 
       <p className="mt-6 text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {results.map((p) => (
           <ProCard key={p.id} pro={p} isFav={favorites.includes(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />
         ))}
@@ -202,7 +499,7 @@ function ProCard({
             )}
           </div>
           <p className="mt-1 truncate text-sm text-muted-foreground">
-            {category?.label} · {pro.city}
+            {category?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}
           </p>
           <div className="mt-2 flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-accent text-accent" />
@@ -219,6 +516,7 @@ function ProCard({
         </button>
       </div>
       <p className="mt-4 line-clamp-2 text-sm text-muted-foreground">{pro.bio}</p>
+      {pro.price && <p className="mt-2 text-xs font-semibold text-accent">{pro.price}</p>}
       <button onClick={onOpen} className="mt-5 inline-flex items-center justify-center gap-1 rounded-full border border-border py-2 text-sm font-semibold hover:border-primary/40">
         Voir le profil <ArrowRight className="h-4 w-4" />
       </button>
@@ -251,7 +549,7 @@ function ProfileModal({
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{cat?.label} · {pro.city}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{cat?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}</p>
               <div className="mt-2 flex items-center gap-1 text-sm">
                 <Star className="h-4 w-4 fill-accent text-accent" />
                 <span className="font-semibold">{pro.rating.toFixed(1)}</span>
@@ -265,13 +563,14 @@ function ProfileModal({
         {pro.verified && (
           <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
             <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
-            <p>
-              <strong>Badge Vérifié :</strong> pièce d'identité, activité et références validées manuellement par l'équipe AfriLink.
-            </p>
+            <p><strong>Badge Vérifié :</strong> pièce d'identité, activité et références validées manuellement par l'équipe AfriLink.</p>
           </div>
         )}
 
         <p className="mt-6 leading-relaxed text-forest/90">{pro.bio}</p>
+        {pro.price && (
+          <p className="mt-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">{pro.price}</p>
+        )}
 
         <div className="mt-8">
           <h4 className="font-semibold">Derniers avis</h4>
@@ -319,8 +618,11 @@ function FavoritesView({
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+    <div>
+      <h2 className="mb-4 font-display text-2xl font-bold">Vos favoris</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+      </div>
     </div>
   );
 }
@@ -356,7 +658,7 @@ function MessagingView({
   };
 
   return (
-    <div className="grid gap-4 rounded-3xl border border-border bg-white shadow-soft md:grid-cols-[320px_1fr] md:overflow-hidden">
+    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-white shadow-soft md:grid-cols-[280px_1fr]">
       <div className="border-b border-border md:border-b-0 md:border-r">
         <div className="p-4">
           <h3 className="font-semibold">Conversations</h3>
@@ -390,7 +692,7 @@ function MessagingView({
         </div>
       </div>
 
-      <div className="flex min-h-[420px] flex-col">
+      <div className="flex min-h-[520px] flex-col">
         {currentPro ? (
           <>
             <div className="flex items-center gap-3 border-b border-border p-4">
@@ -439,146 +741,47 @@ function MessagingView({
   );
 }
 
-/* ---------------- SIGNUP ---------------- */
+/* ---------------- PROFILE ---------------- */
 
-function SignupView() {
-  const [step, setStep] = useState(1);
-  const [role, setRole] = useState<"member" | "pro" | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", city: "" });
-  const [doc, setDoc] = useState<string | null>(null);
-
-  const totalSteps = role === "pro" ? 4 : 3;
-
-  const next = () => setStep((s) => s + 1);
-  const prev = () => setStep((s) => Math.max(1, s - 1));
-
+function ProfileView() {
   return (
-    <div className="mx-auto max-w-2xl rounded-3xl border border-border bg-white p-6 shadow-soft md:p-10">
-      <div className="mb-8 flex items-center gap-2">
-        {Array.from({ length: totalSteps }).map((_, i) => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full ${i < step ? "bg-primary" : "bg-muted"}`} />
+    <div className="space-y-4">
+      <div className="overflow-hidden rounded-3xl border border-border bg-white shadow-soft">
+        <div className="h-32 bg-gradient-to-br from-forest to-forest/70" />
+        <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
+          <div className="rounded-full ring-4 ring-white">
+            <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={96} />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-display text-2xl font-bold">{CURRENT_USER.name}</h2>
+            <p className="text-sm text-muted-foreground">{CURRENT_USER.role} · {CURRENT_USER.city}</p>
+          </div>
+          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:border-primary/40">Modifier le profil</button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[
+          { label: "Favoris", value: 2 },
+          { label: "Conversations", value: 3 },
+          { label: "Posts publiés", value: 1 },
+        ].map((s) => (
+          <div key={s.label} className="rounded-2xl border border-border bg-white p-5 shadow-soft">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
+            <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
+          </div>
         ))}
       </div>
 
-      {step === 1 && (
-        <div>
-          <h3 className="font-display text-2xl font-bold">Vous êtes…</h3>
-          <p className="mt-2 text-muted-foreground">Choisissez le type de compte à créer.</p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {[
-              { id: "member", icon: User, title: "Membre", desc: "Trouver des pros, poser des questions." },
-              { id: "pro", icon: Briefcase, title: "Professionnel", desc: "Proposer vos services, être vérifié." },
-            ].map((r) => (
-              <button
-                key={r.id}
-                onClick={() => setRole(r.id as "member" | "pro")}
-                className={`rounded-2xl border-2 p-5 text-left transition ${role === r.id ? "border-primary bg-cream" : "border-border hover:border-primary/40"}`}
-              >
-                <span className="icon-circle mb-3"><r.icon className="h-5 w-5" /></span>
-                <p className="font-semibold">{r.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{r.desc}</p>
-              </button>
-            ))}
-          </div>
-          <div className="mt-8 flex justify-end">
-            <button
-              disabled={!role}
-              onClick={next}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
-            >
-              Continuer <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="rounded-3xl border border-border bg-white p-6 shadow-soft">
+        <h3 className="font-semibold">À propos</h3>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Je viens d'arriver à Douala avec ma famille. Je cherche à me constituer un réseau fiable pour l'installation, la scolarité et les loisirs.
+        </p>
+      </div>
 
-      {step === 2 && (
-        <div>
-          <h3 className="font-display text-2xl font-bold">Vos infos</h3>
-          <p className="mt-2 text-muted-foreground">On garde ça simple.</p>
-          <div className="mt-6 space-y-4">
-            <Field label="Nom complet" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Aïcha Diallo" />
-            <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="vous@exemple.com" />
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ville</label>
-              <select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-primary">
-                <option value="">Sélectionner une ville…</option>
-                {CITIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-          <StepNav onPrev={prev} onNext={next} disabled={!form.name || !form.email || !form.city} isLast={role === "member" ? false : false} />
-        </div>
-      )}
-
-      {step === 3 && role === "pro" && (
-        <div>
-          <h3 className="font-display text-2xl font-bold">Vérification professionnelle</h3>
-          <p className="mt-2 text-muted-foreground">Téléchargez une pièce justificative (identité, KBIS, diplôme…).</p>
-          <label className="mt-6 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-border bg-cream p-10 text-center hover:border-primary/50">
-            <span className="icon-circle"><Upload className="h-6 w-6" /></span>
-            <p className="font-semibold">{doc ?? "Cliquez pour importer un document"}</p>
-            <p className="text-xs text-muted-foreground">PDF, JPG, PNG — 5 Mo max</p>
-            <input type="file" className="hidden" onChange={(e) => setDoc(e.target.files?.[0]?.name ?? null)} />
-          </label>
-          {doc && (
-            <div className="mt-4 rounded-2xl bg-accent/10 p-4 text-sm">
-              <p><strong>Vérification en cours sous 48h.</strong> Vous recevrez un email dès validation.</p>
-            </div>
-          )}
-          <StepNav onPrev={prev} onNext={next} disabled={!doc} />
-        </div>
-      )}
-
-      {((step === 3 && role === "member") || (step === 4 && role === "pro")) && (
-        <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-accent/15 text-accent">
-            <Check className="h-8 w-8" />
-          </div>
-          <h3 className="mt-6 font-display text-2xl font-bold">Bienvenue, {form.name.split(" ")[0] || "membre"} !</h3>
-          <p className="mt-3 text-muted-foreground">
-            {role === "pro"
-              ? "Votre dossier est en cours de vérification. Vous recevrez un email sous 48h."
-              : "Votre compte est prêt. Commencez à explorer le réseau AfriLink."}
-          </p>
-          <button
-            onClick={() => { setStep(1); setRole(null); setForm({ name: "", email: "", city: "" }); setDoc(null); }}
-            className="mt-8 rounded-full border border-border px-6 py-3 text-sm font-semibold hover:border-primary/40"
-          >
-            Recommencer la démo
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
-  return (
-    <div>
-      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-primary"
-      />
-    </div>
-  );
-}
-
-function StepNav({ onPrev, onNext, disabled, isLast }: { onPrev: () => void; onNext: () => void; disabled?: boolean; isLast?: boolean }) {
-  return (
-    <div className="mt-8 flex justify-between">
-      <button onClick={onPrev} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:border-primary/40">
-        <ArrowLeft className="h-4 w-4" /> Retour
-      </button>
-      <button
-        disabled={disabled}
-        onClick={onNext}
-        className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
-      >
-        {isLast ? "Terminer" : "Continuer"} <ArrowRight className="h-4 w-4" />
+      <button className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-destructive/40 hover:text-destructive">
+        <LogOut className="h-4 w-4" /> Se déconnecter
       </button>
     </div>
   );
