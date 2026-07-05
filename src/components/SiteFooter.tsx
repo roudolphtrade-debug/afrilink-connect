@@ -16,7 +16,7 @@ export function SiteFooter() {
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="rounded-2xl bg-white p-3 inline-block">
-              <Logo />
+              <Logo loading="lazy" />
             </div>
             <p className="mt-6 max-w-md text-lg font-display font-semibold">
               Les bonnes personnes. Les bons plans. La bonne connexion.
