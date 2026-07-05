@@ -1,24 +1,366 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
+  Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
+  Plane, Building2, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X,
+} from "lucide-react";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { Avatar } from "@/components/Avatar";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: LandingPage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const pillars = [
+  { icon: ShieldCheck, title: "Professionnels vérifiés", desc: "Chaque pro est validé par notre équipe et noté par la communauté." },
+  { icon: Users, title: "Recommandations humaines", desc: "Des avis réels de membres qui ont déjà testé pour vous." },
+  { icon: MessageCircle, title: "Communauté active", desc: "Échangez, demandez conseil, partagez vos bons plans." },
+  { icon: Compass, title: "Accompagnement complet", desc: "Avant, pendant et après votre arrivée sur le continent." },
+];
+
+const steps = [
+  { icon: Users, title: "Inscrivez-vous", desc: "Créez votre profil en 2 minutes." },
+  { icon: Search, title: "Recherchez ou diffusez", desc: "Trouvez un pro ou publiez une demande." },
+  { icon: Send, title: "Échangez", desc: "Discutez en direct avec la personne de confiance." },
+  { icon: Handshake, title: "Contribuez", desc: "Laissez un avis, aidez la communauté." },
+  { icon: Sparkles, title: "Faites grandir votre réseau", desc: "Restez connecté et découvrez de nouveaux membres." },
+];
+
+const universes = [
+  { icon: Hammer, label: "Maison & Artisanat" },
+  { icon: HeartPulse, label: "Santé & Bien-être" },
+  { icon: GraduationCap, label: "Éducation" },
+  { icon: Truck, label: "Transport & Logistique" },
+  { icon: FileText, label: "Services administratifs" },
+  { icon: Sparkles, label: "Loisirs & Lifestyle" },
+  { icon: HomeIcon, label: "Immobilier" },
+  { icon: Briefcase, label: "Emploi & Business" },
+];
+
+const profiles = [
+  { icon: Plane, label: "Expatriés", color: "#0F2B1E" },
+  { icon: Users, label: "Diasporas", color: "#D4A64A" },
+  { icon: Wallet, label: "Investisseurs", color: "#2F6B4F" },
+  { icon: Rocket, label: "Entrepreneurs", color: "#B8863A" },
+  { icon: Baby, label: "Familles", color: "#3E7A5C" },
+  { icon: BookOpen, label: "Étudiants", color: "#9C6E2B" },
+  { icon: Palmtree, label: "Voyageurs longue durée", color: "#0F2B1E" },
+  { icon: HomeIcon, label: "Retraités internationaux", color: "#D4A64A" },
+];
+
+const testimonials = [
+  { name: "Sophie L.", role: "Expatriée à Douala", initials: "SL", color: "#2F6B4F", quote: "Arrivée seule à Douala, je ne savais pas par où commencer. Grâce à AfriLink, j'ai trouvé un logement en une semaine et rencontré des gens qui sont devenus de vrais amis." },
+  { name: "Marc D.", role: "Entrepreneur", initials: "MD", color: "#D4A64A", quote: "Les recommandations sur AfriLink m'ont évité plusieurs mauvaises expériences. C'est rassurant de savoir que la communauté a déjà testé pour moi." },
+  { name: "Ava S.", role: "Membre active", initials: "AS", color: "#0F2B1E", quote: "Une plateforme simple et humaine, qui donne vraiment envie de s'entraider. Je recommande AfriLink à toute personne qui débarque en Afrique." },
+];
+
+function LandingPage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div>
+      <SiteHeader />
+
+      {/* HERO */}
+      <section className="section-cream relative overflow-hidden">
+        <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8 md:py-28 md:items-center">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 text-xs font-semibold text-forest">
+              <span className="h-2 w-2 rounded-full bg-accent" />
+              Le réseau de confiance africain
+            </span>
+            <h1 className="mt-6 text-4xl font-bold leading-[1.05] md:text-6xl">
+              Le réseau de confiance pour réussir votre <span className="text-accent">arrivée en Afrique</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+              Trouvez les bonnes personnes avant les bonnes adresses.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/demo" className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated transition hover:opacity-90">
+                Rejoindre la communauté
+              </Link>
+              <a href="#solution" className="rounded-full border border-forest/20 bg-white px-6 py-3.5 text-sm font-semibold text-forest hover:border-forest/40">
+                Découvrir AfriLink
+              </a>
+            </div>
+            <div className="mt-10 grid grid-cols-3 gap-6">
+              <Stat value="12 000+" label="Membres actifs" />
+              <Stat value="1 200+" label="Pros vérifiés" />
+              <Stat value="4,7/5" label="Satisfaction" />
+            </div>
+          </div>
+          <div className="relative">
+            <div className="relative rounded-3xl bg-white p-6 shadow-elevated">
+              <div className="flex items-center gap-3">
+                <span className="icon-circle"><Search className="h-5 w-5" /></span>
+                <div className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
+                  Plombier de confiance à Dakar…
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                {[
+                  { name: "Aïcha D.", cat: "Décoratrice · Dakar", rating: 4.9, color: "#2F6B4F", initials: "AD" },
+                  { name: "Kwame M.", cat: "Médecin · Accra", rating: 4.7, color: "#D4A64A", initials: "KM" },
+                  { name: "Amina K.", cat: "Immobilier · Abidjan", rating: 4.8, color: "#0F2B1E", initials: "AK" },
+                ].map((c) => (
+                  <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-border p-3">
+                    <Avatar initials={c.initials} color={c.color} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-semibold">{c.name}</p>
+                        <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">Vérifié</span>
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">{c.cat}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm font-semibold">
+                      <Star className="h-4 w-4 fill-accent text-accent" /> {c.rating}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-forest p-4 text-forest-foreground shadow-elevated md:block">
+              <p className="text-xs opacity-70">Nouveau membre</p>
+              <p className="font-display font-semibold">Bienvenue à Nairobi 👋</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LE CONSTAT */}
+      <section className="section-forest">
+        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Le constat</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">
+              Arriver dans un nouveau pays, c'est arriver sans réseau.
+            </h2>
+          </div>
+          <div className="mt-14 grid gap-4 md:grid-cols-2">
+            {[
+              "Difficile de trouver des personnes fiables",
+              "Risque de mauvaises expériences",
+              "Manque de recommandations vérifiées",
+              "Perte de temps dans l'installation",
+            ].map((t) => (
+              <div key={t} className="flex items-start gap-4 rounded-2xl bg-white/5 p-6 backdrop-blur">
+                <span className="icon-circle shrink-0"><X className="h-5 w-5" /></span>
+                <p className="text-lg font-medium">{t}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mx-auto mt-14 max-w-2xl rounded-3xl border border-accent/40 bg-accent/10 p-8 text-center">
+            <p className="font-display text-4xl font-bold text-accent md:text-5xl">Plusieurs mois</p>
+            <p className="mt-3 text-forest-foreground/80">temps moyen pour reconstruire un réseau fiable en arrivant seul.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* LA SOLUTION */}
+      <section id="solution" className="bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">La solution</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau, quatre piliers</h2>
+          </div>
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {pillars.map((p) => (
+              <div key={p.title} className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
+                <span className="icon-circle mb-6"><p.icon className="h-6 w-6" /></span>
+                <h3 className="text-lg font-semibold">{p.title}</h3>
+                <p className="mt-3 text-sm text-muted-foreground">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AVANT / APRÈS */}
+      <section className="section-cream">
+        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Avant / Après</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">La différence AfriLink</h2>
+          </div>
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
+            <div className="rounded-3xl border border-destructive/20 bg-white p-8">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive"><X /></span>
+                <h3 className="text-xl font-semibold">Avant</h3>
+              </div>
+              <ul className="mt-6 space-y-4 text-muted-foreground">
+                <li>Vous ne connaissez personne sur place.</li>
+                <li>Vous cherchez au hasard sur des groupes non filtrés.</li>
+                <li>Vous perdez du temps et prenez des risques.</li>
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-forest/20 bg-forest p-8 text-forest-foreground">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground"><Check /></span>
+                <h3 className="text-xl font-semibold">Avec AfriLink</h3>
+              </div>
+              <ul className="mt-6 space-y-4 text-forest-foreground/85">
+                <li>Recommandations fiables en quelques minutes.</li>
+                <li>Personnes de confiance qui répondent vraiment.</li>
+                <li>Gain de temps et meilleure intégration.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* COMMENT ÇA MARCHE */}
+      <section id="comment" className="bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Comment ça marche</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Cinq étapes, un vrai réseau</h2>
+          </div>
+          <div className="mt-14 grid gap-5 md:grid-cols-5">
+            {steps.map((s, i) => (
+              <div key={s.title} className="relative rounded-3xl border border-border bg-card p-6">
+                <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="icon-circle mb-5"><s.icon className="h-5 w-5" /></span>
+                <h3 className="font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* UNIVERS */}
+      <section id="univers" className="section-cream">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Les univers couverts</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Tout ce dont vous avez besoin</h2>
+          </div>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {universes.map((u) => (
+              <div key={u.label} className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-elevated">
+                <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
+                <p className="font-medium">{u.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* POUR QUI */}
+      <section className="bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Pour qui ?</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau pour chaque parcours</h2>
+            <p className="mt-4 text-muted-foreground">
+              AfriLink s'adresse à toute personne qui arrive, vit, travaille, investit ou voyage en Afrique.
+            </p>
+          </div>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {profiles.map((p) => (
+              <div key={p.label} className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ backgroundColor: p.color }}>
+                  <p.icon className="h-6 w-6" />
+                </div>
+                <p className="mt-4 font-semibold">{p.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TÉMOIGNAGES */}
+      <section id="temoignages" className="section-forest">
+        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Ce que dit la communauté</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+              Le problème n'est pas l'absence d'offres, mais l'absence de réseau local fiable.
+            </h2>
+            <p className="mt-4 text-forest-foreground/75">
+              AfriLink transforme ce capital social informel en infrastructure de confiance accessible.
+            </p>
+          </div>
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div key={t.name} className="rounded-3xl bg-white/5 p-8 backdrop-blur">
+                <div className="flex items-center gap-1 text-accent">
+                  {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
+                </div>
+                <p className="mt-5 leading-relaxed">"{t.quote}"</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <Avatar initials={t.initials} color={t.color} />
+                  <div>
+                    <p className="font-semibold">{t.name}</p>
+                    <p className="text-sm text-forest-foreground/60">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* IMPACT / MODÈLE */}
+      <section className="bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
+              <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
+              <div className="mt-8 grid grid-cols-3 gap-6">
+                <Stat value="12 000+" label="Membres" />
+                <Stat value="1 200+" label="Pros vérifiés" />
+                <Stat value="4,7/5" label="Satisfaction" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              {[
+                { t: "Gratuit pour la communauté", d: "L'accès aux recommandations et à la messagerie reste gratuit." },
+                { t: "Abonnement pros vérifiés", d: "Les professionnels validés bénéficient d'une visibilité premium." },
+                { t: "Partenariats installation", d: "Banques, assurances, logement — les bons interlocuteurs à l'arrivée." },
+              ].map((m) => (
+                <div key={m.t} className="flex gap-4 rounded-2xl border border-border bg-card p-5">
+                  <span className="icon-circle shrink-0"><Check className="h-5 w-5" /></span>
+                  <div>
+                    <h3 className="font-semibold">{m.t}</h3>
+                    <p className="text-sm text-muted-foreground">{m.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="section-cream">
+        <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
+          <h2 className="font-display text-3xl font-bold md:text-5xl">
+            Les bonnes personnes. Les bons plans. La bonne connexion.
+          </h2>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/demo" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated hover:opacity-90">
+              Découvrir la plateforme <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div>
+      <p className="font-display text-2xl font-bold md:text-3xl">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground md:text-sm">{label}</p>
     </div>
   );
 }
