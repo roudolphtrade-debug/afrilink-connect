@@ -43,6 +43,7 @@ export function SiteHeader() {
           </div>
         </div>
         <div
+          inert={!open}
           className={`overflow-hidden transition-[max-height] duration-300 ease-out md:hidden ${
             open ? "max-h-96 border-t border-border" : "max-h-0 border-t-0"
           }`}
