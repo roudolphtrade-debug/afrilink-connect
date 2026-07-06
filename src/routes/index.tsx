@@ -123,7 +123,7 @@ function LandingPage() {
                 ))}
               </div>
             </div>
-            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-forest p-4 text-forest-foreground shadow-elevated md:block">
+            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-forest p-4 text-forest-foreground shadow-floating md:block">
               <p className="text-xs opacity-70">Nouveau membre</p>
               <p className="font-display font-semibold">Bienvenue à Nairobi 👋</p>
             </div>
@@ -172,7 +172,7 @@ function LandingPage() {
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p, i) => (
               <Reveal key={p.title} delay={i * 80}>
-                <div className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
+                <div className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
                   <span className="icon-circle mb-6"><p.icon className="h-6 w-6" /></span>
                   <h3 className="text-lg font-semibold">{p.title}</h3>
                   <p className="mt-3 text-sm text-muted-foreground">{p.desc}</p>
@@ -251,7 +251,7 @@ function LandingPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {universes.map((u, i) => (
               <Reveal key={u.label} delay={i * 60}>
-                <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-elevated">
+                <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
                   <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
                   <p className="font-medium">{u.label}</p>
                 </div>
@@ -274,7 +274,7 @@ function LandingPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {profiles.map((p, i) => (
               <Reveal key={p.label} delay={i * 60}>
-                <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1">
+                <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ backgroundColor: p.color }}>
                     <p.icon className="h-6 w-6" />
                   </div>

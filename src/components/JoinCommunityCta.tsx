@@ -36,7 +36,7 @@ export function JoinCommunityCta({
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-elevated"
+            className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-floating"
             onClick={(e) => e.stopPropagation()}
           >
             <span className="icon-circle mx-auto">
