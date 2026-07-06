@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Avatar } from "@/components/Avatar";
 import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -67,7 +68,7 @@ function LandingPage() {
         <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8 md:py-28 md:items-center">
-          <div>
+          <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 text-xs font-semibold text-forest">
               <span className="h-2 w-2 rounded-full bg-accent" />
               Le réseau de confiance africain
@@ -91,8 +92,8 @@ function LandingPage() {
               <Stat value="1 200+" label="Pros vérifiés" />
               <Stat value="4,7/5" label="Satisfaction" />
             </div>
-          </div>
-          <div className="relative">
+          </Reveal>
+          <Reveal delay={150} className="relative">
             <div className="relative rounded-3xl bg-white p-6 shadow-elevated">
               <div className="flex items-center gap-3">
                 <span className="icon-circle"><Search className="h-5 w-5" /></span>
@@ -126,53 +127,57 @@ function LandingPage() {
               <p className="text-xs opacity-70">Nouveau membre</p>
               <p className="font-display font-semibold">Bienvenue à Nairobi 👋</p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* LE CONSTAT */}
       <section className="section-forest">
         <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Le constat</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">
               Arriver dans un nouveau pays, c'est arriver sans réseau.
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-4 md:grid-cols-2">
             {[
               "Difficile de trouver des personnes fiables",
               "Risque de mauvaises expériences",
               "Manque de recommandations vérifiées",
               "Perte de temps dans l'installation",
-            ].map((t) => (
-              <div key={t} className="flex items-start gap-4 rounded-2xl bg-white/5 p-6 backdrop-blur">
-                <span className="icon-circle shrink-0"><X className="h-5 w-5" /></span>
-                <p className="text-lg font-medium">{t}</p>
-              </div>
+            ].map((t, i) => (
+              <Reveal key={t} delay={i * 80}>
+                <div className="flex items-start gap-4 rounded-2xl bg-white/5 p-6 backdrop-blur">
+                  <span className="icon-circle shrink-0"><X className="h-5 w-5" /></span>
+                  <p className="text-lg font-medium">{t}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-          <div className="mx-auto mt-14 max-w-2xl rounded-3xl border border-accent/40 bg-accent/10 p-8 text-center">
+          <Reveal className="mx-auto mt-14 max-w-2xl rounded-3xl border border-accent/40 bg-accent/10 p-8 text-center">
             <p className="font-display text-4xl font-bold text-accent md:text-5xl">Plusieurs mois</p>
             <p className="mt-3 text-forest-foreground/80">temps moyen pour reconstruire un réseau fiable en arrivant seul.</p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* LA SOLUTION */}
       <section id="solution" className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">La solution</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau, quatre piliers</h2>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {pillars.map((p) => (
-              <div key={p.title} className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
-                <span className="icon-circle mb-6"><p.icon className="h-6 w-6" /></span>
-                <h3 className="text-lg font-semibold">{p.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground">{p.desc}</p>
-              </div>
+            {pillars.map((p, i) => (
+              <Reveal key={p.title} delay={i * 80}>
+                <div className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
+                  <span className="icon-circle mb-6"><p.icon className="h-6 w-6" /></span>
+                  <h3 className="text-lg font-semibold">{p.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground">{p.desc}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -181,12 +186,12 @@ function LandingPage() {
       {/* AVANT / APRÈS */}
       <section className="section-cream">
         <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Avant / Après</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">La différence AfriLink</h2>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl border border-destructive/20 bg-white p-8">
+            <Reveal className="rounded-3xl border border-destructive/20 bg-white p-8">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive"><X /></span>
                 <h3 className="text-xl font-semibold">Avant</h3>
@@ -196,8 +201,8 @@ function LandingPage() {
                 <li>Vous cherchez au hasard sur des groupes non filtrés.</li>
                 <li>Vous perdez du temps et prenez des risques.</li>
               </ul>
-            </div>
-            <div className="rounded-3xl border border-forest/20 bg-forest p-8 text-forest-foreground">
+            </Reveal>
+            <Reveal delay={120} className="rounded-3xl border border-forest/20 bg-forest p-8 text-forest-foreground">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground"><Check /></span>
                 <h3 className="text-xl font-semibold">Avec AfriLink</h3>
@@ -207,7 +212,7 @@ function LandingPage() {
                 <li>Personnes de confiance qui répondent vraiment.</li>
                 <li>Gain de temps et meilleure intégration.</li>
               </ul>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -215,20 +220,22 @@ function LandingPage() {
       {/* COMMENT ÇA MARCHE */}
       <section id="comment" className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Comment ça marche</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">Cinq étapes, un vrai réseau</h2>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-5 md:grid-cols-5">
             {steps.map((s, i) => (
-              <div key={s.title} className="relative rounded-3xl border border-border bg-card p-6">
-                <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="icon-circle mb-5"><s.icon className="h-5 w-5" /></span>
-                <h3 className="font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              <Reveal key={s.title} delay={i * 80}>
+                <div className="relative rounded-3xl border border-border bg-card p-6">
+                  <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="icon-circle mb-5"><s.icon className="h-5 w-5" /></span>
+                  <h3 className="font-semibold">{s.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -237,16 +244,18 @@ function LandingPage() {
       {/* UNIVERS */}
       <section id="univers" className="section-cream">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Les univers couverts</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">Tout ce dont vous avez besoin</h2>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-            {universes.map((u) => (
-              <div key={u.label} className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-elevated">
-                <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
-                <p className="font-medium">{u.label}</p>
-              </div>
+            {universes.map((u, i) => (
+              <Reveal key={u.label} delay={i * 60}>
+                <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-elevated">
+                  <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
+                  <p className="font-medium">{u.label}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -255,21 +264,23 @@ function LandingPage() {
       {/* POUR QUI */}
       <section className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Pour qui ?</span>
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau pour chaque parcours</h2>
             <p className="mt-4 text-muted-foreground">
               AfriLink s'adresse à toute personne qui arrive, vit, travaille, investit ou voyage en Afrique.
             </p>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-            {profiles.map((p) => (
-              <div key={p.label} className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ backgroundColor: p.color }}>
-                  <p.icon className="h-6 w-6" />
+            {profiles.map((p, i) => (
+              <Reveal key={p.label} delay={i * 60}>
+                <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ backgroundColor: p.color }}>
+                    <p.icon className="h-6 w-6" />
+                  </div>
+                  <p className="mt-4 font-semibold">{p.label}</p>
                 </div>
-                <p className="mt-4 font-semibold">{p.label}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -278,7 +289,7 @@ function LandingPage() {
       {/* TÉMOIGNAGES */}
       <section id="temoignages" className="section-forest">
         <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Ce que dit la communauté</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">
               Le problème n'est pas l'absence d'offres, mais l'absence de réseau local fiable.
@@ -286,22 +297,24 @@ function LandingPage() {
             <p className="mt-4 text-forest-foreground/75">
               AfriLink transforme ce capital social informel en infrastructure de confiance accessible.
             </p>
-          </div>
+          </Reveal>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.name} className="rounded-3xl bg-white/5 p-8 backdrop-blur">
-                <div className="flex items-center gap-1 text-accent">
-                  {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
-                </div>
-                <p className="mt-5 leading-relaxed">"{t.quote}"</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <Avatar initials={t.initials} color={t.color} />
-                  <div>
-                    <p className="font-semibold">{t.name}</p>
-                    <p className="text-sm text-forest-foreground/60">{t.role}</p>
+            {testimonials.map((t, ti) => (
+              <Reveal key={t.name} delay={ti * 100}>
+                <div className="rounded-3xl bg-white/5 p-8 backdrop-blur">
+                  <div className="flex items-center gap-1 text-accent">
+                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
+                  </div>
+                  <p className="mt-5 leading-relaxed">"{t.quote}"</p>
+                  <div className="mt-6 flex items-center gap-3">
+                    <Avatar initials={t.initials} color={t.color} />
+                    <div>
+                      <p className="font-semibold">{t.name}</p>
+                      <p className="text-sm text-forest-foreground/60">{t.role}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -311,7 +324,7 @@ function LandingPage() {
       <section className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
-            <div>
+            <Reveal>
               <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
               <div className="mt-8 grid grid-cols-3 gap-6">
@@ -319,20 +332,22 @@ function LandingPage() {
                 <Stat value="1 200+" label="Pros vérifiés" />
                 <Stat value="4,7/5" label="Satisfaction" />
               </div>
-            </div>
+            </Reveal>
             <div className="space-y-4">
               {[
                 { t: "Gratuit pour la communauté", d: "L'accès aux recommandations et à la messagerie reste gratuit." },
                 { t: "Abonnement pros vérifiés", d: "Les professionnels validés bénéficient d'une visibilité premium." },
                 { t: "Partenariats installation", d: "Banques, assurances, logement — les bons interlocuteurs à l'arrivée." },
-              ].map((m) => (
-                <div key={m.t} className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-                  <span className="icon-circle shrink-0"><Check className="h-5 w-5" /></span>
-                  <div>
-                    <h3 className="font-semibold">{m.t}</h3>
-                    <p className="text-sm text-muted-foreground">{m.d}</p>
+              ].map((m, i) => (
+                <Reveal key={m.t} delay={i * 80}>
+                  <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
+                    <span className="icon-circle shrink-0"><Check className="h-5 w-5" /></span>
+                    <div>
+                      <h3 className="font-semibold">{m.t}</h3>
+                      <p className="text-sm text-muted-foreground">{m.d}</p>
+                    </div>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -341,7 +356,7 @@ function LandingPage() {
 
       {/* CTA FINAL */}
       <section className="section-cream">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
+        <Reveal className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
           <h2 className="font-display text-3xl font-bold md:text-5xl">
             Les bonnes personnes. Les bons plans. La bonne connexion.
           </h2>
@@ -352,7 +367,7 @@ function LandingPage() {
               </Link>
             </Button>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <SiteFooter />
