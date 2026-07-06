@@ -1,13 +1,16 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 export function JoinCommunityCta({
   className,
+  size = "pill",
   children,
   onBeforeOpen,
 }: {
   className?: string;
+  size?: "pill" | "pill-lg";
   children: ReactNode;
   onBeforeOpen?: () => void;
 }) {
@@ -16,8 +19,9 @@ export function JoinCommunityCta({
 
   return (
     <>
-      <button
-        type="button"
+      <Button
+        variant="pill"
+        size={size}
         className={className}
         onClick={() => {
           onBeforeOpen?.();
@@ -25,7 +29,7 @@ export function JoinCommunityCta({
         }}
       >
         {children}
-      </button>
+      </Button>
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-forest/60 p-4 backdrop-blur-sm"
@@ -46,20 +50,17 @@ export function JoinCommunityCta({
               d'AfriLink. Aucune vraie mise en relation n'est encore disponible.
             </p>
             <div className="mt-6 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/app" })}
-                className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
+              <Button variant="pill" size="pill" onClick={() => navigate({ to: "/app" })}>
                 Voir l'aperçu
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="ghost"
+                size="pill"
+                className="rounded-full font-medium text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                 onClick={() => setOpen(false)}
-                className="rounded-full px-5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
                 Annuler
-              </button>
+              </Button>
             </div>
           </div>
         </div>

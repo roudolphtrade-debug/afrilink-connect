@@ -31,9 +31,7 @@ export function SiteHeader() {
             </Link>
           </nav>
           <div className="hidden md:flex">
-            <JoinCommunityCta className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90">
-              Rejoindre la communauté
-            </JoinCommunityCta>
+            <JoinCommunityCta className="shadow-soft">Rejoindre la communauté</JoinCommunityCta>
           </div>
           <button
             className="md:hidden"
@@ -69,10 +67,7 @@ export function SiteHeader() {
             <Link to="/app" onClick={() => setOpen(false)}>
               Entrer
             </Link>
-            <JoinCommunityCta
-              onBeforeOpen={() => setOpen(false)}
-              className="rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground"
-            >
+            <JoinCommunityCta onBeforeOpen={() => setOpen(false)}>
               Rejoindre la communauté
             </JoinCommunityCta>
           </div>

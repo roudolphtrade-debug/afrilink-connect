@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Avatar } from "@/components/Avatar";
 import { JoinCommunityCta } from "@/components/JoinCommunityCta";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -78,12 +79,12 @@ function LandingPage() {
               Trouvez les bonnes personnes avant les bonnes adresses.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <JoinCommunityCta className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated transition hover:opacity-90">
+              <JoinCommunityCta size="pill-lg" className="shadow-elevated">
                 Rejoindre la communauté
               </JoinCommunityCta>
-              <a href="#solution" className="rounded-full border border-forest/20 bg-white px-6 py-3.5 text-sm font-semibold text-forest hover:border-forest/40">
-                Découvrir AfriLink
-              </a>
+              <Button variant="pill-outline" size="pill-lg" asChild>
+                <a href="#solution">Découvrir AfriLink</a>
+              </Button>
             </div>
             <div className="mt-10 grid grid-cols-3 gap-6">
               <Stat value="12 000+" label="Membres actifs" />
@@ -345,9 +346,11 @@ function LandingPage() {
             Les bonnes personnes. Les bons plans. La bonne connexion.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/app" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-elevated hover:opacity-90">
-              Découvrir la plateforme <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Button variant="pill" size="pill-lg" className="shadow-elevated" asChild>
+              <Link to="/app">
+                Découvrir la plateforme <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
