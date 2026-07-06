@@ -37,8 +37,12 @@
 
   --color-forest: var(--forest);
   --color-forest-foreground: var(--forest-foreground);
+  --color-forest-light: var(--forest-light);
+  --color-forest-sage: var(--forest-sage);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-bronze: var(--gold-bronze);
   --color-cream: var(--cream);
 
   --shadow-soft: 0 4px 20px -6px oklch(0.2 0.04 150 / 0.12);
@@ -50,8 +54,12 @@
 
   --forest: oklch(0.24 0.05 155);
   --forest-foreground: oklch(0.98 0.01 90);
+  --forest-light: oklch(0.479 0.078 161.1);
+  --forest-sage: oklch(0.53 0.079 160.2);
   --gold: oklch(0.74 0.13 78);
   --gold-foreground: oklch(0.22 0.05 155);
+  --gold-dark: oklch(0.655 0.111 74.9);
+  --gold-bronze: oklch(0.573 0.101 73.2);
   --cream: oklch(0.972 0.008 85);
 
   --background: oklch(1 0 0);

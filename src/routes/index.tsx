@@ -40,20 +40,20 @@ const universes = [
 ];
 
 const profiles = [
-  { icon: Plane, label: "Expatriés", color: "#0F2B1E" },
-  { icon: Users, label: "Diasporas", color: "#D4A64A" },
-  { icon: Wallet, label: "Investisseurs", color: "#2F6B4F" },
-  { icon: Rocket, label: "Entrepreneurs", color: "#B8863A" },
-  { icon: Baby, label: "Familles", color: "#3E7A5C" },
-  { icon: BookOpen, label: "Étudiants", color: "#9C6E2B" },
-  { icon: Palmtree, label: "Voyageurs longue durée", color: "#0F2B1E" },
-  { icon: HomeIcon, label: "Retraités internationaux", color: "#D4A64A" },
+  { icon: Plane, label: "Expatriés", color: "var(--forest)" },
+  { icon: Users, label: "Diasporas", color: "var(--accent)" },
+  { icon: Wallet, label: "Investisseurs", color: "var(--forest-light)" },
+  { icon: Rocket, label: "Entrepreneurs", color: "var(--gold-dark)" },
+  { icon: Baby, label: "Familles", color: "var(--forest-sage)" },
+  { icon: BookOpen, label: "Étudiants", color: "var(--gold-bronze)" },
+  { icon: Palmtree, label: "Voyageurs longue durée", color: "var(--forest)" },
+  { icon: HomeIcon, label: "Retraités internationaux", color: "var(--accent)" },
 ];
 
 const testimonials = [
-  { name: "Sophie L.", role: "Expatriée à Douala", initials: "SL", color: "#2F6B4F", quote: "Arrivée seule à Douala, je ne savais pas par où commencer. Grâce à AfriLink, j'ai trouvé un logement en une semaine et rencontré des gens qui sont devenus de vrais amis." },
-  { name: "Marc D.", role: "Entrepreneur", initials: "MD", color: "#D4A64A", quote: "Les recommandations sur AfriLink m'ont évité plusieurs mauvaises expériences. C'est rassurant de savoir que la communauté a déjà testé pour moi." },
-  { name: "Ava S.", role: "Membre active", initials: "AS", color: "#0F2B1E", quote: "Une plateforme simple et humaine, qui donne vraiment envie de s'entraider. Je recommande AfriLink à toute personne qui débarque en Afrique." },
+  { name: "Sophie L.", role: "Expatriée à Douala", initials: "SL", color: "var(--forest-light)", quote: "Arrivée seule à Douala, je ne savais pas par où commencer. Grâce à AfriLink, j'ai trouvé un logement en une semaine et rencontré des gens qui sont devenus de vrais amis." },
+  { name: "Marc D.", role: "Entrepreneur", initials: "MD", color: "var(--accent)", quote: "Les recommandations sur AfriLink m'ont évité plusieurs mauvaises expériences. C'est rassurant de savoir que la communauté a déjà testé pour moi." },
+  { name: "Ava S.", role: "Membre active", initials: "AS", color: "var(--forest)", quote: "Une plateforme simple et humaine, qui donne vraiment envie de s'entraider. Je recommande AfriLink à toute personne qui débarque en Afrique." },
 ];
 
 function LandingPage() {
@@ -101,9 +101,9 @@ function LandingPage() {
               </div>
               <div className="mt-5 space-y-3">
                 {[
-                  { name: "Aïcha D.", cat: "Décoratrice · Dakar", rating: 4.9, color: "#2F6B4F", initials: "AD" },
-                  { name: "Kwame M.", cat: "Médecin · Accra", rating: 4.7, color: "#D4A64A", initials: "KM" },
-                  { name: "Amina K.", cat: "Immobilier · Abidjan", rating: 4.8, color: "#0F2B1E", initials: "AK" },
+                  { name: "Aïcha D.", cat: "Décoratrice · Dakar", rating: 4.9, color: "var(--forest-light)", initials: "AD" },
+                  { name: "Kwame M.", cat: "Médecin · Accra", rating: 4.7, color: "var(--accent)", initials: "KM" },
+                  { name: "Amina K.", cat: "Immobilier · Abidjan", rating: 4.8, color: "var(--forest)", initials: "AK" },
                 ].map((c) => (
                   <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-border p-3">
                     <Avatar initials={c.initials} color={c.color} />
