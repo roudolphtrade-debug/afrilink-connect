@@ -7,29 +7,30 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { MapPinOff } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Logo } from "../components/Logo";
+import { Button } from "../components/ui/button";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Page introuvable</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Cette page n'existe pas ou a été déplacée.
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-4 text-center">
+      <Logo />
+      <span className="icon-circle">
+        <MapPinOff className="h-6 w-6" />
+      </span>
+      <div>
+        <h1 className="font-display text-3xl font-bold">Page introuvable</h1>
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          Cette page n'existe pas ou a été déplacée — même les meilleurs réseaux ont leurs impasses.
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-          >
-            Retour à l'accueil
-          </Link>
-        </div>
       </div>
+      <Button variant="pill" size="pill" asChild>
+        <Link to="/">Retour à l'accueil</Link>
+      </Button>
     </div>
   );
 }
@@ -77,10 +78,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Le réseau de confiance pour réussir votre arrivée en Afrique. Trouvez les bonnes personnes avant les bonnes adresses." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8a3e043-f152-48c4-b721-62fd4ee79aad/id-preview-f82c46c2--5585286a-b916-48aa-8740-35edc7d0eafb.lovable.app-1783221184700.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8a3e043-f152-48c4-b721-62fd4ee79aad/id-preview-f82c46c2--5585286a-b916-48aa-8740-35edc7d0eafb.lovable.app-1783221184700.png" },
+      { name: "theme-color", content: "#0F2B1E" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { rel: "icon", href: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" },
