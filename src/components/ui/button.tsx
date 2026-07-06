@@ -18,7 +18,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         pill: "rounded-full bg-primary font-semibold text-primary-foreground transition hover:opacity-90",
         "pill-outline":
-          "rounded-full border border-forest/20 bg-white font-semibold text-forest transition hover:border-forest/40",
+          "rounded-full border border-forest/20 bg-card font-semibold text-foreground transition hover:border-forest/40",
       },
       size: {
         default: "h-9 px-4 py-2",

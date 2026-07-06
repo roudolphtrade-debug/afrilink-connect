@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { JoinCommunityCta } from "./JoinCommunityCta";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -30,17 +31,16 @@ export function SiteHeader() {
               Entrer
             </Link>
           </nav>
-          <div className="hidden md:flex">
+          <div className="hidden items-center gap-3 md:flex">
+            <ThemeToggle />
             <JoinCommunityCta className="shadow-soft">Rejoindre la communauté</JoinCommunityCta>
           </div>
-          <button
-            className="md:hidden"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-            aria-expanded={open}
-          >
-            {open ? <X /> : <Menu />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button onClick={() => setOpen(!open)} aria-label="Menu" aria-expanded={open}>
+              {open ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
         <div
           className={`overflow-hidden transition-[max-height] duration-300 ease-out md:hidden ${

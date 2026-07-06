@@ -86,7 +86,7 @@
 }
 
 .dark {
-  --background: var(--forest);
+  --background: oklch(0.14 0.02 155);
   --foreground: var(--forest-foreground);
   --card: oklch(0.28 0.05 155);
   --card-foreground: var(--forest-foreground);
@@ -134,8 +134,8 @@
 }
 
 @utility section-cream {
-  background-color: var(--cream);
-  color: var(--forest);
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
 }
 
 @utility icon-circle {

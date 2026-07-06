@@ -69,7 +69,7 @@ function LandingPage() {
         <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8 md:py-28 md:items-center">
           <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 text-xs font-semibold text-forest">
+            <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-card px-4 py-1.5 text-xs font-semibold text-foreground">
               <span className="h-2 w-2 rounded-full bg-accent" />
               Le réseau de confiance africain
             </span>
@@ -94,7 +94,7 @@ function LandingPage() {
             </div>
           </Reveal>
           <Reveal delay={150} className="relative">
-            <div className="relative rounded-3xl bg-white p-6 shadow-elevated">
+            <div className="relative rounded-3xl bg-card p-6 shadow-elevated">
               <div className="flex items-center gap-3">
                 <span className="icon-circle"><Search className="h-5 w-5" /></span>
                 <div className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
@@ -191,7 +191,7 @@ function LandingPage() {
             <h2 className="mt-4 text-3xl font-bold md:text-5xl">La différence AfriLink</h2>
           </Reveal>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
-            <Reveal className="rounded-3xl border border-destructive/20 bg-white p-8">
+            <Reveal className="rounded-3xl border border-destructive/20 bg-card p-8">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive"><X /></span>
                 <h3 className="text-xl font-semibold">Avant</h3>
@@ -251,7 +251,7 @@ function LandingPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {universes.map((u, i) => (
               <Reveal key={u.label} delay={i * 60}>
-                <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+                <div className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
                   <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
                   <p className="font-medium">{u.label}</p>
                 </div>
