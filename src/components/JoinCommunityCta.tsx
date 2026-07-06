@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useMagnetic } from "@/hooks/use-magnetic";
 
 export function JoinCommunityCta({
   className,
@@ -16,13 +17,18 @@ export function JoinCommunityCta({
 }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const magnetic = useMagnetic<HTMLButtonElement>();
 
   return (
     <>
       <Button
+        ref={magnetic.ref}
         variant="pill"
         size={size}
         className={className}
+        style={magnetic.style}
+        onMouseMove={magnetic.onMouseMove}
+        onMouseLeave={magnetic.onMouseLeave}
         onClick={() => {
           onBeforeOpen?.();
           setOpen(true);

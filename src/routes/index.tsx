@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type { Ref } from "react";
 import {
   ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
@@ -10,6 +11,7 @@ import { Avatar } from "@/components/Avatar";
 import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { useMagnetic } from "@/hooks/use-magnetic";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -59,6 +61,9 @@ const testimonials = [
 ];
 
 function LandingPage() {
+  const outlineMagnetic = useMagnetic<HTMLAnchorElement>();
+  const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
+
   return (
     <div>
       <SiteHeader />
@@ -83,7 +88,15 @@ function LandingPage() {
               <JoinCommunityCta size="pill-lg" className="shadow-elevated">
                 Rejoindre la communauté
               </JoinCommunityCta>
-              <Button variant="pill-outline" size="pill-lg" asChild>
+              <Button
+                variant="pill-outline"
+                size="pill-lg"
+                asChild
+                ref={outlineMagnetic.ref as Ref<HTMLButtonElement>}
+                style={outlineMagnetic.style}
+                onMouseMove={outlineMagnetic.onMouseMove}
+                onMouseLeave={outlineMagnetic.onMouseLeave}
+              >
                 <a href="#solution">Découvrir AfriLink</a>
               </Button>
             </div>
@@ -361,7 +374,16 @@ function LandingPage() {
             Les bonnes personnes. Les bons plans. La bonne connexion.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button variant="pill" size="pill-lg" className="shadow-elevated" asChild>
+            <Button
+              variant="pill"
+              size="pill-lg"
+              className="shadow-elevated"
+              asChild
+              ref={finalCtaMagnetic.ref as Ref<HTMLButtonElement>}
+              style={finalCtaMagnetic.style}
+              onMouseMove={finalCtaMagnetic.onMouseMove}
+              onMouseLeave={finalCtaMagnetic.onMouseLeave}
+            >
               <Link to="/app">
                 Découvrir la plateforme <ArrowRight className="h-4 w-4" />
               </Link>
