@@ -318,7 +318,9 @@ function LandingPage() {
                   <div className="flex items-center gap-1 text-accent">
                     {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
                   </div>
-                  <p className="mt-5 leading-relaxed">"{t.quote}"</p>
+                  <p className="mt-5 font-display text-lg italic leading-relaxed text-forest-foreground/95">
+                    "{t.quote}"
+                  </p>
                   <div className="mt-6 flex items-center gap-3">
                     <Avatar initials={t.initials} color={t.color} />
                     <div>
@@ -370,7 +372,7 @@ function LandingPage() {
       {/* CTA FINAL */}
       <section className="section-cream">
         <Reveal className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
-          <h2 className="font-display text-3xl font-bold md:text-5xl">
+          <h2 className="text-3xl font-bold md:text-5xl">
             Les bonnes personnes. Les bons plans. La bonne connexion.
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">

@@ -48,7 +48,7 @@ export function JoinCommunityCta({
             <span className="icon-circle mx-auto">
               <Sparkles className="h-5 w-5" />
             </span>
-            <h3 className="mt-4 font-display text-lg font-semibold">
+            <h3 className="mt-4 text-lg font-semibold">
               Vous allez découvrir un aperçu
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
