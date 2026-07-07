@@ -9,41 +9,76 @@ export const CATEGORIES = [
   { slug: "emploi", label: "Emploi & Business", icon: "Briefcase" },
 ] as const;
 
-// Villes camerounaises en priorité, puis Côte d'Ivoire, Sénégal, et quelques autres capitales africaines
-export const CITIES = [
-  "Douala",
-  "Yaoundé",
-  "Bafoussam",
-  "Kribi",
-  "Limbé",
-  "Buea",
-  "Garoua",
-  "Bamenda",
-  "Ngaoundéré",
-  "Dschang",
-  "Abidjan",
-  "Yamoussoukro",
-  "Bouaké",
-  "San-Pédro",
-  "Dakar",
-  "Saint-Louis",
-  "Thiès",
-  "Mbour",
-  "Libreville",
-  "Kinshasa",
-  "Lagos",
-  "Accra",
-  "Cotonou",
-  "Lomé",
-  "Bamako",
-  "Ouagadougou",
+// Pays en priorité (Cameroun, Côte d'Ivoire, Sénégal), puis expansion Afrique de l'Ouest / Centrale / du Nord
+export const COUNTRIES: { name: string; cities: string[] }[] = [
+  { name: "Cameroun", cities: ["Douala", "Yaoundé", "Bafoussam", "Kribi", "Limbé", "Buea", "Garoua", "Bamenda", "Ngaoundéré", "Dschang"] },
+  { name: "Côte d'Ivoire", cities: ["Abidjan", "Yamoussoukro", "Bouaké", "San-Pédro"] },
+  { name: "Sénégal", cities: ["Dakar", "Saint-Louis", "Thiès", "Mbour"] },
+  { name: "Ghana", cities: ["Accra", "Kumasi"] },
+  { name: "Nigeria", cities: ["Lagos", "Abuja"] },
+  { name: "Togo", cities: ["Lomé"] },
+  { name: "Bénin", cities: ["Cotonou", "Porto-Novo"] },
+  { name: "Guinée équatoriale", cities: ["Malabo", "Bata"] },
+  { name: "Maroc", cities: ["Casablanca", "Rabat", "Marrakech"] },
+  { name: "Tunisie", cities: ["Tunis", "Sousse"] },
+  { name: "Algérie", cities: ["Alger", "Oran"] },
+  { name: "Autres", cities: ["Libreville", "Kinshasa", "Bamako", "Ouagadougou"] },
 ];
+
+export const CITIES = COUNTRIES.flatMap((c) => c.cities);
+
+const CITY_COUNTRY: Record<string, string> = Object.fromEntries(
+  COUNTRIES.flatMap((c) => c.cities.map((city) => [city, c.name])),
+);
+
+// Coordonnées approximatives du centre-ville (pas d'adresse précise vérifiée par annonce)
+export const CITY_COORDS: Record<string, [number, number]> = {
+  "Douala": [4.0483, 9.7043],
+  "Yaoundé": [3.8480, 11.5021],
+  "Bafoussam": [5.4667, 10.4167],
+  "Kribi": [2.9375, 9.9075],
+  "Limbé": [4.0225, 9.2107],
+  "Buea": [4.1560, 9.2420],
+  "Garoua": [9.3017, 13.3921],
+  "Bamenda": [5.9631, 10.1591],
+  "Ngaoundéré": [7.3167, 13.5833],
+  "Dschang": [5.4500, 10.0667],
+  "Abidjan": [5.3600, -4.0083],
+  "Yamoussoukro": [6.8276, -5.2893],
+  "Bouaké": [7.6900, -5.0300],
+  "San-Pédro": [4.7485, -6.6363],
+  "Dakar": [14.7167, -17.4677],
+  "Saint-Louis": [16.0326, -16.4818],
+  "Thiès": [14.7910, -16.9359],
+  "Mbour": [14.4200, -16.9600],
+  "Accra": [5.6037, -0.1870],
+  "Kumasi": [6.6885, -1.6244],
+  "Lagos": [6.5244, 3.3792],
+  "Abuja": [9.0765, 7.3986],
+  "Lomé": [6.1725, 1.2314],
+  "Cotonou": [6.3703, 2.3912],
+  "Porto-Novo": [6.4969, 2.6289],
+  "Malabo": [3.7523, 8.7742],
+  "Bata": [1.8639, 9.7674],
+  "Casablanca": [33.5731, -7.5898],
+  "Rabat": [34.0209, -6.8416],
+  "Marrakech": [31.6295, -7.9811],
+  "Tunis": [36.8065, 10.1815],
+  "Sousse": [35.8256, 10.6084],
+  "Alger": [36.7538, 3.0588],
+  "Oran": [35.6969, -0.6331],
+  "Libreville": [0.4162, 9.4673],
+  "Kinshasa": [-4.4419, 15.2663],
+  "Bamako": [12.6392, -8.0029],
+  "Ouagadougou": [12.3714, -1.5197],
+};
 
 export type Pro = {
   id: string;
   name: string;
   category: string;
   city: string;
+  country: string;
   neighborhood?: string;
   rating: number;
   reviews: number;
@@ -52,11 +87,13 @@ export type Pro = {
   price?: string;
   color: string;
   initials: string;
+  photo: string;
+  photos: string[];
 };
 
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
-const seed: Omit<Pro, "id" | "color" | "initials">[] = [
+const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photos">[] = [
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
   { name: "Achille Mbarga", category: "transport", city: "Yaoundé", neighborhood: "Bastos", rating: 4.8, reviews: 112, verified: false, bio: "Chauffeur privé bilingue, accueil aéroport NSI et courses longues. Véhicule climatisé récent.", price: "15 000 FCFA / course aéroport" },
@@ -109,16 +146,69 @@ const seed: Omit<Pro, "id" | "color" | "initials">[] = [
   { name: "Teranga Beauté", category: "sante", city: "Dakar", neighborhood: "Ouakam", rating: 4.6, reviews: 34, verified: false, bio: "Salon de beauté et bien-être, soins capillaires, manucure, massages." },
   { name: "Aïcha Diallo", category: "maison", city: "Dakar", rating: 4.9, reviews: 82, verified: false, bio: "Décoratrice d'intérieur spécialisée en artisanat local, 10 ans d'expérience auprès d'expatriés." },
 
-  // ==== Autres pays (secondaire) ====
+  // ==== Ghana ====
+  { name: "Ambassade de France", category: "admin", city: "Accra", rating: 4.4, reviews: 10, verified: false, bio: "Représentation diplomatique française au Ghana, services consulaires et visas." },
+  { name: "Ambassade des États-Unis", category: "admin", city: "Accra", rating: 4.3, reviews: 9, verified: false, bio: "Services consulaires américains pour le Ghana." },
+  { name: "Buka Restaurant", category: "loisirs", city: "Accra", neighborhood: "Osu", rating: 4.5, reviews: 132, verified: false, bio: "Restaurant réputé d'Osu, cuisine ghanéenne et ouest-africaine dans un cadre chaleureux." },
+  { name: "Dr. Kwame Asante", category: "sante", city: "Accra", rating: 4.7, reviews: 36, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Accra Auto Garage", category: "transport", city: "Accra", rating: 4.4, reviews: 22, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+  { name: "Osu Beauty Salon", category: "sante", city: "Accra", neighborhood: "Osu", rating: 4.5, reviews: 27, verified: false, bio: "Salon de coiffure et esthétique, soins capillaires naturels." },
+
+  // ==== Nigeria ====
   { name: "David Okonkwo", category: "emploi", city: "Lagos", rating: 4.7, reviews: 46, verified: false, bio: "Consultant RH, recrutement pour startups et PME internationales." },
+  { name: "Ambassade de France", category: "admin", city: "Lagos", rating: 4.3, reviews: 11, verified: false, bio: "Consulat général de France à Lagos, services consulaires et visas." },
+  { name: "Consulat des États-Unis", category: "admin", city: "Lagos", rating: 4.2, reviews: 13, verified: false, bio: "Services consulaires américains pour le Nigeria." },
+  { name: "Terra Kulture", category: "loisirs", city: "Lagos", neighborhood: "Victoria Island", rating: 4.6, reviews: 178, verified: false, bio: "Lieu culturel emblématique de Lagos : restaurant, galerie d'art et scène spectacles." },
+  { name: "Dr. Chidinma Okafor", category: "sante", city: "Lagos", rating: 4.8, reviews: 39, verified: false, bio: "Médecin généraliste, consultations à domicile pour familles et diaspora de passage." },
+  { name: "Lagos Motors Garage", category: "transport", city: "Lagos", rating: 4.5, reviews: 31, verified: false, bio: "Mécanique toutes marques, diagnostic électronique, dépannage rapide." },
+
+  // ==== Togo ====
+  { name: "Ambassade de France", category: "admin", city: "Lomé", rating: 4.4, reviews: 9, verified: false, bio: "Représentation diplomatique française au Togo, services consulaires et visas." },
+  { name: "Dr. Komla Agbeko", category: "sante", city: "Lomé", rating: 4.6, reviews: 21, verified: false, bio: "Médecin généraliste, consultations et suivi pour expatriés et familles." },
+  { name: "Garage Lomé Auto", category: "transport", city: "Lomé", rating: 4.4, reviews: 17, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+
+  // ==== Bénin ====
+  { name: "Ambassade de France", category: "admin", city: "Cotonou", rating: 4.4, reviews: 10, verified: false, bio: "Représentation diplomatique française au Bénin, services consulaires et visas." },
+  { name: "Dr. Ablavi Houngbedji", category: "sante", city: "Cotonou", rating: 4.6, reviews: 19, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Cotonou Auto", category: "transport", city: "Cotonou", rating: 4.3, reviews: 15, verified: false, bio: "Mécanique générale toutes marques, dépannage rapide." },
+
+  // ==== Guinée équatoriale ====
+  { name: "Ambassade de France", category: "admin", city: "Malabo", rating: 4.2, reviews: 6, verified: false, bio: "Représentation diplomatique française en Guinée équatoriale, services consulaires et visas." },
+  { name: "Dr. Maria Nsue", category: "sante", city: "Malabo", rating: 4.6, reviews: 14, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Malabo Auto", category: "transport", city: "Malabo", rating: 4.3, reviews: 11, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+
+  // ==== Maroc ====
+  { name: "Ambassade de France", category: "admin", city: "Rabat", rating: 4.5, reviews: 18, verified: false, bio: "Représentation diplomatique française au Maroc, services consulaires et visas." },
+  { name: "Consulat de France", category: "admin", city: "Casablanca", rating: 4.4, reviews: 16, verified: false, bio: "Consulat général de France à Casablanca, services consulaires et visas." },
+  { name: "La Mamounia", category: "loisirs", city: "Marrakech", rating: 4.9, reviews: 320, verified: false, bio: "Palace historique et emblématique de Marrakech, jardins, restaurants et spa de renommée mondiale." },
+  { name: "Dr. Youssef El Amrani", category: "sante", city: "Casablanca", rating: 4.7, reviews: 42, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Casablanca Auto", category: "transport", city: "Casablanca", rating: 4.5, reviews: 28, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+  { name: "Salon Marrakech Beauté", category: "sante", city: "Marrakech", rating: 4.6, reviews: 33, verified: false, bio: "Salon de beauté et bien-être, soins et hammam traditionnel." },
+
+  // ==== Tunisie ====
+  { name: "Ambassade de France", category: "admin", city: "Tunis", rating: 4.4, reviews: 17, verified: false, bio: "Représentation diplomatique française en Tunisie, services consulaires et visas." },
+  { name: "Dr. Amira Ben Salah", category: "sante", city: "Tunis", rating: 4.7, reviews: 29, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Tunis Auto", category: "transport", city: "Tunis", rating: 4.4, reviews: 20, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+
+  // ==== Algérie ====
+  { name: "Ambassade de France", category: "admin", city: "Alger", rating: 4.4, reviews: 19, verified: false, bio: "Représentation diplomatique française en Algérie, services consulaires et visas." },
+  { name: "Dr. Karim Boumediene", category: "sante", city: "Alger", rating: 4.6, reviews: 25, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Alger Auto", category: "transport", city: "Alger", rating: 4.4, reviews: 18, verified: false, bio: "Entretien et réparation automobile toutes marques." },
 ];
 
-export const PROS: Pro[] = seed.map((p, i) => ({
-  ...p,
-  id: `pro-${i + 1}`,
-  color: colors[i % colors.length],
-  initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
-}));
+export const PROS: Pro[] = seed.map((p, i) => {
+  const id = `pro-${i + 1}`;
+  return {
+    ...p,
+    id,
+    country: CITY_COUNTRY[p.city] ?? "Autres",
+    color: colors[i % colors.length],
+    initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
+    // Images génériques libres de droits (placeholder) en attendant de vraies photos par établissement
+    photo: `https://picsum.photos/seed/${id}-cover/600/450`,
+    photos: [1, 2, 3].map((n) => `https://picsum.photos/seed/${id}-${n}/600/450`),
+  };
+});
 
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 
