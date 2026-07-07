@@ -9,7 +9,7 @@ export const CATEGORIES = [
   { slug: "emploi", label: "Emploi & Business", icon: "Briefcase" },
 ] as const;
 
-// Villes camerounaises en priorité, puis quelques autres capitales africaines
+// Villes camerounaises en priorité, puis Côte d'Ivoire, Sénégal, et quelques autres capitales africaines
 export const CITIES = [
   "Douala",
   "Yaoundé",
@@ -22,10 +22,21 @@ export const CITIES = [
   "Ngaoundéré",
   "Dschang",
   "Abidjan",
+  "Yamoussoukro",
+  "Bouaké",
+  "San-Pédro",
   "Dakar",
+  "Saint-Louis",
+  "Thiès",
+  "Mbour",
   "Libreville",
   "Kinshasa",
   "Lagos",
+  "Accra",
+  "Cotonou",
+  "Lomé",
+  "Bamako",
+  "Ouagadougou",
 ];
 
 export type Pro = {
@@ -71,10 +82,34 @@ const seed: Omit<Pro, "id" | "color" | "initials">[] = [
   { name: "L'Ethnic Restaurant", category: "loisirs", city: "Douala", rating: 4.5, reviews: 19, verified: true, bio: "Cuisine ethnique variée dans un cadre chaleureux, au cœur de Douala." },
   { name: "Guide touristique Sénégal", category: "loisirs", city: "Dakar", rating: 4.8, reviews: 22, verified: true, bio: "Guide touristique local, circuits sur-mesure pour découvrir Dakar et ses environs." },
 
-  // ==== Autres pays (secondaire) ====
-  { name: "Aïcha Diallo", category: "maison", city: "Dakar", rating: 4.9, reviews: 82, verified: true, bio: "Décoratrice d'intérieur spécialisée en artisanat local, 10 ans d'expérience auprès d'expatriés." },
+  // ==== Ambassades & consulats (Cameroun) ====
+  { name: "Ambassade de France", category: "admin", city: "Yaoundé", rating: 4.4, reviews: 14, verified: true, bio: "Représentation diplomatique française au Cameroun : services consulaires, visas, état civil." },
+  { name: "Consulat des États-Unis", category: "admin", city: "Douala", rating: 4.2, reviews: 8, verified: true, bio: "Agence consulaire américaine pour la région du Littoral." },
+
+  // ==== Côte d'Ivoire ====
+  { name: "Ambassade de France", category: "admin", city: "Abidjan", rating: 4.5, reviews: 12, verified: true, bio: "Représentation diplomatique française, services consulaires et visas pour ressortissants et binationaux." },
+  { name: "Consulat des États-Unis", category: "admin", city: "Abidjan", rating: 4.3, reviews: 9, verified: true, bio: "Services consulaires américains pour la Côte d'Ivoire." },
+  { name: "Le Wafou", category: "loisirs", city: "Abidjan", neighborhood: "Bietry", rating: 4.6, reviews: 210, verified: true, bio: "Maquis emblématique au bord de la lagune, spécialités ivoiriennes et ambiance conviviale en soirée." },
+  { name: "Bushman Café", category: "loisirs", city: "Abidjan", neighborhood: "Zone 4", rating: 4.5, reviews: 156, verified: true, bio: "Bar-restaurant incontournable de Zone 4, terrasse animée et concerts live le week-end." },
+  { name: "Dr. Koffi Adjoumani", category: "sante", city: "Abidjan", neighborhood: "Cocody", rating: 4.8, reviews: 41, verified: true, bio: "Médecin généraliste, consultations et suivi pour expatriés et familles." },
+  { name: "Cabinet Dentaire Aya N'Guessan", category: "sante", city: "Abidjan", neighborhood: "Marcory", rating: 4.7, reviews: 33, verified: true, bio: "Chirurgien-dentiste, soins et urgences dentaires." },
+  { name: "Garage Konan & Fils", category: "transport", city: "Abidjan", neighborhood: "Yopougon", rating: 4.5, reviews: 27, verified: true, bio: "Mécanique générale toutes marques, diagnostic électronique, dépannage rapide." },
+  { name: "Salon Ivoire Beauté", category: "sante", city: "Abidjan", neighborhood: "Cocody", rating: 4.6, reviews: 38, verified: true, bio: "Salon de coiffure et esthétique, spécialiste coiffures naturelles et soins du visage." },
   { name: "Jean-Marc Ouattara", category: "transport", city: "Abidjan", rating: 4.6, reviews: 67, verified: true, bio: "Chauffeur privé et déménagements, ponctuel, véhicule climatisé." },
   { name: "Amina Kouassi", category: "immobilier", city: "Abidjan", rating: 4.8, reviews: 94, verified: true, bio: "Agent immobilier, locations meublées expatriés à Cocody." },
+
+  // ==== Sénégal ====
+  { name: "Ambassade de France", category: "admin", city: "Dakar", rating: 4.4, reviews: 15, verified: true, bio: "Représentation diplomatique française, services consulaires et visas." },
+  { name: "Ambassade des États-Unis", category: "admin", city: "Dakar", rating: 4.3, reviews: 11, verified: true, bio: "Services consulaires américains pour le Sénégal." },
+  { name: "Chez Loutcha", category: "loisirs", city: "Dakar", neighborhood: "Plateau", rating: 4.6, reviews: 187, verified: true, bio: "Institution dakaroise depuis des décennies, cuisine sénégalaise et capverdienne généreuse." },
+  { name: "Just4U", category: "loisirs", city: "Dakar", neighborhood: "Point E", rating: 4.5, reviews: 142, verified: true, bio: "Club-restaurant mythique, scène live incontournable de la musique sénégalaise." },
+  { name: "Dr. Fatou Sarr", category: "sante", city: "Dakar", neighborhood: "Almadies", rating: 4.9, reviews: 47, verified: true, bio: "Médecin généraliste, consultations à domicile pour familles et diaspora de passage." },
+  { name: "Cabinet Dentaire Almadies", category: "sante", city: "Dakar", neighborhood: "Almadies", rating: 4.7, reviews: 29, verified: true, bio: "Soins dentaires et esthétique du sourire, équipe bilingue." },
+  { name: "Garage Thiès Auto", category: "transport", city: "Thiès", rating: 4.4, reviews: 19, verified: true, bio: "Entretien et réparation automobile toutes marques, pièces d'occasion et neuves." },
+  { name: "Teranga Beauté", category: "sante", city: "Dakar", neighborhood: "Ouakam", rating: 4.6, reviews: 34, verified: true, bio: "Salon de beauté et bien-être, soins capillaires, manucure, massages." },
+  { name: "Aïcha Diallo", category: "maison", city: "Dakar", rating: 4.9, reviews: 82, verified: true, bio: "Décoratrice d'intérieur spécialisée en artisanat local, 10 ans d'expérience auprès d'expatriés." },
+
+  // ==== Autres pays (secondaire) ====
   { name: "David Okonkwo", category: "emploi", city: "Lagos", rating: 4.7, reviews: 46, verified: true, bio: "Consultant RH, recrutement pour startups et PME internationales." },
 ];
 
@@ -82,7 +117,7 @@ export const PROS: Pro[] = seed.map((p, i) => ({
   ...p,
   id: `pro-${i + 1}`,
   color: colors[i % colors.length],
-  initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]).slice(0, 2).join(""),
+  initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
 }));
 
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
