@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
+import { LocationMap } from "@/components/LocationMap";
 import {
-  PROS, CATEGORIES, CITIES, MOCK_REVIEWS, MOCK_CONVERSATIONS,
+  PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
   CURRENT_USER, FEED, NOTIFICATIONS,
   type Pro, type FeedPost,
 } from "@/lib/mock-data";
@@ -416,16 +417,25 @@ function SearchView({
 }) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
+  const [country, setCountry] = useState<string>("all");
   const [city, setCity] = useState<string>("all");
+
+  const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
+
+  const handleCountryChange = (next: string) => {
+    setCountry(next);
+    setCity("all");
+  };
 
   const results = useMemo(() => {
     return PROS.filter((p) => {
       const matchQ = !q || p.name.toLowerCase().includes(q.toLowerCase()) || p.bio.toLowerCase().includes(q.toLowerCase());
       const matchC = cat === "all" || p.category === cat;
+      const matchCountry = country === "all" || p.country === country;
       const matchCity = city === "all" || p.city === city;
-      return matchQ && matchC && matchCity;
+      return matchQ && matchC && matchCountry && matchCity;
     });
-  }, [q, cat, city]);
+  }, [q, cat, country, city]);
 
   return (
     <div>
@@ -439,12 +449,20 @@ function SearchView({
             className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
           />
           <select
+            value={country}
+            onChange={(e) => handleCountryChange(e.target.value)}
+            className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
+          >
+            <option value="all">Tous les pays</option>
+            {COUNTRIES.map((c) => <option key={c.name}>{c.name}</option>)}
+          </select>
+          <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
             className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
           >
             <option value="all">Toutes les villes</option>
-            {CITIES.map((c) => <option key={c}>{c}</option>)}
+            {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -458,10 +476,14 @@ function SearchView({
             );
           })}
         </div>
-        <div className="mt-3 md:hidden">
+        <div className="mt-3 flex flex-col gap-2 md:hidden">
+          <select value={country} onChange={(e) => handleCountryChange(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
+            <option value="all">Tous les pays</option>
+            {COUNTRIES.map((c) => <option key={c.name}>{c.name}</option>)}
+          </select>
           <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
             <option value="all">Toutes les villes</option>
-            {CITIES.map((c) => <option key={c}>{c}</option>)}
+            {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
       </div>
@@ -502,7 +524,12 @@ function ProCard({
   return (
     <div className="group flex flex-col rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
       <div className="flex items-start gap-4">
-        <Avatar initials={pro.initials} color={pro.color} size={56} />
+        <img
+          src={pro.photo}
+          alt={pro.name}
+          loading="lazy"
+          className="h-14 w-14 shrink-0 rounded-2xl object-cover"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate font-semibold">{pro.name}</p>
@@ -574,6 +601,21 @@ function ProfileModal({
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X /></button>
         </div>
 
+        <div className="mt-6 overflow-hidden rounded-2xl">
+          <img src={pro.photo} alt={pro.name} className="h-48 w-full object-cover" loading="lazy" />
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {pro.photos.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt={`${pro.name} — photo ${i + 1}`}
+              className="h-20 w-full rounded-xl object-cover"
+              loading="lazy"
+            />
+          ))}
+        </div>
+
         {pro.verified && (
           <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
             <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
@@ -584,6 +626,20 @@ function ProfileModal({
         <p className="mt-6 leading-relaxed text-forest/90">{pro.bio}</p>
         {pro.price && (
           <p className="mt-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">{pro.price}</p>
+        )}
+
+        {CITY_COORDS[pro.city] && (
+          <div className="mt-8">
+            <h4 className="mb-3 font-semibold">Localisation</h4>
+            <LocationMap
+              lat={CITY_COORDS[pro.city][0]}
+              lng={CITY_COORDS[pro.city][1]}
+              label={`${pro.name} · ${pro.city}${pro.neighborhood ? `, ${pro.neighborhood}` : ""}`}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Position approximative (centre-ville de {pro.city}) — pas d'adresse précise vérifiée.
+            </p>
+          </div>
         )}
 
         <div className="mt-8">
