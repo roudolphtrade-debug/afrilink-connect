@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
   Bell, Plus, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
-  Compass, Bookmark, HelpCircle, PenSquare,
+  Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
+  Truck, FileText, Briefcase,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -12,6 +13,10 @@ import {
   CURRENT_USER, FEED, NOTIFICATIONS,
   type Pro, type FeedPost,
 } from "@/lib/mock-data";
+
+const CATEGORY_ICONS: Record<string, typeof Hammer> = {
+  Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase,
+};
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -284,11 +289,15 @@ function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
       {/* CATEGORY CHIPS */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <button className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground">Pour vous</button>
-        {CATEGORIES.slice(0, 6).map((c) => (
-          <button key={c.slug} className="shrink-0 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-semibold hover:border-primary/40">
-            {c.label}
-          </button>
-        ))}
+        {CATEGORIES.slice(0, 6).map((c) => {
+          const Icon = CATEGORY_ICONS[c.icon];
+          return (
+            <button key={c.slug} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-semibold hover:border-primary/40">
+              <Icon className="h-3.5 w-3.5" />
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* POSTS */}
@@ -440,9 +449,14 @@ function SearchView({
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes catégories</FilterChip>
-          {CATEGORIES.map((c) => (
-            <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>{c.label}</FilterChip>
-          ))}
+          {CATEGORIES.map((c) => {
+            const Icon = CATEGORY_ICONS[c.icon];
+            return (
+              <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
+                <Icon className="h-3.5 w-3.5" /> {c.label}
+              </FilterChip>
+            );
+          })}
         </div>
         <div className="mt-3 md:hidden">
           <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
@@ -472,7 +486,7 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
         active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-white text-forest hover:border-primary/40"
       }`}
     >
