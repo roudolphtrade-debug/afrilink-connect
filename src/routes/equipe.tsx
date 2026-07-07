@@ -18,9 +18,27 @@ export const Route = createFileRoute("/equipe")({
 });
 
 const team = [
-  { name: "Odile-Grâce Ebongue", role: "Fondatrice", initials: "OE", color: "var(--forest)" },
-  { name: "Roudolph Doualla", role: "Co-fondateur", initials: "RD", color: "var(--accent)" },
-  { name: "Charles Etame Yescot", role: "Co-fondateur", initials: "CE", color: "var(--forest-light)" },
+  {
+    name: "Odile-Grâce Ebongue",
+    role: "Fondatrice",
+    initials: "OE",
+    color: "var(--forest)",
+    bio: "En s'installant au Cameroun, Odile-Grâce a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
+  },
+  {
+    name: "Roudolph Doualla",
+    role: "Co-fondateur",
+    initials: "RD",
+    color: "var(--accent)",
+    bio: "Issu du monde de la tech, Roudolph a rejoint l'aventure pour donner à cette intuition de terrain la solidité d'un vrai produit — celui qui transforme un réseau de confiance en plateforme capable de grandir.",
+  },
+  {
+    name: "Charles Etame Yescot",
+    role: "Co-fondateur",
+    initials: "CE",
+    color: "var(--forest-light)",
+    bio: "Coach sportif, Charles fait régulièrement l'aller-retour vers le Cameroun — assez pour connaître le terrain de l'intérieur. Il apporte à AfriLink ce même réflexe de coach : accompagner, orienter, faire progresser la communauté pas à pas.",
+  },
 ];
 
 function TeamPage() {
@@ -39,8 +57,9 @@ function TeamPage() {
               L'Afrique a tout pour plaire. Une seule chose manque : la visibilité.
             </h1>
             <p className="mt-6 text-lg text-muted-foreground">
-              AfriLink prolonge l'aventure Les Bons Plans du Bled, fondée en 2022 pour donner de la
-              visibilité aux professionnels comme aux particuliers du continent.
+              AfriLink prolonge l'aventure Les Bons Plans du Bled, fondée en 2022 par trois
+              Camerounais convaincus qu'un simple retour au pays ne devrait jamais ressembler à un
+              saut dans l'inconnu.
             </p>
           </Reveal>
         </div>
@@ -63,7 +82,8 @@ function TeamPage() {
                     <Avatar initials={m.initials} color={m.color} size={72} />
                   </div>
                   <p className="mt-5 font-display text-lg font-semibold">{m.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{m.role}</p>
+                  <p className="mt-1 text-sm text-accent">{m.role}</p>
+                  <p className="mt-4 text-left text-sm leading-relaxed text-muted-foreground">{m.bio}</p>
                 </div>
               </Reveal>
             ))}
