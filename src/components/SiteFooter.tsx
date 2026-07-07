@@ -49,6 +49,7 @@ export function SiteFooter() {
               <li><a href="/#univers">Univers</a></li>
               <li><a href="/#temoignages">Communauté</a></li>
               <li><Link to="/equipe">Notre équipe</Link></li>
+              <li><Link to="/guide">Guide d'arrivée</Link></li>
               <li><Link to="/app">Entrer</Link></li>
             </ul>
           </div>
