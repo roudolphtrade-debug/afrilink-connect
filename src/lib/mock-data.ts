@@ -66,6 +66,11 @@ const seed: Omit<Pro, "id" | "color" | "initials">[] = [
   { name: "Ibrahim Bello", category: "transport", city: "Garoua", rating: 4.4, reviews: 18, verified: false, bio: "Transport interurbain Nord Cameroun, véhicules 4x4, connaissance des pistes." },
   { name: "Clarisse Ateba", category: "maison", city: "Yaoundé", neighborhood: "Mvog-Mbi", rating: 4.7, reviews: 36, verified: true, bio: "Décoratrice d'intérieur, mise en valeur d'artisanat local et matières naturelles." },
 
+  // ==== Reprises de Les Bons Plans du Bled (lbpdb.org) ====
+  { name: "Keva Lounge Restaurant", category: "loisirs", city: "Douala", rating: 4.6, reviews: 28, verified: true, bio: "Restaurant-lounge convivial, cuisine locale et internationale, ambiance soignée pour dîners entre amis ou en famille." },
+  { name: "L'Ethnic Restaurant", category: "loisirs", city: "Douala", rating: 4.5, reviews: 19, verified: true, bio: "Cuisine ethnique variée dans un cadre chaleureux, au cœur de Douala." },
+  { name: "Guide touristique Sénégal", category: "loisirs", city: "Dakar", rating: 4.8, reviews: 22, verified: true, bio: "Guide touristique local, circuits sur-mesure pour découvrir Dakar et ses environs." },
+
   // ==== Autres pays (secondaire) ====
   { name: "Aïcha Diallo", category: "maison", city: "Dakar", rating: 4.9, reviews: 82, verified: true, bio: "Décoratrice d'intérieur spécialisée en artisanat local, 10 ans d'expérience auprès d'expatriés." },
   { name: "Jean-Marc Ouattara", category: "transport", city: "Abidjan", rating: 4.6, reviews: 67, verified: true, bio: "Chauffeur privé et déménagements, ponctuel, véhicule climatisé." },
