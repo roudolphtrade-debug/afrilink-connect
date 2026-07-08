@@ -22,7 +22,11 @@ export const COUNTRIES: { name: string; cities: string[] }[] = [
   { name: "Maroc", cities: ["Casablanca", "Rabat", "Marrakech"] },
   { name: "Tunisie", cities: ["Tunis", "Sousse"] },
   { name: "Algérie", cities: ["Alger", "Oran"] },
-  { name: "Autres", cities: ["Libreville", "Kinshasa", "Bamako", "Ouagadougou"] },
+  { name: "Congo", cities: ["Brazzaville", "Pointe-Noire"] },
+  { name: "RDC", cities: ["Kinshasa", "Lubumbashi", "Goma"] },
+  { name: "Centrafrique", cities: ["Bangui"] },
+  { name: "Cap-Vert", cities: ["Praia", "Mindelo"] },
+  { name: "Autres", cities: ["Libreville", "Bamako", "Ouagadougou"] },
 ];
 
 export const CITIES = COUNTRIES.flatMap((c) => c.cities);
@@ -71,6 +75,13 @@ export const CITY_COORDS: Record<string, [number, number]> = {
   "Kinshasa": [-4.4419, 15.2663],
   "Bamako": [12.6392, -8.0029],
   "Ouagadougou": [12.3714, -1.5197],
+  "Brazzaville": [-4.2634, 15.2429],
+  "Pointe-Noire": [-4.7761, 11.8636],
+  "Lubumbashi": [-11.6609, 27.4794],
+  "Goma": [-1.6792, 29.2228],
+  "Bangui": [4.3947, 18.5582],
+  "Praia": [14.9330, -23.5133],
+  "Mindelo": [16.8901, -24.9825],
 };
 
 export type Pro = {
@@ -194,6 +205,31 @@ const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photo
   { name: "Ambassade de France", category: "admin", city: "Alger", rating: 4.4, reviews: 19, verified: false, bio: "Représentation diplomatique française en Algérie, services consulaires et visas." },
   { name: "Dr. Karim Boumediene", category: "sante", city: "Alger", rating: 4.6, reviews: 25, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
   { name: "Garage Alger Auto", category: "transport", city: "Alger", rating: 4.4, reviews: 18, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+
+  // ==== Congo ====
+  { name: "Ambassade de France", category: "admin", city: "Brazzaville", rating: 4.3, reviews: 8, verified: false, bio: "Représentation diplomatique française au Congo, services consulaires et visas." },
+  { name: "Dr. Prisca Mabiala", category: "sante", city: "Brazzaville", rating: 4.6, reviews: 17, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Brazzaville Auto", category: "transport", city: "Brazzaville", rating: 4.3, reviews: 14, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+  { name: "Le Mami Wata", category: "loisirs", city: "Pointe-Noire", rating: 4.4, reviews: 26, verified: false, bio: "Restaurant en bord de mer, cuisine locale et fruits de mer." },
+
+  // ==== RDC ====
+  { name: "Ambassade de France", category: "admin", city: "Kinshasa", rating: 4.3, reviews: 12, verified: false, bio: "Représentation diplomatique française en RDC, services consulaires et visas." },
+  { name: "Consulat des États-Unis", category: "admin", city: "Kinshasa", rating: 4.2, reviews: 9, verified: false, bio: "Services consulaires américains pour la RDC." },
+  { name: "Dr. Grace Kabongo", category: "sante", city: "Kinshasa", rating: 4.7, reviews: 31, verified: false, bio: "Médecin généraliste, consultations à domicile pour familles et diaspora de passage." },
+  { name: "Garage Kinshasa Auto", category: "transport", city: "Kinshasa", rating: 4.4, reviews: 22, verified: false, bio: "Mécanique générale toutes marques, dépannage rapide." },
+  { name: "Salon Beauté Lubumbashi", category: "sante", city: "Lubumbashi", rating: 4.5, reviews: 19, verified: false, bio: "Salon de coiffure et esthétique, soins capillaires et manucure." },
+
+  // ==== Centrafrique ====
+  { name: "Ambassade de France", category: "admin", city: "Bangui", rating: 4.2, reviews: 6, verified: false, bio: "Représentation diplomatique française en Centrafrique, services consulaires et visas." },
+  { name: "Dr. Bernadette Koyamba", category: "sante", city: "Bangui", rating: 4.5, reviews: 13, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Garage Bangui Auto", category: "transport", city: "Bangui", rating: 4.3, reviews: 10, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+
+  // ==== Cap-Vert ====
+  { name: "Ambassade de France", category: "admin", city: "Praia", rating: 4.4, reviews: 9, verified: false, bio: "Représentation diplomatique française au Cap-Vert, services consulaires et visas." },
+  { name: "Dr. Maria Fortes", category: "sante", city: "Praia", rating: 4.7, reviews: 21, verified: false, bio: "Médecin généraliste, consultations pour expatriés et familles." },
+  { name: "Restaurant Sabor Crioulo", category: "loisirs", city: "Mindelo", rating: 4.5, reviews: 24, verified: false, bio: "Cuisine créole capverdienne, ambiance musicale, spécialités locales." },
+  { name: "Garage Praia Auto", category: "transport", city: "Praia", rating: 4.3, reviews: 12, verified: false, bio: "Entretien et réparation automobile toutes marques." },
+  { name: "Salon Praia Beauté", category: "sante", city: "Praia", rating: 4.5, reviews: 16, verified: false, bio: "Salon de beauté et bien-être, soins capillaires, manucure." },
 ];
 
 export const PROS: Pro[] = seed.map((p, i) => {
