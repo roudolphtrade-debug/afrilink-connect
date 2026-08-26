@@ -130,13 +130,30 @@ export function AppShell() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setTab("profile")}
-              className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-primary/40"
-            >
-              <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={32} />
-              <span className="hidden text-sm font-semibold md:inline">{CURRENT_USER.name}</span>
-            </button>
+            {session ? (
+              <button
+                onClick={() => setTab("profile")}
+                className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 transition hover:border-primary/40"
+              >
+                <Avatar initials={user.initials} color={user.color} size={32} />
+                <span className="hidden text-sm font-semibold md:inline">{user.name}</span>
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/connexion"
+                  className="hidden rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:border-primary/40 sm:inline-flex"
+                >
+                  Se connecter
+                </Link>
+                <Link
+                  to="/inscription"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
+                >
+                  <LogIn className="h-4 w-4" /> S'inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
