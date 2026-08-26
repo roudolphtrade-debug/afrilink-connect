@@ -1134,7 +1134,10 @@ function GuidesView() {
 /* ---------------- BIBLIOTHÈQUE ---------------- */
 
 function LibraryView({ locked }: { locked: boolean }) {
-  const loading = useLoading([]);
+  const [cat, setCat] = useState<string>("all");
+  const loading = useLoading([cat]);
+  const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
+  const libCats = CATEGORIES.filter((c) => LIBRARY.some((i) => i.category === c.slug));
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
