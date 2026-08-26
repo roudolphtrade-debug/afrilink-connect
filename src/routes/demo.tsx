@@ -831,7 +831,9 @@ function MessagingView({
   const openConv = (id: string) => {
     setActiveConv(id);
     setMobileThread(true);
+    markRead(id);
   };
+
 
   const send = () => {
     if (!input.trim() || !activeConv) return;
