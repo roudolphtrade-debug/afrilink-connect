@@ -539,16 +539,29 @@ function SearchView({
         </div>
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
+      <div className="mt-6 h-5">
+        {loading ? (
+          <Shimmer className="h-4 w-40" />
+        ) : (
+          <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
+        )}
+      </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {results.map((p) => (
-          <ProCard key={p.id} pro={p} isFav={favorites.includes(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />
-        ))}
-        {results.length === 0 && (
-          <div className="col-span-full rounded-3xl border border-dashed border-border bg-white p-12 text-center text-muted-foreground">
-            Aucun résultat pour ces filtres.
+        {loading ? (
+          [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+        ) : results.length === 0 ? (
+          <div className="col-span-full">
+            <EmptyState
+              icon={<Search className="h-5 w-5" />}
+              title="Aucun résultat"
+              desc="Essayez une autre ville, une autre catégorie, ou élargissez votre recherche."
+            />
           </div>
+        ) : (
+          results.map((p) => (
+            <ProCard key={p.id} pro={p} isFav={favorites.includes(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />
+          ))
         )}
       </div>
     </div>
