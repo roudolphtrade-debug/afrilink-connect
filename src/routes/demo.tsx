@@ -1,18 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
-  Bell, Plus, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
+  Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
-  Truck, FileText, Briefcase,
+  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
 import { LocationMap } from "@/components/LocationMap";
+import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
+import { useSession, signOut } from "@/lib/auth-store";
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
-  CURRENT_USER, FEED, NOTIFICATIONS,
-  type Pro, type FeedPost,
+  CURRENT_USER, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
+  STATUS_META,
+  type Pro, type FeedPost, type ProStatus,
 } from "@/lib/mock-data";
 
 const CATEGORY_ICONS: Record<string, typeof Hammer> = {
@@ -30,14 +34,31 @@ export const Route = createFileRoute("/demo")({
   component: AppShell,
 });
 
-type Tab = "feed" | "search" | "favorites" | "messages" | "profile";
+type Tab = "feed" | "search" | "community" | "guides" | "library" | "messages" | "favorites" | "profile";
+
+/** Petit délai simulé pour afficher les skeletons de chargement. */
+function useLoading(deps: unknown[], ms = 500) {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), ms);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return loading;
+}
 
 export function AppShell() {
+  const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
   const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const user = session
+    ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
+    : CURRENT_USER;
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
@@ -51,10 +72,14 @@ export function AppShell() {
   const nav: { id: Tab; label: string; icon: typeof HomeIcon; badge?: number }[] = [
     { id: "feed", label: "Accueil", icon: HomeIcon },
     { id: "search", label: "Explorer", icon: Compass },
+    { id: "community", label: "Communauté", icon: Users },
+    { id: "guides", label: "Guides", icon: BookOpen },
+    { id: "library", label: "Bibliothèque", icon: Library },
     { id: "messages", label: "Messages", icon: MessageCircle, badge: 3 },
-    { id: "favorites", label: "Favoris", icon: Bookmark, badge: favorites.length || undefined },
     { id: "profile", label: "Profil", icon: User },
   ];
+
+  const mobileNav = nav.filter((n) => ["feed", "search", "community", "library", "messages"].includes(n.id));
 
   const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
 

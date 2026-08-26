@@ -9,12 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 
+const InscriptionRoute = InscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
@@ -28,6 +35,11 @@ const EquipeRoute = EquipeRouteImport.update({
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnexionRoute = ConnexionRouteImport.update({
+  id: '/connexion',
+  path: '/connexion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -44,43 +56,80 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
+  '/inscription': typeof InscriptionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
+  '/inscription': typeof InscriptionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
+  '/inscription': typeof InscriptionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/demo' | '/equipe' | '/guide'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/connexion'
+    | '/demo'
+    | '/equipe'
+    | '/guide'
+    | '/inscription'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/demo' | '/equipe' | '/guide'
-  id: '__root__' | '/' | '/app' | '/demo' | '/equipe' | '/guide'
+  to:
+    | '/'
+    | '/app'
+    | '/connexion'
+    | '/demo'
+    | '/equipe'
+    | '/guide'
+    | '/inscription'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/connexion'
+    | '/demo'
+    | '/equipe'
+    | '/guide'
+    | '/inscription'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  ConnexionRoute: typeof ConnexionRoute
   DemoRoute: typeof DemoRoute
   EquipeRoute: typeof EquipeRoute
   GuideRoute: typeof GuideRoute
+  InscriptionRoute: typeof InscriptionRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/inscription': {
+      id: '/inscription'
+      path: '/inscription'
+      fullPath: '/inscription'
+      preLoaderRoute: typeof InscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide': {
       id: '/guide'
       path: '/guide'
@@ -100,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/demo'
       fullPath: '/demo'
       preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connexion': {
+      id: '/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof ConnexionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -122,9 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  ConnexionRoute: ConnexionRoute,
   DemoRoute: DemoRoute,
   EquipeRoute: EquipeRoute,
   GuideRoute: GuideRoute,
+  InscriptionRoute: InscriptionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
