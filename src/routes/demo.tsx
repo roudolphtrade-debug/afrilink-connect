@@ -820,7 +820,7 @@ function MessagingView({
   const newProId = isNew ? activeConv!.replace("new-", "") : null;
   const newPro = newProId ? PROS.find((p) => p.id === newProId) : null;
 
-  const convs = MOCK_CONVERSATIONS.map((c) => ({ ...c, pro: PROS.find((p) => p.id === c.proId)! }));
+  const convs = MOCK_CONVERSATIONS.map((c) => ({ ...c, unread: unreadMap[c.id] ?? 0, pro: PROS.find((p) => p.id === c.proId)! }));
   const current = convs.find((c) => c.id === activeConv);
   const currentPro = current?.pro ?? newPro ?? null;
   const currentMessages = current
