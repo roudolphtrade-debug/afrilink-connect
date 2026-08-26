@@ -13,7 +13,7 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
-import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES } from "@/lib/mock-data";
+import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -36,15 +36,17 @@ function HeroSearch() {
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
-    const cityPros = PROS.filter((p) => p.city === city);
-    const matched = term
-      ? cityPros.filter(
-          (p) =>
-            p.name.toLowerCase().includes(term) ||
-            p.bio.toLowerCase().includes(term) ||
-            (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term),
-        )
-      : cityPros;
+    // Sans recherche : uniquement les contacts historiques réels de la communauté.
+    if (!term) {
+      const local = HISTORIC_PROS.filter((p) => p.city === city);
+      return (local.length ? local : HISTORIC_PROS).slice(0, 5);
+    }
+    const matched = PROS.filter((p) => p.city === city).filter(
+      (p) =>
+        p.name.toLowerCase().includes(term) ||
+        p.bio.toLowerCase().includes(term) ||
+        (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term),
+    );
     const weight = (s?: string) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
     return [...matched].sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating).slice(0, 5);
   }, [q, city]);
@@ -94,7 +96,7 @@ function HeroSearch() {
         {open && (
           <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-border bg-card text-left shadow-elevated">
             <p className="border-b border-border px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              {q.trim() ? `Résultats à ${city}` : `Les mieux notés à ${city}`}
+              {q.trim() ? `Résultats à ${city}` : "Contacts historiques de la communauté"}
             </p>
             {results.map((p) => (
               <button
@@ -106,7 +108,7 @@ function HeroSearch() {
                   p.status === "verifie" || p.status === "equipe" ? "bg-accent/5" : ""
                 }`}
               >
-                <Avatar initials={p.initials} color={p.color} size={38} />
+                <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={38} />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-sm font-semibold">{p.name}</span>
@@ -145,18 +147,16 @@ function HeroSearch() {
 
 
 const pillars = [
-  { icon: ShieldCheck, title: "Professionnels vérifiés", desc: "Chaque pro est validé par notre équipe et noté par la communauté." },
+  { icon: ShieldCheck, title: "Trois niveaux de confiance", desc: "Référencé, Recommandé par la communauté, puis Vérifié AfriLink après contrôle de notre équipe." },
   { icon: Users, title: "Recommandations humaines", desc: "Des avis réels de membres qui ont déjà testé pour vous." },
   { icon: MessageCircle, title: "Communauté active", desc: "Échangez, demandez conseil, partagez vos bons plans." },
   { icon: Compass, title: "Accompagnement complet", desc: "Avant, pendant et après votre arrivée sur le continent." },
 ];
 
 const steps = [
-  { icon: Users, title: "Inscrivez-vous", desc: "Créez votre profil en 2 minutes." },
-  { icon: Search, title: "Recherchez ou diffusez", desc: "Trouvez un pro ou publiez une demande." },
-  { icon: Send, title: "Échangez", desc: "Discutez en direct avec la personne de confiance." },
-  { icon: Handshake, title: "Contribuez", desc: "Laissez un avis, aidez la communauté." },
-  { icon: Sparkles, title: "Faites grandir votre réseau", desc: "Restez connecté et découvrez de nouveaux membres." },
+  { icon: Users, title: "Créez votre profil", desc: "Deux minutes, une ville, vos besoins du moment." },
+  { icon: Search, title: "Trouvez ou demandez", desc: "Cherchez un contact de confiance ou publiez votre demande à la communauté." },
+  { icon: Send, title: "Échangez et recommandez", desc: "Discutez en direct, puis partagez votre retour pour faire monter le contact en confiance." },
 ];
 
 const universes = [
@@ -179,12 +179,6 @@ const profiles = [
   { icon: BookOpen, label: "Étudiants", color: "var(--gold-bronze)" },
   { icon: Palmtree, label: "Voyageurs longue durée", color: "var(--forest)" },
   { icon: HomeIcon, label: "Retraités internationaux", color: "var(--accent)" },
-];
-
-const testimonials = [
-  { name: "Sophie L.", role: "Expatriée à Douala", initials: "SL", color: "var(--forest-light)", quote: "Arrivée seule à Douala, je ne savais pas par où commencer. Grâce à AfriLink, j'ai trouvé un logement en une semaine et rencontré des gens qui sont devenus de vrais amis." },
-  { name: "Marc D.", role: "Entrepreneur", initials: "MD", color: "var(--accent)", quote: "Les recommandations sur AfriLink m'ont évité plusieurs mauvaises expériences. C'est rassurant de savoir que la communauté a déjà testé pour moi." },
-  { name: "Ava S.", role: "Membre active", initials: "AS", color: "var(--forest)", quote: "Une plateforme simple et humaine, qui donne vraiment envie de s'entraider. Je recommande AfriLink à toute personne qui débarque en Afrique." },
 ];
 
 function LandingPage() {
@@ -230,9 +224,9 @@ function LandingPage() {
 
           <Reveal delay={200}>
             <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
-              <Stat value={STATS.plans} label="bons plans depuis 2022" />
+              <Stat value={STATS.plans} label="bons plans & contacts depuis 2022" />
               <Stat value={STATS.members} label="membres historiques" />
-              <Stat value={STATS.pros} label="pros de confiance" />
+              <Stat value={STATS.pros} label="professionnels de confiance" />
             </div>
           </Reveal>
         </div>
@@ -329,9 +323,9 @@ function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Comment ça marche</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Cinq étapes, un vrai réseau</h2>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Trois étapes, un vrai réseau</h2>
           </Reveal>
-          <div className="mt-14 grid gap-5 md:grid-cols-5">
+          <div className="mt-14 grid gap-5 md:grid-cols-3">
             {steps.map((s, i) => (
               <Reveal key={s.title} delay={i * 80}>
                 <div className="relative rounded-3xl border border-border bg-card p-6">
@@ -406,7 +400,7 @@ function LandingPage() {
             </p>
           </Reveal>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t, ti) => (
+            {TESTIMONIALS.map((t, ti) => (
               <Reveal key={t.name} delay={ti * 100}>
                 <div className="rounded-3xl bg-white/5 p-8 backdrop-blur">
                   <div className="flex items-center gap-1 text-accent">
@@ -416,7 +410,7 @@ function LandingPage() {
                     "{t.quote}"
                   </p>
                   <div className="mt-6 flex items-center gap-3">
-                    <Avatar initials={t.initials} color={t.color} />
+                    <Avatar initials={t.initials} color={t.color} src={t.avatar} alt={t.name} />
                     <div>
                       <p className="font-semibold">{t.name}</p>
                       <p className="text-sm text-forest-foreground/60">{t.role}</p>
@@ -437,9 +431,9 @@ function LandingPage() {
               <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
               <div className="mt-8 grid grid-cols-3 gap-6">
-                <Stat value={STATS.plans} label="Bons plans" />
-                <Stat value={STATS.members} label="Membres" />
-                <Stat value={STATS.pros} label="Pros de confiance" />
+                <Stat value={STATS.plans} label="bons plans & contacts depuis 2022" />
+                <Stat value={STATS.members} label="membres historiques" />
+                <Stat value={STATS.pros} label="professionnels de confiance" />
               </div>
             </Reveal>
             <div className="space-y-4">
