@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import type { Ref } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type Ref } from "react";
 import {
   ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
-  Plane, Building2, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X,
+  Plane, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X, MapPin,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,10 +12,82 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import { STATS, MAIN_CITIES, OPENING_CITIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
 });
+
+const QUICK_SUGGESTIONS = [
+  "Plombier",
+  "Logement meublé",
+  "Pédiatre",
+  "Chauffeur aéroport",
+  "Cours de soutien",
+  "Démarches administratives",
+];
+
+function HeroSearch() {
+  const navigate = useNavigate();
+  const [city, setCity] = useState<string>(MAIN_CITIES[0]);
+  const [q, setQ] = useState("");
+
+  const go = () => navigate({ to: "/app" });
+
+  return (
+    <div className="mx-auto mt-10 max-w-2xl">
+      <form
+        onSubmit={(e) => { e.preventDefault(); go(); }}
+        className="flex flex-col gap-2 rounded-3xl border border-border bg-card p-2 shadow-elevated sm:flex-row sm:items-center sm:rounded-full"
+      >
+        <div className="flex flex-1 items-center gap-3 px-4 py-2.5">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="De quoi avez-vous besoin ?"
+            aria-label="Rechercher un service ou un professionnel"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+        <div className="flex items-center gap-2 border-t border-border px-2 py-1 sm:border-l sm:border-t-0 sm:py-0">
+          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            aria-label="Choisir une ville"
+            className="bg-transparent py-2 text-sm font-medium outline-none"
+          >
+            {MAIN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {OPENING_CITIES.map((c) => (
+              <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+        >
+          Rechercher <ArrowRight className="h-4 w-4" />
+        </button>
+      </form>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {QUICK_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            onClick={() => { setQ(s); go(); }}
+            className="rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-accent/50 hover:text-foreground"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Bientôt : {OPENING_CITIES.join(" · ")}
+      </p>
+    </div>
+  );
+}
 
 const pillars = [
   { icon: ShieldCheck, title: "Professionnels vérifiés", desc: "Chaque pro est validé par notre équipe et noté par la communauté." },
