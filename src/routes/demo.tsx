@@ -1268,9 +1268,21 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
                   </div>
                   <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
                   <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                    <Download className="h-4 w-4" /> Consulter
-                  </span>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                      <Download className="h-4 w-4" /> Consulter
+                    </span>
+                    {!locked && (
+                      <button
+                        onClick={() => toggleLibFav(item.id)}
+                        aria-label={favLibrary.includes(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                        className={`rounded-full border p-2 transition ${favLibrary.includes(item.id) ? "border-accent/50 text-accent" : "border-border text-muted-foreground hover:border-accent/40 hover:text-accent"}`}
+                      >
+                        <Heart className={`h-4 w-4 ${favLibrary.includes(item.id) ? "fill-current" : ""}`} />
+                      </button>
+                    )}
+                  </div>
+
                 </div>
                 {locked && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-card/55 backdrop-blur-[1px]">
