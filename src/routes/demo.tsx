@@ -4,7 +4,7 @@ import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
   Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight, ArrowLeft,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
-  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download, RotateCcw,
+  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download, RotateCcw, CheckCheck, ArrowUpDown,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -12,6 +12,8 @@ import { LocationMap } from "@/components/LocationMap";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
 import { useSession, signOut } from "@/lib/auth-store";
+import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
+
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
   CURRENT_USER, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
@@ -52,12 +54,12 @@ export function AppShell() {
   const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
   const [query, setQuery] = useState("");
-  const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
-  const [favLibrary, setFavLibrary] = useState<string[]>([]);
+  const [favorites, setFavorites] = usePersistedState<string[]>("afrilink.favorites", ["pro-5", "pro-9"]);
+  const [favLibrary, setFavLibrary] = usePersistedState<string[]>("afrilink.favLibrary", []);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
-  const [readConvs, setReadConvs] = useState<string[]>([]);
+  const [readConvs, setReadConvs] = usePersistedState<string[]>("afrilink.readConvs", []);
 
   const unreadMap = useMemo(() => {
     const m: Record<string, number> = {};
@@ -65,8 +67,11 @@ export function AppShell() {
     return m;
   }, [readConvs]);
   const unreadTotal = Object.values(unreadMap).reduce((a, b) => a + b, 0);
-  const unreadConvCount = Object.values(unreadMap).filter((n) => n > 0).length;
+  const unreadConvs = MOCK_CONVERSATIONS.filter((c) => (unreadMap[c.id] ?? 0) > 0)
+    .map((c) => ({ ...c, unread: unreadMap[c.id], pro: PROS.find((p) => p.id === c.proId)! }));
   const markRead = (id: string) => setReadConvs((r) => (r.includes(id) ? r : [...r, id]));
+  const markAllRead = () => setReadConvs(MOCK_CONVERSATIONS.map((c) => c.id));
+
 
   const user = session
     ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
@@ -98,7 +103,7 @@ export function AppShell() {
   const mobileNav = nav.filter((n) => ["feed", "search", "library", "favorites", "messages"].includes(n.id));
 
 
-  const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
+  const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length + unreadTotal;
 
   return (
     <div className="min-h-screen bg-cream/40">
@@ -134,9 +139,44 @@ export function AppShell() {
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
-                  <div className="border-b border-border p-3 text-sm font-semibold">Notifications</div>
-                  <div className="max-h-80 overflow-y-auto">
+                <div className="absolute right-0 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
+                  <div className="flex items-center justify-between gap-2 border-b border-border p-3">
+                    <span className="text-sm font-semibold">Notifications</span>
+                    {unreadTotal > 0 && (
+                      <button
+                        onClick={markAllRead}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold transition hover:border-primary/40"
+                      >
+                        <CheckCheck className="h-3.5 w-3.5" /> Tout marquer comme lu
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    <div className="flex items-center justify-between bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      <span>Messages non lus</span>
+                      <span>{unreadTotal}</span>
+                    </div>
+                    {unreadConvs.length === 0 ? (
+                      <p className="px-3 py-4 text-sm text-muted-foreground">Aucun message non lu.</p>
+                    ) : (
+                      unreadConvs.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => { setActiveConv(c.id); markRead(c.id); setTab("messages"); setNotifOpen(false); }}
+                          className="flex w-full items-start gap-3 border-b border-border bg-accent/5 p-3 text-left text-sm transition hover:bg-accent/10"
+                        >
+                          <Avatar initials={c.pro.initials} color={c.pro.color} size={32} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-semibold">{c.pro.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
+                          </div>
+                          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
+                        </button>
+                      ))
+                    )}
+                    <div className="bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      Activité
+                    </div>
                     {NOTIFICATIONS.map((n) => (
                       <div key={n.id} className={`flex items-start gap-3 border-b border-border p-3 text-sm last:border-0 ${n.unread ? "bg-accent/5" : ""}`}>
                         <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.unread ? "bg-accent" : "bg-transparent"}`} />
@@ -149,6 +189,7 @@ export function AppShell() {
                   </div>
                 </div>
               )}
+
             </div>
             {session ? (
               <button
@@ -482,7 +523,27 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
 
 /* ---------------- SEARCH ---------------- */
 
+type SortKey = "pertinence" | "distance" | "prix" | "nouveaute";
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "pertinence", label: "Pertinence" },
+  { value: "distance", label: "Distance" },
+  { value: "prix", label: "Prix croissant" },
+  { value: "nouveaute", label: "Nouveauté" },
+];
+
+/** Distance simulée (km), stable par profil. */
+const proDistance = (p: Pro) => Math.round((0.4 + seededUnit(p.id) * 24) * 10) / 10;
+/** Prix indicatif extrait du libellé, sinon très haut pour finir la liste. */
+const proPrice = (p: Pro) => {
+  const digits = (p.price ?? "").replace(/[^\d]/g, "");
+  return digits ? Number(digits) : Number.MAX_SAFE_INTEGER;
+};
+/** Ancienneté simulée (jours depuis l'arrivée sur AfriLink). */
+const proFreshness = (p: Pro) => Math.round(seededUnit(p.id + "-new") * 400);
+
 function SearchView({
+
   query, setQuery, favorites, toggleFav, onOpen,
 }: {
   query: string; setQuery: (v: string) => void;
@@ -490,10 +551,12 @@ function SearchView({
 }) {
   const q = query;
   const setQ = setQuery;
-  const [cat, setCat] = useState<string>("all");
-  const [status, setStatus] = useState<ProStatus | "all">("all");
-  const [country, setCountry] = useState<string>("all");
-  const [city, setCity] = useState<string>("all");
+  const [cat, setCat] = usePersistedState<string>("afrilink.filters.cat", "all");
+  const [status, setStatus] = usePersistedState<ProStatus | "all">("afrilink.filters.status", "all");
+  const [country, setCountry] = usePersistedState<string>("afrilink.filters.country", "all");
+  const [city, setCity] = usePersistedState<string>("afrilink.filters.city", "all");
+  const [sort, setSort] = usePersistedState<SortKey>("afrilink.filters.sort", "pertinence");
+
 
   const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
 
@@ -521,16 +584,22 @@ function SearchView({
   const results = useMemo(() => {
     const list = PROS.filter((p) => matches(p));
     const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
-    return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+    return list.sort((a, b) => {
+      if (sort === "distance") return proDistance(a) - proDistance(b);
+      if (sort === "prix") return proPrice(a) - proPrice(b);
+      if (sort === "nouveaute") return proFreshness(a) - proFreshness(b);
+      return weight(a.status) - weight(b.status) || b.rating - a.rating;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, cat, status, country, city]);
+  }, [q, cat, status, country, city, sort]);
 
   const countFor = (o: { cat?: string; status?: ProStatus | "all" }) => PROS.filter((p) => matches(p, o)).length;
 
-  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "";
-  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); };
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "" || sort !== "pertinence";
+  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setSort("pertinence"); };
 
-  const loading = useLoading([q, cat, status, country, city], 350);
+  const loading = useLoading([q, cat, status, country, city, sort], 350);
+
 
 
   return (
@@ -599,21 +668,35 @@ function SearchView({
         </div>
       </div>
 
-      <div className="mt-6 flex min-h-[32px] items-center justify-between gap-3">
+      <div className="mt-6 flex min-h-[32px] flex-wrap items-center justify-between gap-3">
         {loading ? (
           <Shimmer className="h-4 w-40" />
         ) : (
           <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
         )}
-        {hasFilters && (
-          <button
-            onClick={reset}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
-          >
-            <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground"
+              aria-label="Trier les résultats"
+            >
+              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+          {hasFilters && (
+            <button
+              onClick={reset}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
+            </button>
+          )}
+        </div>
       </div>
+
 
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
