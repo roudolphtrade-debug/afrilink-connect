@@ -351,9 +351,11 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       </div>
 
       {/* POSTS */}
-      {posts.map((p) => (
-        <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
-      ))}
+      {loading
+        ? [0, 1, 2].map((i) => <PostSkeleton key={i} />)
+        : posts.map((p) => (
+            <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
+          ))}
     </div>
   );
 }
