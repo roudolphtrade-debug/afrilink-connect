@@ -72,73 +72,29 @@ function LandingPage() {
       <section className="section-cream relative overflow-hidden">
         <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8 md:py-28 md:items-center">
+        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:px-8 md:py-28">
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-card px-4 py-1.5 text-xs font-semibold text-foreground">
               <span className="h-2 w-2 rounded-full bg-accent" />
-              Le réseau de confiance africain
+              Le réseau de confiance africain — depuis 2022
             </span>
-            <h1 className="mt-6 text-4xl font-bold leading-[1.05] md:text-6xl">
-              Le réseau de confiance pour réussir votre <span className="text-accent">arrivée en Afrique</span>
+            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] md:text-6xl">
+              Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              Trouvez les bonnes personnes avant les bonnes adresses.
+            <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+              Douala, Yaoundé, Dakar, Abidjan — un contact vérifié plutôt qu'une recherche au hasard.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <JoinCommunityCta size="pill-lg" className="shadow-elevated">
-                Rejoindre la communauté
-              </JoinCommunityCta>
-              <Button
-                variant="pill-outline"
-                size="pill-lg"
-                asChild
-                ref={outlineMagnetic.ref as Ref<HTMLButtonElement>}
-                style={outlineMagnetic.style}
-                onMouseMove={outlineMagnetic.onMouseMove}
-                onMouseLeave={outlineMagnetic.onMouseLeave}
-              >
-                <a href="#solution">Découvrir AfriLink</a>
-              </Button>
-            </div>
-            <div className="mt-10 grid grid-cols-3 gap-6">
-              <Stat value="12 000+" label="Membres actifs" />
-              <Stat value="1 200+" label="Pros vérifiés" />
-              <Stat value="4,7/5" label="Satisfaction" />
-            </div>
           </Reveal>
-          <Reveal delay={150} className="relative">
-            <div className="relative rounded-3xl bg-card p-6 shadow-elevated">
-              <div className="flex items-center gap-3">
-                <span className="icon-circle"><Search className="h-5 w-5" /></span>
-                <div className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
-                  Plombier de confiance à Dakar…
-                </div>
-              </div>
-              <div className="mt-5 space-y-3">
-                {[
-                  { name: "Aïcha D.", cat: "Décoratrice · Dakar", rating: 4.9, color: "var(--forest-light)", initials: "AD" },
-                  { name: "Kwame M.", cat: "Médecin · Accra", rating: 4.7, color: "var(--accent)", initials: "KM" },
-                  { name: "Amina K.", cat: "Immobilier · Abidjan", rating: 4.8, color: "var(--forest)", initials: "AK" },
-                ].map((c) => (
-                  <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-border p-3">
-                    <Avatar initials={c.initials} color={c.color} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate font-semibold">{c.name}</p>
-                        <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">Vérifié</span>
-                      </div>
-                      <p className="truncate text-xs text-muted-foreground">{c.cat}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm font-semibold">
-                      <Star className="h-4 w-4 fill-accent text-accent" /> {c.rating}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-forest p-4 text-forest-foreground shadow-floating md:block">
-              <p className="text-xs opacity-70">Nouveau membre</p>
-              <p className="font-display font-semibold">Bienvenue à Nairobi 👋</p>
+
+          <Reveal delay={120}>
+            <HeroSearch />
+          </Reveal>
+
+          <Reveal delay={200}>
+            <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
+              <Stat value={STATS.plans} label="bons plans depuis 2022" />
+              <Stat value={STATS.members} label="membres historiques" />
+              <Stat value={STATS.pros} label="pros de confiance" />
             </div>
           </Reveal>
         </div>
