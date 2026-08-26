@@ -1208,7 +1208,7 @@ function GuidesView() {
 
 /* ---------------- BIBLIOTHÈQUE ---------------- */
 
-function LibraryView({ locked }: { locked: boolean }) {
+function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; favLibrary: string[]; toggleLibFav: (id: string) => void }) {
   const [cat, setCat] = useState<string>("all");
   const loading = useLoading([cat]);
   const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
