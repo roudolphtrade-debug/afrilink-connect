@@ -1160,10 +1160,27 @@ function LibraryView({ locked }: { locked: boolean }) {
         )}
       </div>
 
+      {!locked && (
+        <div className="flex flex-wrap gap-2">
+          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes les ressources</FilterChip>
+          {libCats.map((c) => (
+            <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>{c.label}</FilterChip>
+          ))}
+        </div>
+      )}
+
+      {!loading && items.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="h-5 w-5" />}
+          title="Aucune ressource ici"
+          desc="Choisissez un autre univers pour retrouver les guides de la communauté."
+          action={<button onClick={() => setCat("all")} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Voir tout</button>}
+        />
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2">
         {loading
           ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
-          : LIBRARY.map((item) => (
+          : items.map((item) => (
               <div key={item.id} className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft">
                 <div className={locked ? "select-none blur-[3px]" : ""}>
                   <div className="flex items-center gap-2">
