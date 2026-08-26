@@ -133,7 +133,7 @@ const testimonials = [
 ];
 
 function LandingPage() {
-  const outlineMagnetic = useMagnetic<HTMLAnchorElement>();
+  
   const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
 
   return (
@@ -160,6 +160,17 @@ function LandingPage() {
 
           <Reveal delay={120}>
             <HeroSearch />
+          </Reveal>
+
+          <Reveal delay={160}>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <JoinCommunityCta size="pill-lg" className="shadow-elevated">
+                Rejoindre la communauté
+              </JoinCommunityCta>
+              <Button variant="pill-outline" size="pill-lg" asChild>
+                <Link to="/connexion">Se connecter</Link>
+              </Button>
+            </div>
           </Reveal>
 
           <Reveal delay={200}>
