@@ -73,7 +73,7 @@ function TeamPage() {
               <Reveal key={m.name} delay={i * 80}>
                 <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
                   <div className="flex justify-center">
-                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={72} />
+                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={104} />
                   </div>
                   <p className="mt-5 font-display text-lg font-semibold">{m.name}</p>
                   <p className="mt-1 text-sm text-accent">{m.role}</p>
