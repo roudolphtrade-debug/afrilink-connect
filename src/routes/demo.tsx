@@ -1208,7 +1208,9 @@ function LibraryView({ locked }: { locked: boolean }) {
               </div>
             ))}
       </div>
+      )}
     </div>
+
   );
 }
 
