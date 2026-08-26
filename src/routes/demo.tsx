@@ -278,7 +278,7 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
     const newPost: FeedPost = {
       id: "new-" + Date.now(),
       kind: "demande",
-      author: { name: CURRENT_USER.name, initials: CURRENT_USER.initials, color: CURRENT_USER.color, city: CURRENT_USER.city },
+      author: { name: user.name, initials: user.initials, color: user.color, city: user.city },
       time: "à l'instant",
       title: composer.slice(0, 80),
       body: composer,
@@ -295,8 +295,8 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {CURRENT_USER.name.split(" ")[0]}</p>
-            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {CURRENT_USER.city} 👋</h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {user.name.split(" ")[0]}</p>
+            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {user.city} 👋</h1>
             <p className="mt-2 max-w-md text-forest-foreground/80">
               Voici ce qui se passe autour de vous aujourd'hui.
             </p>
@@ -310,7 +310,7 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       {/* COMPOSER */}
       <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
         <div className="flex gap-3">
-          <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} />
+          <Avatar initials={user.initials} color={user.color} />
           <div className="flex-1">
             <textarea
               value={composer}
