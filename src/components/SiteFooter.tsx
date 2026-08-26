@@ -27,6 +27,7 @@ export function SiteFooter() {
             <ul className="space-y-2 text-sm text-forest-foreground/80">
               <li><a href="/#solution">La solution</a></li>
               <li><a href="/#univers">Univers</a></li>
+              <li><a href="/#villes">Nos villes</a></li>
               <li><a href="/#temoignages">Communauté</a></li>
               <li><Link to="/equipe">Notre équipe</Link></li>
               <li><Link to="/guide">Guide d'arrivée</Link></li>
