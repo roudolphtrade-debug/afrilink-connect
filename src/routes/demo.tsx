@@ -52,12 +52,12 @@ export function AppShell() {
   const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
   const [query, setQuery] = useState("");
-  const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
-  const [favLibrary, setFavLibrary] = useState<string[]>([]);
+  const [favorites, setFavorites] = usePersistedState<string[]>("afrilink.favorites", ["pro-5", "pro-9"]);
+  const [favLibrary, setFavLibrary] = usePersistedState<string[]>("afrilink.favLibrary", []);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
-  const [readConvs, setReadConvs] = useState<string[]>([]);
+  const [readConvs, setReadConvs] = usePersistedState<string[]>("afrilink.readConvs", []);
 
   const unreadMap = useMemo(() => {
     const m: Record<string, number> = {};
@@ -65,8 +65,11 @@ export function AppShell() {
     return m;
   }, [readConvs]);
   const unreadTotal = Object.values(unreadMap).reduce((a, b) => a + b, 0);
-  const unreadConvCount = Object.values(unreadMap).filter((n) => n > 0).length;
+  const unreadConvs = MOCK_CONVERSATIONS.filter((c) => (unreadMap[c.id] ?? 0) > 0)
+    .map((c) => ({ ...c, unread: unreadMap[c.id], pro: PROS.find((p) => p.id === c.proId)! }));
   const markRead = (id: string) => setReadConvs((r) => (r.includes(id) ? r : [...r, id]));
+  const markAllRead = () => setReadConvs(MOCK_CONVERSATIONS.map((c) => c.id));
+
 
   const user = session
     ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
