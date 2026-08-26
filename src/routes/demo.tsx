@@ -676,12 +676,13 @@ function ProfileModal({
           ))}
         </div>
 
-        {pro.verified && (
-          <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
-            <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
-            <p><strong>Badge Vérifié :</strong> pièce d'identité, activité et références validées manuellement par l'équipe AfriLink.</p>
-          </div>
-        )}
+        <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
+          <p>
+            <strong>{STATUS_META[pro.status ?? "reference"].label} :</strong>{" "}
+            {STATUS_META[pro.status ?? "reference"].description}
+          </p>
+        </div>
 
         <p className="mt-6 leading-relaxed text-forest/90">{pro.bio}</p>
         {pro.price && (
