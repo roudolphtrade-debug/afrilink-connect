@@ -502,23 +502,33 @@ function SearchView({
     setCity("all");
   };
 
-  const results = useMemo(() => {
+  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all" } = {}) => {
     const term = q.trim().toLowerCase();
-    const list = PROS.filter((p) => {
-      const matchQ = !term
-        || p.name.toLowerCase().includes(term)
-        || p.bio.toLowerCase().includes(term)
-        || (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term)
-        || p.city.toLowerCase().includes(term);
-      const matchC = cat === "all" || p.category === cat;
-      const matchS = status === "all" || (p.status ?? "reference") === status;
-      const matchCountry = country === "all" || p.country === country;
-      const matchCity = city === "all" || p.city === city;
-      return matchQ && matchC && matchS && matchCountry && matchCity;
-    });
+    const c = o.cat ?? cat;
+    const s = o.status ?? status;
+    const matchQ = !term
+      || p.name.toLowerCase().includes(term)
+      || p.bio.toLowerCase().includes(term)
+      || (CATEGORIES.find((x) => x.slug === p.category)?.label ?? "").toLowerCase().includes(term)
+      || p.city.toLowerCase().includes(term);
+    return matchQ
+      && (c === "all" || p.category === c)
+      && (s === "all" || (p.status ?? "reference") === s)
+      && (country === "all" || p.country === country)
+      && (city === "all" || p.city === city);
+  };
+
+  const results = useMemo(() => {
+    const list = PROS.filter((p) => matches(p));
     const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
     return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, cat, status, country, city]);
+
+  const countFor = (o: { cat?: string; status?: ProStatus | "all" }) => PROS.filter((p) => matches(p, o)).length;
+
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "";
+  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); };
 
   const loading = useLoading([q, cat, status, country, city], 350);
 
@@ -552,22 +562,27 @@ function SearchView({
           </select>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes catégories</FilterChip>
+          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>
+            Toutes catégories <span className="opacity-60">{countFor({ cat: "all" })}</span>
+          </FilterChip>
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.icon];
+            const n = countFor({ cat: c.slug });
             return (
               <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
-                <Icon className="h-3.5 w-3.5" /> {c.label}
+                <Icon className="h-3.5 w-3.5" /> {c.label} <span className="opacity-60">{n}</span>
               </FilterChip>
             );
           })}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
-          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>Tous</FilterChip>
+          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>
+            Tous <span className="opacity-60">{countFor({ status: "all" })}</span>
+          </FilterChip>
           {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
             <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-              {STATUS_META[s].label}
+              {STATUS_META[s].label} <span className="opacity-60">{countFor({ status: s })}</span>
             </FilterChip>
           ))}
         </div>
@@ -584,13 +599,22 @@ function SearchView({
         </div>
       </div>
 
-      <div className="mt-6 h-5">
+      <div className="mt-6 flex min-h-[32px] items-center justify-between gap-3">
         {loading ? (
           <Shimmer className="h-4 w-40" />
         ) : (
           <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
         )}
+        {hasFilters && (
+          <button
+            onClick={reset}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
+          </button>
+        )}
       </div>
+
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {loading ? (
