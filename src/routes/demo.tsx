@@ -103,7 +103,7 @@ export function AppShell() {
   const mobileNav = nav.filter((n) => ["feed", "search", "library", "favorites", "messages"].includes(n.id));
 
 
-  const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
+  const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length + unreadTotal;
 
   return (
     <div className="min-h-screen bg-cream/40">
