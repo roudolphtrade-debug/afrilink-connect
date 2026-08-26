@@ -84,6 +84,27 @@ export const CITY_COORDS: Record<string, [number, number]> = {
   "Mindelo": [16.8901, -24.9825],
 };
 
+export type ProStatus = "reference" | "recommande" | "verifie" | "equipe";
+
+export const STATUS_META: Record<ProStatus, { label: string; description: string }> = {
+  reference: {
+    label: "Référencé",
+    description: "Fiche ajoutée à l'annuaire AfriLink, en attente de recommandations de la communauté.",
+  },
+  recommande: {
+    label: "Recommandé",
+    description: "Plusieurs membres de la communauté ont recommandé ce contact.",
+  },
+  verifie: {
+    label: "Vérifié AfriLink",
+    description: "Identité, activité et références contrôlées manuellement par l'équipe AfriLink.",
+  },
+  equipe: {
+    label: "Équipe AfriLink",
+    description: "Membre de l'équipe fondatrice d'AfriLink.",
+  },
+};
+
 export type Pro = {
   id: string;
   name: string;
@@ -94,6 +115,8 @@ export type Pro = {
   rating: number;
   reviews: number;
   verified: boolean;
+  status?: ProStatus;
+  role?: string;
   bio: string;
   price?: string;
   color: string;
@@ -105,6 +128,9 @@ export type Pro = {
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
 const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photos">[] = [
+  // ==== Équipe AfriLink ====
+  { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
+
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
   { name: "Achille Mbarga", category: "transport", city: "Yaoundé", neighborhood: "Bastos", rating: 4.8, reviews: 112, verified: false, bio: "Chauffeur privé bilingue, accueil aéroport NSI et courses longues. Véhicule climatisé récent.", price: "15 000 FCFA / course aéroport" },
