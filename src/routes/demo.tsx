@@ -16,7 +16,7 @@ import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
 
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
-  CURRENT_USER, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
+  CURRENT_USER, portrait, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
   STATUS_META,
   type Pro, type FeedPost, type ProStatus,
 } from "@/lib/mock-data";
@@ -74,7 +74,7 @@ export function AppShell() {
 
 
   const user = session
-    ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
+    ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink", avatar: portrait(session.name) }
     : CURRENT_USER;
 
   const toggleFav = (id: string) =>
@@ -165,7 +165,7 @@ export function AppShell() {
                           onClick={() => { setActiveConv(c.id); markRead(c.id); setTab("messages"); setNotifOpen(false); }}
                           className="flex w-full items-start gap-3 border-b border-border bg-accent/5 p-3 text-left text-sm transition hover:bg-accent/10"
                         >
-                          <Avatar initials={c.pro.initials} color={c.pro.color} size={32} />
+                          <Avatar initials={c.pro.initials} color={c.pro.color} src={c.pro.avatar} alt={c.pro.name} size={32} />
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-semibold">{c.pro.name}</p>
                             <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
@@ -196,7 +196,7 @@ export function AppShell() {
                 onClick={() => setTab("profile")}
                 className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 transition hover:border-primary/40"
               >
-                <Avatar initials={user.initials} color={user.color} size={32} />
+                <Avatar initials={user.initials} color={user.color} src={user.avatar} size={32} />
                 <span className="hidden text-sm font-semibold md:inline">{user.name}</span>
               </button>
             ) : (
@@ -372,7 +372,7 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       {/* COMPOSER */}
       <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
         <div className="flex gap-3">
-          <Avatar initials={user.initials} color={user.color} />
+          <Avatar initials={user.initials} color={user.color} src={user.avatar} />
           <div className="flex-1">
             <textarea
               value={composer}
@@ -434,7 +434,7 @@ function PostCard({ post, liked, onLike }: { post: FeedPost; liked: boolean; onL
   return (
     <article className="rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:shadow-elevated">
       <div className="flex items-start gap-3">
-        <Avatar initials={post.author.initials} color={post.author.color} />
+        <Avatar initials={post.author.initials} color={post.author.color} src={post.author.avatar} alt={post.author.name} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold">{post.author.name}</p>
@@ -505,7 +505,7 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
         {suggested.map((p) => (
           <li key={p.id}>
             <button onClick={() => onOpen(p)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted">
-              <Avatar initials={p.initials} color={p.color} size={40} />
+              <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={40} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{p.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
@@ -1031,7 +1031,7 @@ function MessagingView({
               onClick={() => openConv(c.id)}
               className={`flex w-full items-center gap-3 border-t border-border p-4 text-left transition hover:bg-muted/50 ${activeConv === c.id ? "bg-muted/60" : ""}`}
             >
-              <Avatar initials={c.pro.initials} color={c.pro.color} />
+              <Avatar initials={c.pro.initials} color={c.pro.color} src={c.pro.avatar} alt={c.pro.name} />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{c.pro.name}</p>
                 <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
@@ -1046,7 +1046,7 @@ function MessagingView({
               onClick={() => openConv(activeConv!)}
               className="flex w-full items-center gap-3 border-t border-border bg-accent/10 p-4 text-left"
             >
-              <Avatar initials={newPro.initials} color={newPro.color} />
+              <Avatar initials={newPro.initials} color={newPro.color} src={newPro.avatar} alt={newPro.name} />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{newPro.name}</p>
                 <p className="truncate text-xs text-muted-foreground">Nouvelle conversation</p>
@@ -1067,7 +1067,7 @@ function MessagingView({
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
-              <Avatar initials={currentPro.initials} color={currentPro.color} />
+              <Avatar initials={currentPro.initials} color={currentPro.color} src={currentPro.avatar} alt={currentPro.name} />
               <div className="min-w-0">
                 <p className="flex items-center gap-2 truncate font-semibold">
                   {currentPro.name}
@@ -1146,7 +1146,7 @@ function ProfileView({
         <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
         <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
           <div className="rounded-full ring-4 ring-card">
-            <Avatar initials={user.initials} color={user.color} size={96} />
+            <Avatar initials={user.initials} color={user.color} src={user.avatar} size={96} />
           </div>
           <div className="flex-1">
             <h2 className="font-display text-2xl font-bold">{user.name}</h2>
@@ -1226,7 +1226,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
 
       <section className="rounded-3xl border border-border bg-card p-6 shadow-soft">
         <div className="flex items-center gap-4">
-          <Avatar initials={FOUNDER.initials} color="var(--forest)" size={64} />
+          <Avatar initials={FOUNDER.initials} color="var(--forest)" src={FOUNDER.avatar} alt={FOUNDER.name} size={64} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-display text-lg font-semibold">{FOUNDER.name}</h3>
@@ -1255,7 +1255,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
                   onClick={() => onOpen(p)}
                   className="flex items-center gap-3 rounded-3xl border border-border bg-card p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
                 >
-                  <Avatar initials={p.initials} color={p.color} size={44} />
+                  <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={44} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{p.name}</p>
                     <p className="truncate text-xs text-muted-foreground">
