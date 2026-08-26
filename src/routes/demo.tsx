@@ -646,13 +646,11 @@ function ProfileModal({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-2xl font-bold">{pro.name}</h3>
-                {pro.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-bold text-accent">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Vérifié AfriLink
-                  </span>
-                )}
+                <StatusBadge status={pro.status ?? "reference"} />
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{cat?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {pro.role ? `${pro.role} · ` : `${cat?.label} · `}{pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}
+              </p>
               <div className="mt-2 flex items-center gap-1 text-sm">
                 <Star className="h-4 w-4 fill-accent text-accent" />
                 <span className="font-semibold">{pro.rating.toFixed(1)}</span>
