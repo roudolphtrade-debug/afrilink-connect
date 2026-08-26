@@ -523,7 +523,27 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
 
 /* ---------------- SEARCH ---------------- */
 
+type SortKey = "pertinence" | "distance" | "prix" | "nouveaute";
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "pertinence", label: "Pertinence" },
+  { value: "distance", label: "Distance" },
+  { value: "prix", label: "Prix croissant" },
+  { value: "nouveaute", label: "Nouveauté" },
+];
+
+/** Distance simulée (km), stable par profil. */
+const proDistance = (p: Pro) => Math.round((0.4 + seededUnit(p.id) * 24) * 10) / 10;
+/** Prix indicatif extrait du libellé, sinon très haut pour finir la liste. */
+const proPrice = (p: Pro) => {
+  const digits = (p.price ?? "").replace(/[^\d]/g, "");
+  return digits ? Number(digits) : Number.MAX_SAFE_INTEGER;
+};
+/** Ancienneté simulée (jours depuis l'arrivée sur AfriLink). */
+const proFreshness = (p: Pro) => Math.round(seededUnit(p.id + "-new") * 400);
+
 function SearchView({
+
   query, setQuery, favorites, toggleFav, onOpen,
 }: {
   query: string; setQuery: (v: string) => void;
