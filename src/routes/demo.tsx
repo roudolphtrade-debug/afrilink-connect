@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
-  Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
+  Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight, ArrowLeft,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
   Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download,
 } from "lucide-react";
@@ -51,6 +51,7 @@ function useLoading(deps: unknown[], ms = 500) {
 export function AppShell() {
   const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
+  const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
@@ -93,12 +94,15 @@ export function AppShell() {
             <div className="relative w-full max-w-xl">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                value={query}
+                onChange={(e) => { setQuery(e.target.value); setTab("search"); }}
                 placeholder="Rechercher un pro, un service, une ville…"
                 onFocus={() => setTab("search")}
                 className="w-full rounded-full border border-border bg-muted/40 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white"
               />
             </div>
           </div>
+
           <div className="ml-auto flex items-center gap-2">
             <div className="relative">
               <button
@@ -192,7 +196,7 @@ export function AppShell() {
         {/* MAIN */}
         <main className="min-w-0">
           {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
-          {tab === "search" && <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView />}
           {tab === "library" && <LibraryView locked={!session} />}
@@ -462,12 +466,15 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
 /* ---------------- SEARCH ---------------- */
 
 function SearchView({
-  favorites, toggleFav, onOpen,
+  query, setQuery, favorites, toggleFav, onOpen,
 }: {
+  query: string; setQuery: (v: string) => void;
   favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void;
 }) {
-  const [q, setQ] = useState("");
+  const q = query;
+  const setQ = setQuery;
   const [cat, setCat] = useState<string>("all");
+  const [status, setStatus] = useState<ProStatus | "all">("all");
   const [country, setCountry] = useState<string>("all");
   const [city, setCity] = useState<string>("all");
 
@@ -479,16 +486,25 @@ function SearchView({
   };
 
   const results = useMemo(() => {
-    return PROS.filter((p) => {
-      const matchQ = !q || p.name.toLowerCase().includes(q.toLowerCase()) || p.bio.toLowerCase().includes(q.toLowerCase());
+    const term = q.trim().toLowerCase();
+    const list = PROS.filter((p) => {
+      const matchQ = !term
+        || p.name.toLowerCase().includes(term)
+        || p.bio.toLowerCase().includes(term)
+        || (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term)
+        || p.city.toLowerCase().includes(term);
       const matchC = cat === "all" || p.category === cat;
+      const matchS = status === "all" || (p.status ?? "reference") === status;
       const matchCountry = country === "all" || p.country === country;
       const matchCity = city === "all" || p.city === city;
-      return matchQ && matchC && matchCountry && matchCity;
+      return matchQ && matchC && matchS && matchCountry && matchCity;
     });
-  }, [q, cat, country, city]);
+    const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
+    return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+  }, [q, cat, status, country, city]);
 
-  const loading = useLoading([q, cat, country, city], 350);
+  const loading = useLoading([q, cat, status, country, city], 350);
+
 
   return (
     <div>
@@ -529,6 +545,16 @@ function SearchView({
             );
           })}
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
+          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>Tous</FilterChip>
+          {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
+            <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
+              {STATUS_META[s].label}
+            </FilterChip>
+          ))}
+        </div>
+
         <div className="mt-3 flex flex-col gap-2 md:hidden">
           <select value={country} onChange={(e) => handleCountryChange(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
             <option value="all">Tous les pays</option>
@@ -587,8 +613,13 @@ function ProCard({
   pro, isFav, onFav, onOpen,
 }: { pro: Pro; isFav: boolean; onFav: () => void; onOpen: () => void }) {
   const category = CATEGORIES.find((c) => c.slug === pro.category);
+  const highlighted = pro.status === "verifie" || pro.status === "equipe";
   return (
-    <div className="group flex flex-col rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
+    <div
+      className={`group relative flex flex-col rounded-3xl border bg-card p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated ${
+        highlighted ? "border-accent/40 ring-1 ring-accent/20" : "border-border"
+      }`}
+    >
       <div className="flex items-start gap-4">
         <img
           src={pro.photo}
@@ -634,15 +665,24 @@ function ProfileModal({
 }: { pro: Pro; isFav: boolean; onFav: () => void; onContact: () => void; onClose: () => void }) {
   const cat = CATEGORIES.find((c) => c.slug === pro.category);
   const reviews = MOCK_REVIEWS.default;
+  const isTeam = pro.status === "equipe";
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest/60 p-0 backdrop-blur-sm md:items-center md:p-6" onClick={onClose}>
       <div
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-6 shadow-elevated md:rounded-3xl md:p-8"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-card p-0 shadow-elevated md:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {isTeam && (
+          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-xs font-semibold text-forest-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Profil Équipe AfriLink — vérifié par la plateforme
+          </div>
+        )}
+        <div className="p-6 md:p-8">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
-            <Avatar initials={pro.initials} color={pro.color} size={72} />
+            <div className={isTeam ? "rounded-full ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}>
+              <Avatar initials={pro.initials} color={pro.color} size={72} />
+            </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-2xl font-bold">{pro.name}</h3>
@@ -660,6 +700,7 @@ function ProfileModal({
           </div>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X /></button>
         </div>
+
 
         <div className="mt-6 overflow-hidden rounded-2xl">
           <img src={pro.photo} alt={pro.name} className="h-48 w-full object-cover" loading="lazy" />
@@ -720,7 +761,7 @@ function ProfileModal({
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="sticky bottom-0 -mx-6 mt-8 flex flex-wrap gap-3 border-t border-border bg-card/95 px-6 py-4 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
           <button onClick={onContact} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90">
             <MessageCircle className="h-4 w-4" /> Contacter
           </button>
@@ -728,8 +769,10 @@ function ProfileModal({
             <Heart className={`h-4 w-4 ${isFav ? "fill-accent" : ""}`} /> {isFav ? "Ajouté" : "Ajouter aux favoris"}
           </button>
         </div>
+        </div>
       </div>
     </div>
+
   );
 }
 
@@ -770,6 +813,7 @@ function MessagingView({
 }: { activeConv: string | null; setActiveConv: (id: string | null) => void }) {
   const [drafts, setDrafts] = useState<Record<string, { from: string; text: string; time: string }[]>>({});
   const [input, setInput] = useState("");
+  const [mobileThread, setMobileThread] = useState(false);
 
   const isNew = activeConv?.startsWith("new-");
   const newProId = isNew ? activeConv!.replace("new-", "") : null;
@@ -784,18 +828,35 @@ function MessagingView({
       ? drafts[activeConv!] ?? []
       : [];
 
-  const send = () => {
-    if (!input.trim() || !activeConv) return;
-    setDrafts((d) => ({
-      ...d,
-      [activeConv]: [...(d[activeConv] ?? []), { from: "me", text: input, time: "maintenant" }],
-    }));
-    setInput("");
+  const openConv = (id: string) => {
+    setActiveConv(id);
+    setMobileThread(true);
   };
 
+  const send = () => {
+    if (!input.trim() || !activeConv) return;
+    const text = input.trim();
+    const id = activeConv;
+    setDrafts((d) => ({
+      ...d,
+      [id]: [...(d[id] ?? []), { from: "me", text, time: "À l'instant" }],
+    }));
+    setInput("");
+    setTimeout(() => {
+      setDrafts((d) => ({
+        ...d,
+        [id]: [
+          ...(d[id] ?? []),
+          { from: "them", text: "Merci pour votre message ! Je reviens vers vous très vite.", time: "À l'instant" },
+        ],
+      }));
+    }, 1600);
+  };
+
+
   return (
-    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-white shadow-soft md:grid-cols-[280px_1fr]">
-      <div className="border-b border-border md:border-b-0 md:border-r">
+    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-card shadow-soft md:grid-cols-[280px_1fr]">
+      <div className={`border-b border-border md:block md:border-b-0 md:border-r ${mobileThread ? "hidden" : "block"}`}>
         <div className="p-4">
           <h3 className="font-semibold">Conversations</h3>
         </div>
@@ -803,7 +864,7 @@ function MessagingView({
           {convs.map((c) => (
             <button
               key={c.id}
-              onClick={() => setActiveConv(c.id)}
+              onClick={() => openConv(c.id)}
               className={`flex w-full items-center gap-3 border-t border-border p-4 text-left transition hover:bg-muted/50 ${activeConv === c.id ? "bg-muted/60" : ""}`}
             >
               <Avatar initials={c.pro.initials} color={c.pro.color} />
@@ -817,27 +878,41 @@ function MessagingView({
             </button>
           ))}
           {isNew && newPro && (
-            <div className="flex items-center gap-3 border-t border-border bg-accent/10 p-4">
+            <button
+              onClick={() => openConv(activeConv!)}
+              className="flex w-full items-center gap-3 border-t border-border bg-accent/10 p-4 text-left"
+            >
               <Avatar initials={newPro.initials} color={newPro.color} />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{newPro.name}</p>
                 <p className="truncate text-xs text-muted-foreground">Nouvelle conversation</p>
               </div>
-            </div>
+            </button>
           )}
         </div>
       </div>
 
-      <div className="flex min-h-[520px] flex-col">
+      <div className={`min-h-[520px] flex-col md:flex ${mobileThread ? "flex" : "hidden"}`}>
         {currentPro ? (
           <>
             <div className="flex items-center gap-3 border-b border-border p-4">
+              <button
+                onClick={() => setMobileThread(false)}
+                className="rounded-full p-2 text-muted-foreground hover:bg-muted md:hidden"
+                aria-label="Retour aux conversations"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
               <Avatar initials={currentPro.initials} color={currentPro.color} />
-              <div>
-                <p className="font-semibold">{currentPro.name}</p>
-                <p className="text-xs text-muted-foreground">{CATEGORIES.find((c) => c.slug === currentPro.category)?.label} · {currentPro.city}</p>
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 truncate font-semibold">
+                  {currentPro.name}
+                  <StatusBadge status={currentPro.status ?? "reference"} />
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{CATEGORIES.find((c) => c.slug === currentPro.category)?.label} · {currentPro.city}</p>
               </div>
             </div>
+
             <div className="flex-1 space-y-3 overflow-y-auto bg-cream/50 p-4">
               {currentMessages.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">Envoyez le premier message ✨</p>
@@ -1071,7 +1146,10 @@ function GuidesView() {
 /* ---------------- BIBLIOTHÈQUE ---------------- */
 
 function LibraryView({ locked }: { locked: boolean }) {
-  const loading = useLoading([]);
+  const [cat, setCat] = useState<string>("all");
+  const loading = useLoading([cat]);
+  const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
+  const libCats = CATEGORIES.filter((c) => LIBRARY.some((i) => i.category === c.slug));
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
@@ -1094,10 +1172,27 @@ function LibraryView({ locked }: { locked: boolean }) {
         )}
       </div>
 
+      {!locked && (
+        <div className="flex flex-wrap gap-2">
+          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes les ressources</FilterChip>
+          {libCats.map((c) => (
+            <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>{c.label}</FilterChip>
+          ))}
+        </div>
+      )}
+
+      {!loading && items.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="h-5 w-5" />}
+          title="Aucune ressource ici"
+          desc="Choisissez un autre univers pour retrouver les guides de la communauté."
+          action={<button onClick={() => setCat("all")} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Voir tout</button>}
+        />
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2">
         {loading
           ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
-          : LIBRARY.map((item) => (
+          : items.map((item) => (
               <div key={item.id} className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft">
                 <div className={locked ? "select-none blur-[3px]" : ""}>
                   <div className="flex items-center gap-2">
@@ -1125,7 +1220,9 @@ function LibraryView({ locked }: { locked: boolean }) {
               </div>
             ))}
       </div>
+      )}
     </div>
+
   );
 }
 

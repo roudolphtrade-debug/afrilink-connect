@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type Ref } from "react";
+import { useMemo, useState, type Ref } from "react";
 import {
   ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
@@ -8,11 +8,12 @@ import {
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Avatar } from "@/components/Avatar";
+import { StatusBadge } from "@/components/StatusBadge";
 import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
-import { STATS, MAIN_CITIES, OPENING_CITIES } from "@/lib/mock-data";
+import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -31,20 +32,39 @@ function HeroSearch() {
   const navigate = useNavigate();
   const [city, setCity] = useState<string>(MAIN_CITIES[0]);
   const [q, setQ] = useState("");
+  const [focused, setFocused] = useState(false);
+
+  const results = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    const cityPros = PROS.filter((p) => p.city === city);
+    const matched = term
+      ? cityPros.filter(
+          (p) =>
+            p.name.toLowerCase().includes(term) ||
+            p.bio.toLowerCase().includes(term) ||
+            (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term),
+        )
+      : cityPros;
+    const weight = (s?: string) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
+    return [...matched].sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating).slice(0, 5);
+  }, [q, city]);
 
   const go = () => navigate({ to: "/app" });
+  const open = focused && results.length > 0;
 
   return (
     <div className="mx-auto mt-10 max-w-2xl">
       <form
         onSubmit={(e) => { e.preventDefault(); go(); }}
-        className="flex flex-col gap-2 rounded-3xl border border-border bg-card p-2 shadow-elevated sm:flex-row sm:items-center sm:rounded-full"
+        className="relative flex flex-col gap-2 rounded-3xl border border-border bg-card p-2 shadow-elevated sm:flex-row sm:items-center sm:rounded-full"
       >
         <div className="flex flex-1 items-center gap-3 px-4 py-2.5">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
             placeholder="De quoi avez-vous besoin ?"
             aria-label="Rechercher un service ou un professionnel"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
@@ -70,12 +90,46 @@ function HeroSearch() {
         >
           Rechercher <ArrowRight className="h-4 w-4" />
         </button>
+
+        {open && (
+          <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-border bg-card text-left shadow-elevated">
+            <p className="border-b border-border px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {q.trim() ? `Résultats à ${city}` : `Les mieux notés à ${city}`}
+            </p>
+            {results.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={go}
+                className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition last:border-0 hover:bg-muted/60 ${
+                  p.status === "verifie" || p.status === "equipe" ? "bg-accent/5" : ""
+                }`}
+              >
+                <Avatar initials={p.initials} color={p.color} size={38} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-sm font-semibold">{p.name}</span>
+                    <StatusBadge status={p.status ?? "reference"} />
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                    {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
+                    {p.neighborhood ? `, ${p.neighborhood}` : ""}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold">
+                  <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {p.rating.toFixed(1)}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </form>
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         {QUICK_SUGGESTIONS.map((s) => (
           <button
             key={s}
-            onClick={() => { setQ(s); go(); }}
+            onClick={() => { setQ(s); setFocused(true); }}
             className="rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-accent/50 hover:text-foreground"
           >
             {s}
@@ -88,6 +142,7 @@ function HeroSearch() {
     </div>
   );
 }
+
 
 const pillars = [
   { icon: ShieldCheck, title: "Professionnels vérifiés", desc: "Chaque pro est validé par notre équipe et noté par la communauté." },
