@@ -33,6 +33,9 @@ export function SiteHeader() {
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <ThemeToggle />
+            <Link to="/connexion" className="text-sm font-medium hover:text-accent">
+              Se connecter
+            </Link>
             <JoinCommunityCta className="shadow-soft">Rejoindre la communauté</JoinCommunityCta>
           </div>
           <div className="flex items-center gap-2 md:hidden">
@@ -67,6 +70,9 @@ export function SiteHeader() {
             </a>
             <Link to="/app" onClick={() => setOpen(false)}>
               Entrer
+            </Link>
+            <Link to="/connexion" onClick={() => setOpen(false)}>
+              Se connecter
             </Link>
             <JoinCommunityCta onBeforeOpen={() => setOpen(false)}>
               Rejoindre la communauté
