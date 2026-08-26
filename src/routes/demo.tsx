@@ -668,21 +668,35 @@ function SearchView({
         </div>
       </div>
 
-      <div className="mt-6 flex min-h-[32px] items-center justify-between gap-3">
+      <div className="mt-6 flex min-h-[32px] flex-wrap items-center justify-between gap-3">
         {loading ? (
           <Shimmer className="h-4 w-40" />
         ) : (
           <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
         )}
-        {hasFilters && (
-          <button
-            onClick={reset}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
-          >
-            <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground"
+              aria-label="Trier les résultats"
+            >
+              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+          {hasFilters && (
+            <button
+              onClick={reset}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
+            </button>
+          )}
+        </div>
       </div>
+
 
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
