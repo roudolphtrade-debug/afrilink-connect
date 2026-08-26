@@ -745,12 +745,10 @@ function ProCard({
       }`}
     >
       <div className="flex items-start gap-4">
-        <img
-          src={pro.photo}
-          alt={pro.name}
-          loading="lazy"
-          className="h-14 w-14 shrink-0 rounded-2xl object-cover"
-        />
+        <div className="transition-transform duration-300 group-hover:scale-105">
+          <Avatar initials={pro.initials} color={pro.color} src={pro.avatar} alt={pro.name} size={56} />
+        </div>
+
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-semibold">{pro.name}</p>
