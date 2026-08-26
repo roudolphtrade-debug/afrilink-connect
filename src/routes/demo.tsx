@@ -19,7 +19,7 @@ import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
   CURRENT_USER, portrait, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
   STATUS_META,
-  type Pro, type FeedPost, type ProStatus,
+  type Pro, type FeedPost, type ProStatus, type LibraryItem,
 } from "@/lib/mock-data";
 
 const CATEGORY_ICONS: Record<string, typeof Hammer> = {
