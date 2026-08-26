@@ -139,9 +139,44 @@ export function AppShell() {
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
-                  <div className="border-b border-border p-3 text-sm font-semibold">Notifications</div>
-                  <div className="max-h-80 overflow-y-auto">
+                <div className="absolute right-0 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
+                  <div className="flex items-center justify-between gap-2 border-b border-border p-3">
+                    <span className="text-sm font-semibold">Notifications</span>
+                    {unreadTotal > 0 && (
+                      <button
+                        onClick={markAllRead}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold transition hover:border-primary/40"
+                      >
+                        <CheckCheck className="h-3.5 w-3.5" /> Tout marquer comme lu
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    <div className="flex items-center justify-between bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      <span>Messages non lus</span>
+                      <span>{unreadTotal}</span>
+                    </div>
+                    {unreadConvs.length === 0 ? (
+                      <p className="px-3 py-4 text-sm text-muted-foreground">Aucun message non lu.</p>
+                    ) : (
+                      unreadConvs.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => { setActiveConv(c.id); markRead(c.id); setTab("messages"); setNotifOpen(false); }}
+                          className="flex w-full items-start gap-3 border-b border-border bg-accent/5 p-3 text-left text-sm transition hover:bg-accent/10"
+                        >
+                          <Avatar initials={c.pro.initials} color={c.pro.color} size={32} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-semibold">{c.pro.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
+                          </div>
+                          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
+                        </button>
+                      ))
+                    )}
+                    <div className="bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      Activité
+                    </div>
                     {NOTIFICATIONS.map((n) => (
                       <div key={n.id} className={`flex items-start gap-3 border-b border-border p-3 text-sm last:border-0 ${n.unread ? "bg-accent/5" : ""}`}>
                         <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.unread ? "bg-accent" : "bg-transparent"}`} />
@@ -154,6 +189,7 @@ export function AppShell() {
                   </div>
                 </div>
               )}
+
             </div>
             {session ? (
               <button
