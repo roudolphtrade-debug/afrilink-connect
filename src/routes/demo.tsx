@@ -466,12 +466,15 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
 /* ---------------- SEARCH ---------------- */
 
 function SearchView({
-  favorites, toggleFav, onOpen,
+  query, setQuery, favorites, toggleFav, onOpen,
 }: {
+  query: string; setQuery: (v: string) => void;
   favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void;
 }) {
-  const [q, setQ] = useState("");
+  const q = query;
+  const setQ = setQuery;
   const [cat, setCat] = useState<string>("all");
+  const [status, setStatus] = useState<ProStatus | "all">("all");
   const [country, setCountry] = useState<string>("all");
   const [city, setCity] = useState<string>("all");
 
@@ -483,16 +486,25 @@ function SearchView({
   };
 
   const results = useMemo(() => {
-    return PROS.filter((p) => {
-      const matchQ = !q || p.name.toLowerCase().includes(q.toLowerCase()) || p.bio.toLowerCase().includes(q.toLowerCase());
+    const term = q.trim().toLowerCase();
+    const list = PROS.filter((p) => {
+      const matchQ = !term
+        || p.name.toLowerCase().includes(term)
+        || p.bio.toLowerCase().includes(term)
+        || (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term)
+        || p.city.toLowerCase().includes(term);
       const matchC = cat === "all" || p.category === cat;
+      const matchS = status === "all" || (p.status ?? "reference") === status;
       const matchCountry = country === "all" || p.country === country;
       const matchCity = city === "all" || p.city === city;
-      return matchQ && matchC && matchCountry && matchCity;
+      return matchQ && matchC && matchS && matchCountry && matchCity;
     });
-  }, [q, cat, country, city]);
+    const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
+    return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+  }, [q, cat, status, country, city]);
 
-  const loading = useLoading([q, cat, country, city], 350);
+  const loading = useLoading([q, cat, status, country, city], 350);
+
 
   return (
     <div>
