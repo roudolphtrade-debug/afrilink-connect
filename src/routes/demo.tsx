@@ -51,6 +51,7 @@ function useLoading(deps: unknown[], ms = 500) {
 export function AppShell() {
   const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
+  const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
@@ -195,7 +196,7 @@ export function AppShell() {
         {/* MAIN */}
         <main className="min-w-0">
           {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
-          {tab === "search" && <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView />}
           {tab === "library" && <LibraryView locked={!session} />}
