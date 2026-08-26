@@ -322,7 +322,7 @@ export function AppShell() {
 
 /* ---------------- FEED ---------------- */
 
-type AppUser = { name: string; initials: string; color: string; city: string; role: string };
+type AppUser = { name: string; initials: string; color: string; city: string; role: string; avatar?: string };
 
 function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
   const loading = useLoading([]);
