@@ -597,13 +597,9 @@ function ProCard({
           className="h-14 w-14 shrink-0 rounded-2xl object-cover"
         />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-semibold">{pro.name}</p>
-            {pro.verified && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">
-                <ShieldCheck className="h-3 w-3" /> Vérifié
-              </span>
-            )}
+            <StatusBadge status={pro.status ?? "reference"} />
           </div>
           <p className="mt-1 truncate text-sm text-muted-foreground">
             {category?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}
