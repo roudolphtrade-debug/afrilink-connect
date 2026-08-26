@@ -93,12 +93,15 @@ export function AppShell() {
             <div className="relative w-full max-w-xl">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                value={query}
+                onChange={(e) => { setQuery(e.target.value); setTab("search"); }}
                 placeholder="Rechercher un pro, un service, une ville…"
                 onFocus={() => setTab("search")}
                 className="w-full rounded-full border border-border bg-muted/40 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white"
               />
             </div>
           </div>
+
           <div className="ml-auto flex items-center gap-2">
             <div className="relative">
               <button
