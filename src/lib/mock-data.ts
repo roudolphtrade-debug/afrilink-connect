@@ -272,22 +272,38 @@ function deriveStatus(p: (typeof seed)[number]): ProStatus {
   return "reference";
 }
 
+/** Établissements, institutions et lieux réels : monogramme sobre, jamais de portrait inventé. */
+const PLACE_PATTERN =
+  /^(Ambassade|Consulat|Cabinet|Garage|Salon|Restaurant|Guide|Keva|L'Ethnic|Le |La |Chez |Just4U|Buka|Terra |Bushman|Teranga|Accra |Lagos |Osu )/i;
+
+function deriveKind(name: string): "person" | "place" {
+  return PLACE_PATTERN.test(name) ? "place" : "person";
+}
+
 export const PROS: Pro[] = seed.map((p, i) => {
   const id = `pro-${i + 1}`;
+  const kind = deriveKind(p.name);
   return {
     ...p,
     id,
+    kind,
     status: deriveStatus(p),
     country: CITY_COUNTRY[p.city] ?? "Autres",
     color: colors[i % colors.length],
     initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
-    // Images génériques libres de droits (placeholder) en attendant de vraies photos par établissement
-    photo: `https://picsum.photos/seed/${id}-cover/600/450`,
-    photos: [1, 2, 3].map((n) => `https://picsum.photos/seed/${id}-${n}/600/450`),
+    // Portraits illustrés déterministes (même style pour tous), uniquement pour les personnes.
+    avatar:
+      kind === "person"
+        ? `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(p.name)}&backgroundColor=transparent`
+        : undefined,
   };
 });
 
 export const FOUNDER = PROS.find((p) => p.status === "equipe")!;
+
+/** Contacts historiques réels référencés depuis Les Bons Plans du Bled. */
+export const HISTORIC_PROS = PROS.filter((p) => p.historic);
+
 
 /* ---------- Chiffres réels AfriLink ---------- */
 
