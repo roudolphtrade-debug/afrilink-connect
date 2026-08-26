@@ -21,32 +21,13 @@ export function SiteFooter() {
             <p className="mt-6 max-w-md text-lg font-display font-semibold">
               Les bonnes personnes. Les bons plans. La bonne connexion.
             </p>
-            <TooltipProvider delayDuration={200}>
-              <div className="mt-6 flex gap-3">
-                {["App Store", "Google Play"].map((store) => (
-                  <Tooltip key={store}>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-disabled="true"
-                        aria-label={`${store} (bientôt disponible)`}
-                        onClick={(e) => e.preventDefault()}
-                        className="cursor-not-allowed rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-forest-foreground/40"
-                      >
-                        {store}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Bientôt disponible</TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </TooltipProvider>
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold text-accent">Explorer</h4>
             <ul className="space-y-2 text-sm text-forest-foreground/80">
               <li><a href="/#solution">La solution</a></li>
               <li><a href="/#univers">Univers</a></li>
+              <li><a href="/#villes">Nos villes</a></li>
               <li><a href="/#temoignages">Communauté</a></li>
               <li><Link to="/equipe">Notre équipe</Link></li>
               <li><Link to="/guide">Guide d'arrivée</Link></li>

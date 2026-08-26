@@ -105,6 +105,11 @@ export const STATUS_META: Record<ProStatus, { label: string; description: string
   },
 };
 
+/** Portrait illustré déterministe (même style pour tous les profils communautaires). */
+export function portrait(seed: string) {
+  return `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`;
+}
+
 export type Pro = {
   id: string;
   name: string;
@@ -121,15 +126,22 @@ export type Pro = {
   price?: string;
   color: string;
   initials: string;
-  photo: string;
-  photos: string[];
+  /** "place" = établissement / institution réelle : jamais de portrait inventé. */
+  kind: "person" | "place";
+  /** Portrait homogène et stable pour les profils communautaires (jamais pour un lieu réel). */
+  avatar?: string;
+  /** Contact historique issu de Les Bons Plans du Bled (depuis 2022). */
+  historic?: boolean;
 };
 
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
-const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photos">[] = [
+const seed: (Omit<Pro, "id" | "color" | "initials" | "country" | "kind" | "avatar"> & {
+  historic?: boolean;
+})[] = [
+
   // ==== Équipe AfriLink ====
-  { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
+  { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", historic: true, bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
 
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
@@ -152,9 +164,9 @@ const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photo
   { name: "Clarisse Ateba", category: "maison", city: "Yaoundé", neighborhood: "Mvog-Mbi", rating: 4.7, reviews: 36, verified: false, bio: "Décoratrice d'intérieur, mise en valeur d'artisanat local et matières naturelles." },
 
   // ==== Reprises de Les Bons Plans du Bled (lbpdb.org) ====
-  { name: "Keva Lounge Restaurant", category: "loisirs", city: "Douala", rating: 4.6, reviews: 28, verified: true, bio: "Restaurant-lounge convivial, cuisine locale et internationale, ambiance soignée pour dîners entre amis ou en famille." },
-  { name: "L'Ethnic Restaurant", category: "loisirs", city: "Douala", rating: 4.5, reviews: 19, verified: true, bio: "Cuisine ethnique variée dans un cadre chaleureux, au cœur de Douala." },
-  { name: "Guide touristique Sénégal", category: "loisirs", city: "Dakar", rating: 4.8, reviews: 22, verified: true, bio: "Guide touristique local, circuits sur-mesure pour découvrir Dakar et ses environs." },
+  { historic: true, name: "Keva Lounge Restaurant", category: "loisirs", city: "Douala", rating: 4.6, reviews: 28, verified: true, bio: "Restaurant-lounge convivial, cuisine locale et internationale, ambiance soignée pour dîners entre amis ou en famille." },
+  { historic: true, name: "L'Ethnic Restaurant", category: "loisirs", city: "Douala", rating: 4.5, reviews: 19, verified: true, bio: "Cuisine ethnique variée dans un cadre chaleureux, au cœur de Douala." },
+  { historic: true, name: "Guide touristique Sénégal", category: "loisirs", city: "Dakar", rating: 4.8, reviews: 22, verified: true, bio: "Guide touristique local, circuits sur-mesure pour découvrir Dakar et ses environs." },
 
   // ==== Ambassades & consulats (Cameroun) ====
   { name: "Ambassade de France", category: "admin", city: "Yaoundé", rating: 4.4, reviews: 14, verified: false, bio: "Représentation diplomatique française au Cameroun : services consulaires, visas, état civil." },
@@ -265,22 +277,38 @@ function deriveStatus(p: (typeof seed)[number]): ProStatus {
   return "reference";
 }
 
+/** Établissements, institutions et lieux réels : monogramme sobre, jamais de portrait inventé. */
+const PLACE_PATTERN =
+  /^(Ambassade|Consulat|Cabinet|Garage|Salon|Restaurant|Guide|Keva|L'Ethnic|Le |La |Chez |Just4U|Buka|Terra |Bushman|Teranga|Accra |Lagos |Osu )/i;
+
+function deriveKind(name: string): "person" | "place" {
+  return PLACE_PATTERN.test(name) ? "place" : "person";
+}
+
 export const PROS: Pro[] = seed.map((p, i) => {
   const id = `pro-${i + 1}`;
+  const kind = deriveKind(p.name);
   return {
     ...p,
     id,
+    kind,
     status: deriveStatus(p),
     country: CITY_COUNTRY[p.city] ?? "Autres",
     color: colors[i % colors.length],
     initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
-    // Images génériques libres de droits (placeholder) en attendant de vraies photos par établissement
-    photo: `https://picsum.photos/seed/${id}-cover/600/450`,
-    photos: [1, 2, 3].map((n) => `https://picsum.photos/seed/${id}-${n}/600/450`),
+    // Portraits illustrés déterministes (même style pour tous), uniquement pour les personnes.
+    avatar:
+      kind === "person"
+        ? portrait(p.name)
+        : undefined,
   };
 });
 
 export const FOUNDER = PROS.find((p) => p.status === "equipe")!;
+
+/** Contacts historiques réels référencés depuis Les Bons Plans du Bled. */
+export const HISTORIC_PROS = PROS.filter((p) => p.historic);
+
 
 /* ---------- Chiffres réels AfriLink ---------- */
 
@@ -320,11 +348,12 @@ export const LIBRARY: LibraryItem[] = [
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 
 export const CURRENT_USER = {
-  name: "Sandra M.",
-  initials: "SM",
-  color: "#2F6B4F",
+  name: "Odile-Grâce Ebongue",
+  initials: "OE",
+  color: "#0F2B1E",
   city: "Douala",
-  role: "Nouvellement arrivée",
+  role: "Fondatrice AfriLink",
+  avatar: portrait("Odile-Grâce Ebongue"),
 };
 
 /* ---------- Fil d'actualité (bons plans, demandes, alertes) ---------- */
@@ -332,7 +361,7 @@ export const CURRENT_USER = {
 export type FeedPost = {
   id: string;
   kind: "demande" | "bon-plan" | "annonce" | "verif";
-  author: { name: string; initials: string; color: string; city: string; verified?: boolean };
+  author: { name: string; initials: string; color: string; city: string; verified?: boolean; avatar?: string };
   time: string;
   category?: string;
   title: string;
@@ -345,7 +374,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f1",
     kind: "demande",
-    author: { name: "Sophie L.", initials: "SL", color: "#D4A64A", city: "Douala" },
+    author: { name: "Sophie L.", initials: "SL", color: "#D4A64A", city: "Douala" , avatar: portrait("Sophie L.") },
     time: "il y a 12 min",
     category: "maison",
     title: "Cherche un bon plombier à Bonapriso ce week-end 🙏",
@@ -356,7 +385,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f2",
     kind: "bon-plan",
-    author: { name: "Marc D.", initials: "MD", color: "#0F2B1E", city: "Yaoundé", verified: false },
+    author: { name: "Marc D.", initials: "MD", color: "#0F2B1E", city: "Yaoundé", verified: false , avatar: portrait("Marc D.") },
     time: "il y a 1 h",
     category: "loisirs",
     title: "Super brunch découvert à Bastos ce dimanche",
@@ -367,7 +396,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f3",
     kind: "demande",
-    author: { name: "Awa T.", initials: "AT", color: "#3E7A5C", city: "Douala" },
+    author: { name: "Awa T.", initials: "AT", color: "#3E7A5C", city: "Douala" , avatar: portrait("Awa T.") },
     time: "il y a 2 h",
     category: "education",
     title: "Prof de maths pour 4e — 2 fois par semaine",
@@ -378,7 +407,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f4",
     kind: "annonce",
-    author: { name: "Franck Kamdem", initials: "FK", color: "#B8863A", city: "Douala", verified: false },
+    author: { name: "Franck Kamdem", initials: "FK", color: "#B8863A", city: "Douala", verified: false , avatar: portrait("Franck Kamdem") },
     time: "il y a 4 h",
     category: "immobilier",
     title: "3 pièces meublé disponible à Bonapriso — septembre",
@@ -399,7 +428,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f6",
     kind: "bon-plan",
-    author: { name: "Nadia R.", initials: "NR", color: "#9C6E2B", city: "Kribi" },
+    author: { name: "Nadia R.", initials: "NR", color: "#9C6E2B", city: "Kribi" , avatar: portrait("Nadia R.") },
     time: "hier",
     category: "loisirs",
     title: "Week-end télétravail à Kribi — logement testé approuvé",
@@ -425,7 +454,7 @@ export const MOCK_CONVERSATIONS = [
     unread: 2,
     messages: [
       { from: "me", text: "Bonjour Franck, je cherche un 3 pièces meublé à Bonapriso pour septembre.", time: "09:12" },
-      { from: "them", text: "Bonjour Sandra ! Ravi de vous lire. Budget et durée souhaités ?", time: "09:18" },
+      { from: "them", text: "Bonjour Odile ! Ravi de vous lire. Budget et durée souhaités ?", time: "09:18" },
       { from: "me", text: "Autour de 600 000 FCFA, pour 12 mois minimum.", time: "09:20" },
       { from: "them", text: "Parfait, je vous envoie les visites demain matin.", time: "09:22" },
     ],
@@ -436,7 +465,7 @@ export const MOCK_CONVERSATIONS = [
     lastMessage: "Le rendez-vous à la sous-préfecture est confirmé.",
     unread: 0,
     messages: [
-      { from: "them", text: "Bonjour Sandra, j'ai déposé votre dossier ce matin.", time: "Hier" },
+      { from: "them", text: "Bonjour Odile, j'ai déposé votre dossier ce matin.", time: "Hier" },
       { from: "me", text: "Merci Nadège !", time: "Hier" },
       { from: "them", text: "Le rendez-vous à la sous-préfecture est confirmé.", time: "Hier" },
     ],
@@ -461,3 +490,45 @@ export const NOTIFICATIONS = [
   { id: "n3", text: "Votre profil a été consulté 8 fois cette semaine", time: "3 h", unread: false },
   { id: "n4", text: "Dr. Estelle a validé votre rendez-vous", time: "hier", unread: false },
 ];
+
+/* ---------- Témoignages communauté (fictifs, illustratifs) ---------- */
+
+export type Testimonial = {
+  name: string;
+  role: string;
+  initials: string;
+  color: string;
+  quote: string;
+  avatarSeed: string;
+  avatar: string;
+};
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    name: "Nadia B.",
+    role: "Rentrée à Douala après 11 ans à Lyon",
+    initials: "NB",
+    color: "#0F2B1E",
+    quote:
+      "Mon premier mois, j'ai passé plus de temps à chercher un électricien qu'à travailler. Ici, on m'a donné un nom, un prix et un avis — j'ai appelé, c'était réglé le lendemain.",
+    avatarSeed: "Nadia B.",
+  },
+  {
+    name: "Yannick T.",
+    role: "Consultant, allers-retours Paris — Yaoundé",
+    initials: "YT",
+    color: "#B8863A",
+    quote:
+      "Ce qui change tout, c'est de savoir qui a déjà testé. Je ne cherche plus le meilleur prestataire du pays, je cherche celui que quelqu'un de la communauté recommande vraiment.",
+    avatarSeed: "Yannick T.",
+  },
+  {
+    name: "Fatou D.",
+    role: "Maman de deux enfants, installée à Dakar",
+    initials: "FD",
+    color: "#3E7A5C",
+    quote:
+      "J'avais peur de déranger en posant des questions basiques. Personne ne m'a jugée : école, pédiatre, garde d'enfants, j'ai eu trois réponses utiles le même soir.",
+    avatarSeed: "Fatou D.",
+  },
+].map((t) => ({ ...t, avatar: portrait(t.avatarSeed) }));

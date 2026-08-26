@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Avatar } from "@/components/Avatar";
+import { portrait } from "@/lib/mock-data";
 import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/equipe")({
@@ -32,13 +33,6 @@ const team = [
     color: "var(--accent)",
     bio: "Issu du monde de la tech, Roudolph a rejoint l'aventure pour donner à cette intuition de terrain la solidité d'un vrai produit — celui qui transforme un réseau de confiance en plateforme capable de grandir.",
   },
-  {
-    name: "Charles Etame Yescot",
-    role: "Co-fondateur",
-    initials: "CE",
-    color: "var(--forest-light)",
-    bio: "Coach sportif, Charles fait régulièrement l'aller-retour vers le Cameroun — assez pour connaître le terrain de l'intérieur. Il apporte à AfriLink ce même réflexe de coach : accompagner, orienter, faire progresser la communauté pas à pas.",
-  },
 ];
 
 function TeamPage() {
@@ -57,7 +51,7 @@ function TeamPage() {
               L'Afrique a tout pour plaire. Une seule chose manque : la visibilité.
             </h1>
             <p className="mt-6 text-lg text-muted-foreground">
-              AfriLink prolonge l'aventure Les Bons Plans du Bled, fondée en 2022 par trois
+              AfriLink prolonge l'aventure Les Bons Plans du Bled, fondée en 2022 par deux
               Camerounais convaincus qu'un simple retour au pays ne devrait jamais ressembler à un
               saut dans l'inconnu.
             </p>
@@ -74,12 +68,12 @@ function TeamPage() {
             </span>
             <h2 className="mt-4 text-2xl font-bold md:text-4xl">L'équipe fondatrice</h2>
           </Reveal>
-          <div className="mt-14 grid gap-6 sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl gap-6 sm:grid-cols-2">
             {team.map((m, i) => (
               <Reveal key={m.name} delay={i * 80}>
                 <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
                   <div className="flex justify-center">
-                    <Avatar initials={m.initials} color={m.color} size={72} />
+                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={72} />
                   </div>
                   <p className="mt-5 font-display text-lg font-semibold">{m.name}</p>
                   <p className="mt-1 text-sm text-accent">{m.role}</p>
