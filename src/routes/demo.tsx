@@ -1140,23 +1140,36 @@ function ProfileView({
       />
     );
   }
+  const isFounder = user.name === FOUNDER.name;
   return (
     <div className="space-y-4">
       <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+        {isFounder && (
+          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-xs font-semibold text-forest-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Profil Équipe AfriLink — fondatrice de la communauté
+          </div>
+        )}
         <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
         <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
-          <div className="rounded-full ring-4 ring-card">
+          <div className={`rounded-full ring-4 ring-card ${isFounder ? "outline outline-2 outline-offset-2 outline-accent" : ""}`}>
             <Avatar initials={user.initials} color={user.color} src={user.avatar} size={96} />
           </div>
           <div className="flex-1">
-            <h2 className="font-display text-2xl font-bold">{user.name}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-display text-2xl font-bold">{user.name}</h2>
+              {isFounder && <StatusBadge status="equipe" />}
+            </div>
             <p className="text-sm text-muted-foreground">{user.role} · {user.city}</p>
+            {isFounder && (
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+            )}
           </div>
           <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
             Modifier le profil
           </button>
         </div>
       </div>
+
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
