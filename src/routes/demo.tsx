@@ -260,7 +260,10 @@ export function AppShell() {
 
 /* ---------------- FEED ---------------- */
 
-function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
+type AppUser = { name: string; initials: string; color: string; city: string; role: string };
+
+function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
+  const loading = useLoading([]);
   const [posts, setPosts] = useState(FEED);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [composer, setComposer] = useState("");
