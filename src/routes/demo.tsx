@@ -796,32 +796,75 @@ function ProfileModal({
 /* ---------------- FAVORITES ---------------- */
 
 function FavoritesView({
-  favorites, toggleFav, onOpen, onExplore,
-}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void; onExplore: () => void }) {
+  favorites, toggleFav, favLibrary, toggleLibFav, onOpen, onExplore, onLibrary,
+}: {
+  favorites: string[]; toggleFav: (id: string) => void;
+  favLibrary: string[]; toggleLibFav: (id: string) => void;
+  onOpen: (p: Pro) => void; onExplore: () => void; onLibrary: () => void;
+}) {
+  const [tab, setTab] = useState<"pros" | "resources">("pros");
   const list = PROS.filter((p) => favorites.includes(p.id));
-  if (list.length === 0) {
-    return (
-      <EmptyState
-        icon={<Heart className="h-5 w-5" />}
-        title="Aucun favori pour l'instant"
-        desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
-        action={
-          <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-            <Compass className="h-4 w-4" /> Explorer les pros
-          </button>
-        }
-      />
-    );
-  }
+  const resources = LIBRARY.filter((i) => favLibrary.includes(i.id));
+
   return (
     <div>
-      <h2 className="mb-4 font-display text-2xl font-bold">Vos favoris</h2>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+      <h2 className="mb-4 font-display text-2xl font-bold">Mes favoris</h2>
+      <div className="mb-5 flex flex-wrap gap-2">
+        <FilterChip active={tab === "pros"} onClick={() => setTab("pros")}>Professionnels ({list.length})</FilterChip>
+        <FilterChip active={tab === "resources"} onClick={() => setTab("resources")}>Ressources ({resources.length})</FilterChip>
       </div>
+
+      {tab === "pros" ? (
+        list.length === 0 ? (
+          <EmptyState
+            icon={<Heart className="h-5 w-5" />}
+            title="Aucun favori pour l'instant"
+            desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
+            action={
+              <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+                <Compass className="h-4 w-4" /> Explorer les pros
+              </button>
+            }
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+          </div>
+        )
+      ) : resources.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="h-5 w-5" />}
+          title="Aucune ressource enregistrée"
+          desc="Enregistrez des guides depuis la Bibliothèque pour les retrouver ici."
+          action={
+            <button onClick={onLibrary} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              <Library className="h-4 w-4" /> Ouvrir la bibliothèque
+            </button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {resources.map((item) => (
+            <div key={item.id} className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+              <div className="flex items-start justify-between gap-3">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
+                <button onClick={() => toggleLibFav(item.id)} aria-label="Retirer des favoris" className="rounded-full border border-border p-2 text-accent">
+                  <Heart className="h-4 w-4 fill-current" />
+                </button>
+              </div>
+              <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                <Download className="h-4 w-4" /> Consulter
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
 
 /* ---------------- MESSAGING ---------------- */
 
