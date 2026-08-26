@@ -20,11 +20,11 @@ export const Route = createFileRoute("/equipe")({
 
 const team = [
   {
-    name: "Odile-Grâce Ebongue",
+    name: "Odile Ebongue",
     role: "Fondatrice",
     initials: "OE",
     color: "var(--forest)",
-    bio: "En s'installant au Cameroun, Odile-Grâce a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
+    bio: "En s'installant au Cameroun, Odile a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
   },
   {
     name: "Roudolph Doualla",

@@ -16,7 +16,7 @@ export function Logo({
         height={240}
         loading={loading}
         alt="AfriLink — Les Bons Plans du Bled"
-        className={`${variant === "mark" ? "h-10 w-10 object-contain" : "h-12 w-auto object-contain"} ${className}`}
+        className={`${variant === "mark" ? "h-12 w-12 object-contain" : "h-[3.75rem] w-auto object-contain"} shrink-0 ${className}`}
       />
     </picture>
   );
