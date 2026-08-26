@@ -499,6 +499,8 @@ export type Testimonial = {
   initials: string;
   color: string;
   quote: string;
+  avatarSeed: string;
+  avatar: string;
 };
 
 export const TESTIMONIALS: Testimonial[] = [
