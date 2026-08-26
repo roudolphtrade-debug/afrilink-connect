@@ -53,9 +53,20 @@ export function AppShell() {
   const [tab, setTab] = useState<Tab>("feed");
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
+  const [favLibrary, setFavLibrary] = useState<string[]>([]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
+  const [readConvs, setReadConvs] = useState<string[]>([]);
+
+  const unreadMap = useMemo(() => {
+    const m: Record<string, number> = {};
+    MOCK_CONVERSATIONS.forEach((c) => { m[c.id] = readConvs.includes(c.id) ? 0 : c.unread; });
+    return m;
+  }, [readConvs]);
+  const unreadTotal = Object.values(unreadMap).reduce((a, b) => a + b, 0);
+  const unreadConvCount = Object.values(unreadMap).filter((n) => n > 0).length;
+  const markRead = (id: string) => setReadConvs((r) => (r.includes(id) ? r : [...r, id]));
 
   const user = session
     ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
@@ -63,6 +74,9 @@ export function AppShell() {
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+
+  const toggleLibFav = (id: string) =>
+    setFavLibrary((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   const openMessagesFor = (pro: Pro) => {
     setOpenPro(null);
@@ -76,11 +90,13 @@ export function AppShell() {
     { id: "community", label: "Communauté", icon: Users },
     { id: "guides", label: "Guides", icon: BookOpen },
     { id: "library", label: "Bibliothèque", icon: Library },
-    { id: "messages", label: "Messages", icon: MessageCircle, badge: 3 },
+    { id: "messages", label: "Messages", icon: MessageCircle, badge: unreadTotal || undefined },
+    { id: "favorites", label: "Mes favoris", icon: Heart, badge: (favorites.length + favLibrary.length) || undefined },
     { id: "profile", label: "Profil", icon: User },
   ];
 
-  const mobileNav = nav.filter((n) => ["feed", "search", "community", "library", "messages"].includes(n.id));
+  const mobileNav = nav.filter((n) => ["feed", "search", "library", "favorites", "messages"].includes(n.id));
+
 
   const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
 
