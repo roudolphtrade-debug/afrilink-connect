@@ -564,16 +564,22 @@ function SearchView({
   const results = useMemo(() => {
     const list = PROS.filter((p) => matches(p));
     const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
-    return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+    return list.sort((a, b) => {
+      if (sort === "distance") return proDistance(a) - proDistance(b);
+      if (sort === "prix") return proPrice(a) - proPrice(b);
+      if (sort === "nouveaute") return proFreshness(a) - proFreshness(b);
+      return weight(a.status) - weight(b.status) || b.rating - a.rating;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, cat, status, country, city]);
+  }, [q, cat, status, country, city, sort]);
 
   const countFor = (o: { cat?: string; status?: ProStatus | "all" }) => PROS.filter((p) => matches(p, o)).length;
 
-  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "";
-  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); };
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "" || sort !== "pertinence";
+  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setSort("pertinence"); };
 
-  const loading = useLoading([q, cat, status, country, city], 350);
+  const loading = useLoading([q, cat, status, country, city, sort], 350);
+
 
 
   return (
