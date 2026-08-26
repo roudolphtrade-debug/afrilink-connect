@@ -84,6 +84,27 @@ export const CITY_COORDS: Record<string, [number, number]> = {
   "Mindelo": [16.8901, -24.9825],
 };
 
+export type ProStatus = "reference" | "recommande" | "verifie" | "equipe";
+
+export const STATUS_META: Record<ProStatus, { label: string; description: string }> = {
+  reference: {
+    label: "Référencé",
+    description: "Fiche ajoutée à l'annuaire AfriLink, en attente de recommandations de la communauté.",
+  },
+  recommande: {
+    label: "Recommandé",
+    description: "Plusieurs membres de la communauté ont recommandé ce contact.",
+  },
+  verifie: {
+    label: "Vérifié AfriLink",
+    description: "Identité, activité et références contrôlées manuellement par l'équipe AfriLink.",
+  },
+  equipe: {
+    label: "Équipe AfriLink",
+    description: "Membre de l'équipe fondatrice d'AfriLink.",
+  },
+};
+
 export type Pro = {
   id: string;
   name: string;
@@ -94,6 +115,8 @@ export type Pro = {
   rating: number;
   reviews: number;
   verified: boolean;
+  status?: ProStatus;
+  role?: string;
   bio: string;
   price?: string;
   color: string;
@@ -105,6 +128,9 @@ export type Pro = {
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
 const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photos">[] = [
+  // ==== Équipe AfriLink ====
+  { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
+
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
   { name: "Achille Mbarga", category: "transport", city: "Yaoundé", neighborhood: "Bastos", rating: 4.8, reviews: 112, verified: false, bio: "Chauffeur privé bilingue, accueil aéroport NSI et courses longues. Véhicule climatisé récent.", price: "15 000 FCFA / course aéroport" },
@@ -232,11 +258,19 @@ const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photo
   { name: "Salon Praia Beauté", category: "sante", city: "Praia", rating: 4.5, reviews: 16, verified: false, bio: "Salon de beauté et bien-être, soins capillaires, manucure." },
 ];
 
+function deriveStatus(p: (typeof seed)[number]): ProStatus {
+  if (p.status) return p.status;
+  if (p.verified) return "verifie";
+  if (p.rating >= 4.8) return "recommande";
+  return "reference";
+}
+
 export const PROS: Pro[] = seed.map((p, i) => {
   const id = `pro-${i + 1}`;
   return {
     ...p,
     id,
+    status: deriveStatus(p),
     country: CITY_COUNTRY[p.city] ?? "Autres",
     color: colors[i % colors.length],
     initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
@@ -245,6 +279,43 @@ export const PROS: Pro[] = seed.map((p, i) => {
     photos: [1, 2, 3].map((n) => `https://picsum.photos/seed/${id}-${n}/600/450`),
   };
 });
+
+export const FOUNDER = PROS.find((p) => p.status === "equipe")!;
+
+/* ---------- Chiffres réels AfriLink ---------- */
+
+export const STATS = {
+  plans: "+390",
+  plansLabel: "bons plans & contacts partagés depuis 2022",
+  members: "+200",
+  membersLabel: "membres historiques de la communauté",
+  pros: "20+",
+  prosLabel: "professionnels de confiance",
+};
+
+/* ---------- Villes ouvertes / en cours d'ouverture ---------- */
+
+export const MAIN_CITIES = ["Douala", "Yaoundé", "Dakar", "Abidjan"] as const;
+export const OPENING_CITIES = ["Libreville", "Cotonou", "Lomé", "Brazzaville"] as const;
+
+/* ---------- Bibliothèque (verrouillée avant connexion) ---------- */
+
+export type LibraryItem = {
+  id: string;
+  title: string;
+  format: string;
+  desc: string;
+  category: string;
+};
+
+export const LIBRARY: LibraryItem[] = [
+  { id: "lib-1", title: "Checklist d'arrivée au Cameroun", format: "PDF", desc: "Les démarches à faire dans les 30 premiers jours : enregistrement consulaire, titre de séjour, compte bancaire.", category: "admin" },
+  { id: "lib-2", title: "Trouver un logement à Douala", format: "Guide", desc: "Quartiers, ordres de prix, pièges à éviter et questions à poser avant de signer.", category: "immobilier" },
+  { id: "lib-3", title: "Santé : les bons réflexes", format: "Guide", desc: "Assurance internationale, urgences, praticiens de confiance dans les villes couvertes.", category: "sante" },
+  { id: "lib-4", title: "Scolariser ses enfants", format: "Guide", desc: "Systèmes scolaires, calendriers d'inscription et soutien scolaire à domicile.", category: "education" },
+  { id: "lib-5", title: "Se déplacer en sécurité", format: "Fiche", desc: "Chauffeurs, location, trajets aéroport et interurbain : ce qu'il faut savoir.", category: "transport" },
+  { id: "lib-6", title: "Créer son activité sur place", format: "PDF", desc: "Formalités de création d'entreprise, recrutement local et coûts à anticiper.", category: "emploi" },
+];
 
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 
@@ -349,7 +420,7 @@ export const MOCK_REVIEWS: Record<string, { author: string; rating: number; text
 export const MOCK_CONVERSATIONS = [
   {
     id: "c1",
-    proId: "pro-4", // Franck Kamdem
+    proId: "pro-5", // Franck Kamdem
     lastMessage: "Parfait, je vous envoie les visites demain matin.",
     unread: 2,
     messages: [
@@ -361,7 +432,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c2",
-    proId: "pro-5", // Nadège Mbida
+    proId: "pro-6", // Nadège Mbida
     lastMessage: "Le rendez-vous à la sous-préfecture est confirmé.",
     unread: 0,
     messages: [
@@ -372,7 +443,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c3",
-    proId: "pro-3", // Dr. Estelle Ngo Bakang
+    proId: "pro-4", // Dr. Estelle Ngo Bakang
     lastMessage: "Je passe vers 17h avec la trousse.",
     unread: 1,
     messages: [

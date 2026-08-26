@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import type { Ref } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type Ref } from "react";
 import {
   ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
-  Plane, Building2, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X,
+  Plane, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X, MapPin,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,10 +12,82 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import { STATS, MAIN_CITIES, OPENING_CITIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
 });
+
+const QUICK_SUGGESTIONS = [
+  "Plombier",
+  "Logement meublé",
+  "Pédiatre",
+  "Chauffeur aéroport",
+  "Cours de soutien",
+  "Démarches administratives",
+];
+
+function HeroSearch() {
+  const navigate = useNavigate();
+  const [city, setCity] = useState<string>(MAIN_CITIES[0]);
+  const [q, setQ] = useState("");
+
+  const go = () => navigate({ to: "/app" });
+
+  return (
+    <div className="mx-auto mt-10 max-w-2xl">
+      <form
+        onSubmit={(e) => { e.preventDefault(); go(); }}
+        className="flex flex-col gap-2 rounded-3xl border border-border bg-card p-2 shadow-elevated sm:flex-row sm:items-center sm:rounded-full"
+      >
+        <div className="flex flex-1 items-center gap-3 px-4 py-2.5">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="De quoi avez-vous besoin ?"
+            aria-label="Rechercher un service ou un professionnel"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+        <div className="flex items-center gap-2 border-t border-border px-2 py-1 sm:border-l sm:border-t-0 sm:py-0">
+          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            aria-label="Choisir une ville"
+            className="bg-transparent py-2 text-sm font-medium outline-none"
+          >
+            {MAIN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {OPENING_CITIES.map((c) => (
+              <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+        >
+          Rechercher <ArrowRight className="h-4 w-4" />
+        </button>
+      </form>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {QUICK_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            onClick={() => { setQ(s); go(); }}
+            className="rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-accent/50 hover:text-foreground"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Bientôt : {OPENING_CITIES.join(" · ")}
+      </p>
+    </div>
+  );
+}
 
 const pillars = [
   { icon: ShieldCheck, title: "Professionnels vérifiés", desc: "Chaque pro est validé par notre équipe et noté par la communauté." },
@@ -61,7 +133,7 @@ const testimonials = [
 ];
 
 function LandingPage() {
-  const outlineMagnetic = useMagnetic<HTMLAnchorElement>();
+  
   const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
 
   return (
@@ -72,73 +144,40 @@ function LandingPage() {
       <section className="section-cream relative overflow-hidden">
         <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8 md:py-28 md:items-center">
+        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:px-8 md:py-28">
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-card px-4 py-1.5 text-xs font-semibold text-foreground">
               <span className="h-2 w-2 rounded-full bg-accent" />
-              Le réseau de confiance africain
+              Le réseau de confiance africain — depuis 2022
             </span>
-            <h1 className="mt-6 text-4xl font-bold leading-[1.05] md:text-6xl">
-              Le réseau de confiance pour réussir votre <span className="text-accent">arrivée en Afrique</span>
+            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] md:text-6xl">
+              Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              Trouvez les bonnes personnes avant les bonnes adresses.
+            <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+              Douala, Yaoundé, Dakar, Abidjan — un contact vérifié plutôt qu'une recherche au hasard.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+          </Reveal>
+
+          <Reveal delay={120}>
+            <HeroSearch />
+          </Reveal>
+
+          <Reveal delay={160}>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <JoinCommunityCta size="pill-lg" className="shadow-elevated">
                 Rejoindre la communauté
               </JoinCommunityCta>
-              <Button
-                variant="pill-outline"
-                size="pill-lg"
-                asChild
-                ref={outlineMagnetic.ref as Ref<HTMLButtonElement>}
-                style={outlineMagnetic.style}
-                onMouseMove={outlineMagnetic.onMouseMove}
-                onMouseLeave={outlineMagnetic.onMouseLeave}
-              >
-                <a href="#solution">Découvrir AfriLink</a>
+              <Button variant="pill-outline" size="pill-lg" asChild>
+                <Link to="/connexion">Se connecter</Link>
               </Button>
             </div>
-            <div className="mt-10 grid grid-cols-3 gap-6">
-              <Stat value="12 000+" label="Membres actifs" />
-              <Stat value="1 200+" label="Pros vérifiés" />
-              <Stat value="4,7/5" label="Satisfaction" />
-            </div>
           </Reveal>
-          <Reveal delay={150} className="relative">
-            <div className="relative rounded-3xl bg-card p-6 shadow-elevated">
-              <div className="flex items-center gap-3">
-                <span className="icon-circle"><Search className="h-5 w-5" /></span>
-                <div className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
-                  Plombier de confiance à Dakar…
-                </div>
-              </div>
-              <div className="mt-5 space-y-3">
-                {[
-                  { name: "Aïcha D.", cat: "Décoratrice · Dakar", rating: 4.9, color: "var(--forest-light)", initials: "AD" },
-                  { name: "Kwame M.", cat: "Médecin · Accra", rating: 4.7, color: "var(--accent)", initials: "KM" },
-                  { name: "Amina K.", cat: "Immobilier · Abidjan", rating: 4.8, color: "var(--forest)", initials: "AK" },
-                ].map((c) => (
-                  <div key={c.name} className="flex items-center gap-3 rounded-2xl border border-border p-3">
-                    <Avatar initials={c.initials} color={c.color} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate font-semibold">{c.name}</p>
-                        <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">Vérifié</span>
-                      </div>
-                      <p className="truncate text-xs text-muted-foreground">{c.cat}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm font-semibold">
-                      <Star className="h-4 w-4 fill-accent text-accent" /> {c.rating}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-forest p-4 text-forest-foreground shadow-floating md:block">
-              <p className="text-xs opacity-70">Nouveau membre</p>
-              <p className="font-display font-semibold">Bienvenue à Nairobi 👋</p>
+
+          <Reveal delay={200}>
+            <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
+              <Stat value={STATS.plans} label="bons plans depuis 2022" />
+              <Stat value={STATS.members} label="membres historiques" />
+              <Stat value={STATS.pros} label="pros de confiance" />
             </div>
           </Reveal>
         </div>
@@ -343,9 +382,9 @@ function LandingPage() {
               <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
               <div className="mt-8 grid grid-cols-3 gap-6">
-                <Stat value="12 000+" label="Membres" />
-                <Stat value="1 200+" label="Pros vérifiés" />
-                <Stat value="4,7/5" label="Satisfaction" />
+                <Stat value={STATS.plans} label="Bons plans" />
+                <Stat value={STATS.members} label="Membres" />
+                <Stat value={STATS.pros} label="Pros de confiance" />
               </div>
             </Reveal>
             <div className="space-y-4">

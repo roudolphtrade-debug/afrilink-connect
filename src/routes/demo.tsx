@@ -1,18 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
-  Bell, Plus, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
+  Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
-  Truck, FileText, Briefcase,
+  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
 import { LocationMap } from "@/components/LocationMap";
+import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
+import { useSession, signOut } from "@/lib/auth-store";
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
-  CURRENT_USER, FEED, NOTIFICATIONS,
-  type Pro, type FeedPost,
+  CURRENT_USER, FEED, NOTIFICATIONS, LIBRARY, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
+  STATUS_META,
+  type Pro, type FeedPost, type ProStatus,
 } from "@/lib/mock-data";
 
 const CATEGORY_ICONS: Record<string, typeof Hammer> = {
@@ -30,14 +34,31 @@ export const Route = createFileRoute("/demo")({
   component: AppShell,
 });
 
-type Tab = "feed" | "search" | "favorites" | "messages" | "profile";
+type Tab = "feed" | "search" | "community" | "guides" | "library" | "messages" | "favorites" | "profile";
+
+/** Petit délai simulé pour afficher les skeletons de chargement. */
+function useLoading(deps: unknown[], ms = 500) {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), ms);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return loading;
+}
 
 export function AppShell() {
+  const session = useSession();
   const [tab, setTab] = useState<Tab>("feed");
-  const [favorites, setFavorites] = useState<string[]>(["pro-4", "pro-8"]);
+  const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const user = session
+    ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
+    : CURRENT_USER;
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
@@ -51,10 +72,14 @@ export function AppShell() {
   const nav: { id: Tab; label: string; icon: typeof HomeIcon; badge?: number }[] = [
     { id: "feed", label: "Accueil", icon: HomeIcon },
     { id: "search", label: "Explorer", icon: Compass },
+    { id: "community", label: "Communauté", icon: Users },
+    { id: "guides", label: "Guides", icon: BookOpen },
+    { id: "library", label: "Bibliothèque", icon: Library },
     { id: "messages", label: "Messages", icon: MessageCircle, badge: 3 },
-    { id: "favorites", label: "Favoris", icon: Bookmark, badge: favorites.length || undefined },
     { id: "profile", label: "Profil", icon: User },
   ];
+
+  const mobileNav = nav.filter((n) => ["feed", "search", "community", "library", "messages"].includes(n.id));
 
   const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
 
@@ -105,13 +130,30 @@ export function AppShell() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setTab("profile")}
-              className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-primary/40"
-            >
-              <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={32} />
-              <span className="hidden text-sm font-semibold md:inline">{CURRENT_USER.name}</span>
-            </button>
+            {session ? (
+              <button
+                onClick={() => setTab("profile")}
+                className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 transition hover:border-primary/40"
+              >
+                <Avatar initials={user.initials} color={user.color} size={32} />
+                <span className="hidden text-sm font-semibold md:inline">{user.name}</span>
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/connexion"
+                  className="hidden rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:border-primary/40 sm:inline-flex"
+                >
+                  Se connecter
+                </Link>
+                <Link
+                  to="/inscription"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
+                >
+                  <LogIn className="h-4 w-4" /> S'inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -149,30 +191,34 @@ export function AppShell() {
 
         {/* MAIN */}
         <main className="min-w-0">
-          {tab === "feed" && <FeedView onOpenSearch={() => setTab("search")} />}
+          {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
           {tab === "search" && <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
-          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "community" && <CommunityView onOpen={setOpenPro} />}
+          {tab === "guides" && <GuidesView />}
+          {tab === "library" && <LibraryView locked={!session} />}
+          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} onExplore={() => setTab("search")} />}
           {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} />}
-          {tab === "profile" && <ProfileView />}
+          {tab === "profile" && <ProfileView user={user} isAuthed={!!session} onFavorites={() => setTab("favorites")} />}
         </main>
 
         {/* RIGHT RAIL */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-4">
+            <CoverageCard />
             <TrendingCard />
             <SuggestedProsCard onOpen={setOpenPro} />
             <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-xs text-muted-foreground">
               <p className="font-semibold text-accent">Vous êtes en aperçu</p>
-              <p className="mt-1">Cette version utilise des données fictives pour la démonstration. Les vraies connexions arrivent bientôt.</p>
+              <p className="mt-1">Cette version utilise des données de démonstration. Les vraies connexions arrivent bientôt.</p>
             </div>
           </div>
         </aside>
       </div>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-white/95 backdrop-blur md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="grid grid-cols-5">
-          {nav.map((n) => (
+          {mobileNav.map((n) => (
             <button
               key={n.id}
               onClick={() => setTab(n.id)}
@@ -214,7 +260,10 @@ export function AppShell() {
 
 /* ---------------- FEED ---------------- */
 
-function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
+type AppUser = { name: string; initials: string; color: string; city: string; role: string };
+
+function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
+  const loading = useLoading([]);
   const [posts, setPosts] = useState(FEED);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [composer, setComposer] = useState("");
@@ -229,7 +278,7 @@ function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
     const newPost: FeedPost = {
       id: "new-" + Date.now(),
       kind: "demande",
-      author: { name: CURRENT_USER.name, initials: CURRENT_USER.initials, color: CURRENT_USER.color, city: CURRENT_USER.city },
+      author: { name: user.name, initials: user.initials, color: user.color, city: user.city },
       time: "à l'instant",
       title: composer.slice(0, 80),
       body: composer,
@@ -246,8 +295,8 @@ function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
       <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {CURRENT_USER.name.split(" ")[0]}</p>
-            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {CURRENT_USER.city} 👋</h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {user.name.split(" ")[0]}</p>
+            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {user.city} 👋</h1>
             <p className="mt-2 max-w-md text-forest-foreground/80">
               Voici ce qui se passe autour de vous aujourd'hui.
             </p>
@@ -261,7 +310,7 @@ function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
       {/* COMPOSER */}
       <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
         <div className="flex gap-3">
-          <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} />
+          <Avatar initials={user.initials} color={user.color} />
           <div className="flex-1">
             <textarea
               value={composer}
@@ -302,9 +351,11 @@ function FeedView({ onOpenSearch }: { onOpenSearch: () => void }) {
       </div>
 
       {/* POSTS */}
-      {posts.map((p) => (
-        <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
-      ))}
+      {loading
+        ? [0, 1, 2].map((i) => <PostSkeleton key={i} />)
+        : posts.map((p) => (
+            <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
+          ))}
     </div>
   );
 }
@@ -437,6 +488,8 @@ function SearchView({
     });
   }, [q, cat, country, city]);
 
+  const loading = useLoading([q, cat, country, city], 350);
+
   return (
     <div>
       <div className="rounded-3xl border border-border bg-white p-5 shadow-soft">
@@ -488,16 +541,29 @@ function SearchView({
         </div>
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
+      <div className="mt-6 h-5">
+        {loading ? (
+          <Shimmer className="h-4 w-40" />
+        ) : (
+          <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
+        )}
+      </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {results.map((p) => (
-          <ProCard key={p.id} pro={p} isFav={favorites.includes(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />
-        ))}
-        {results.length === 0 && (
-          <div className="col-span-full rounded-3xl border border-dashed border-border bg-white p-12 text-center text-muted-foreground">
-            Aucun résultat pour ces filtres.
+        {loading ? (
+          [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+        ) : results.length === 0 ? (
+          <div className="col-span-full">
+            <EmptyState
+              icon={<Search className="h-5 w-5" />}
+              title="Aucun résultat"
+              desc="Essayez une autre ville, une autre catégorie, ou élargissez votre recherche."
+            />
           </div>
+        ) : (
+          results.map((p) => (
+            <ProCard key={p.id} pro={p} isFav={favorites.includes(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />
+          ))
         )}
       </div>
     </div>
@@ -531,13 +597,9 @@ function ProCard({
           className="h-14 w-14 shrink-0 rounded-2xl object-cover"
         />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-semibold">{pro.name}</p>
-            {pro.verified && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">
-                <ShieldCheck className="h-3 w-3" /> Vérifié
-              </span>
-            )}
+            <StatusBadge status={pro.status ?? "reference"} />
           </div>
           <p className="mt-1 truncate text-sm text-muted-foreground">
             {category?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}
@@ -584,13 +646,11 @@ function ProfileModal({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-2xl font-bold">{pro.name}</h3>
-                {pro.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-bold text-accent">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Vérifié AfriLink
-                  </span>
-                )}
+                <StatusBadge status={pro.status ?? "reference"} />
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{cat?.label} · {pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {pro.role ? `${pro.role} · ` : `${cat?.label} · `}{pro.city}{pro.neighborhood ? `, ${pro.neighborhood}` : ""}
+              </p>
               <div className="mt-2 flex items-center gap-1 text-sm">
                 <Star className="h-4 w-4 fill-accent text-accent" />
                 <span className="font-semibold">{pro.rating.toFixed(1)}</span>
@@ -616,12 +676,13 @@ function ProfileModal({
           ))}
         </div>
 
-        {pro.verified && (
-          <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
-            <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
-            <p><strong>Badge Vérifié :</strong> pièce d'identité, activité et références validées manuellement par l'équipe AfriLink.</p>
-          </div>
-        )}
+        <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
+          <p>
+            <strong>{STATUS_META[pro.status ?? "reference"].label} :</strong>{" "}
+            {STATUS_META[pro.status ?? "reference"].description}
+          </p>
+        </div>
 
         <p className="mt-6 leading-relaxed text-forest/90">{pro.bio}</p>
         {pro.price && (
@@ -675,16 +736,21 @@ function ProfileModal({
 /* ---------------- FAVORITES ---------------- */
 
 function FavoritesView({
-  favorites, toggleFav, onOpen,
-}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void }) {
+  favorites, toggleFav, onOpen, onExplore,
+}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void; onExplore: () => void }) {
   const list = PROS.filter((p) => favorites.includes(p.id));
   if (list.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-border bg-white p-12 text-center">
-        <Heart className="mx-auto h-10 w-10 text-muted-foreground" />
-        <p className="mt-4 font-semibold">Aucun favori pour l'instant</p>
-        <p className="mt-1 text-sm text-muted-foreground">Ajoutez des profils depuis la recherche pour les retrouver ici.</p>
-      </div>
+      <EmptyState
+        icon={<Heart className="h-5 w-5" />}
+        title="Aucun favori pour l'instant"
+        desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
+        action={
+          <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+            <Compass className="h-4 w-4" /> Explorer les pros
+          </button>
+        }
+      />
     );
   }
   return (
@@ -813,46 +879,273 @@ function MessagingView({
 
 /* ---------------- PROFILE ---------------- */
 
-function ProfileView() {
+function ProfileView({
+  user, isAuthed, onFavorites,
+}: { user: AppUser; isAuthed: boolean; onFavorites: () => void }) {
+  if (!isAuthed) {
+    return (
+      <EmptyState
+        icon={<User className="h-5 w-5" />}
+        title="Créez votre profil AfriLink"
+        desc="Connectez-vous pour publier, échanger avec les pros et retrouver vos favoris sur tous vos appareils."
+        action={
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/inscription" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              Créer un compte
+            </Link>
+            <Link to="/connexion" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">
+              Se connecter
+            </Link>
+          </div>
+        }
+      />
+    );
+  }
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-3xl border border-border bg-white shadow-soft">
-        <div className="h-32 bg-gradient-to-br from-forest to-forest/70" />
+      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+        <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
         <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
-          <div className="rounded-full ring-4 ring-white">
-            <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={96} />
+          <div className="rounded-full ring-4 ring-card">
+            <Avatar initials={user.initials} color={user.color} size={96} />
           </div>
           <div className="flex-1">
-            <h2 className="font-display text-2xl font-bold">{CURRENT_USER.name}</h2>
-            <p className="text-sm text-muted-foreground">{CURRENT_USER.role} · {CURRENT_USER.city}</p>
+            <h2 className="font-display text-2xl font-bold">{user.name}</h2>
+            <p className="text-sm text-muted-foreground">{user.role} · {user.city}</p>
           </div>
-          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:border-primary/40">Modifier le profil</button>
+          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
+            Modifier le profil
+          </button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: "Favoris", value: 2 },
+          { label: "Favoris", value: 2, onClick: onFavorites },
           { label: "Conversations", value: 3 },
           { label: "Posts publiés", value: 1 },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-white p-5 shadow-soft">
+          <button
+            key={s.label}
+            onClick={s.onClick}
+            className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
+          >
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
             <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
-          </div>
+          </button>
         ))}
       </div>
 
-      <div className="rounded-3xl border border-border bg-white p-6 shadow-soft">
-        <h3 className="font-semibold">À propos</h3>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Je viens d'arriver à Douala avec ma famille. Je cherche à me constituer un réseau fiable pour l'installation, la scolarité et les loisirs.
-        </p>
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h3 className="font-semibold">Statuts de la communauté</h3>
+        <div className="mt-4 space-y-3">
+          {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
+            <div key={s} className="flex items-start gap-3">
+              <StatusBadge status={s} className="mt-0.5 shrink-0" />
+              <p className="text-sm text-muted-foreground">{STATUS_META[s].description}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <button className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-destructive/40 hover:text-destructive">
+      <button
+        onClick={signOut}
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:text-destructive"
+      >
         <LogOut className="h-4 w-4" /> Se déconnecter
       </button>
+    </div>
+  );
+}
+
+/* ---------------- COMMUNAUTÉ ---------------- */
+
+function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
+  const loading = useLoading([]);
+  const highlights = useMemo(
+    () => PROS.filter((p) => p.status === "verifie" || p.status === "equipe").slice(0, 6),
+    [],
+  );
+  return (
+    <div className="space-y-6">
+      <section className="overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">La communauté</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Une confiance construite depuis 2022</h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            [STATS.plans, STATS.plansLabel],
+            [STATS.members, STATS.membersLabel],
+            [STATS.pros, STATS.prosLabel],
+          ].map(([v, l]) => (
+            <div key={l} className="rounded-2xl bg-muted/50 p-4">
+              <p className="font-display text-2xl font-bold text-accent">{v}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{l}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <div className="flex items-center gap-4">
+          <Avatar initials={FOUNDER.initials} color="var(--forest)" size={64} />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-display text-lg font-semibold">{FOUNDER.name}</h3>
+              <StatusBadge status="equipe" />
+            </div>
+            <p className="text-sm text-muted-foreground">{FOUNDER.role} · {FOUNDER.city}</p>
+          </div>
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+        <button
+          onClick={() => onOpen(FOUNDER)}
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40"
+        >
+          Voir le profil <ArrowRight className="h-4 w-4" />
+        </button>
+      </section>
+
+      <section>
+        <h3 className="mb-4 font-display text-lg font-semibold">Membres mis en avant</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {loading
+            ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+            : highlights.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onOpen(p)}
+                  className="flex items-center gap-3 rounded-3xl border border-border bg-card p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
+                >
+                  <Avatar initials={p.initials} color={p.color} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{p.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
+                    </p>
+                  </div>
+                  <StatusBadge status={p.status ?? "reference"} />
+                </button>
+              ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ---------------- GUIDES ---------------- */
+
+function GuidesView() {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Guides</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Préparer votre arrivée, étape par étape</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Démarches, bonnes pratiques et contacts indispensables par pays.
+        </p>
+        <Link
+          to="/guide"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+        >
+          Ouvrir le guide d'arrivée <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {CATEGORIES.map((c) => {
+          const Icon = CATEGORY_ICONS[c.icon];
+          return (
+            <div key={c.slug} className="rounded-3xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+              <span className="icon-circle mb-4"><Icon className="h-5 w-5" /></span>
+              <p className="font-semibold">{c.label}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Les repères essentiels de l'univers {c.label.toLowerCase()} dans les villes couvertes.
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- BIBLIOTHÈQUE ---------------- */
+
+function LibraryView({ locked }: { locked: boolean }) {
+  const loading = useLoading([]);
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bibliothèque</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Les ressources de la communauté</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {locked
+            ? "Visible par tous, accessible aux membres connectés."
+            : "Accès complet — téléchargez et consultez librement."}
+        </p>
+        {locked && (
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <Link to="/connexion" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              <Lock className="h-4 w-4" /> Débloquer la bibliothèque
+            </Link>
+            <Link to="/inscription" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">
+              Créer un compte
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {loading
+          ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+          : LIBRARY.map((item) => (
+              <div key={item.id} className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft">
+                <div className={locked ? "select-none blur-[3px]" : ""}>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {item.format}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {CATEGORIES.find((c) => c.slug === item.category)?.label}
+                    </span>
+                  </div>
+                  <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                    <Download className="h-4 w-4" /> Consulter
+                  </span>
+                </div>
+                {locked && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-card/55 backdrop-blur-[1px]">
+                    <span className="icon-circle"><Lock className="h-5 w-5" /></span>
+                    <Link to="/connexion" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
+                      Se connecter pour ouvrir
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- COUVERTURE ---------------- */
+
+function CoverageCard() {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+      <h3 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Villes couvertes</h3>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {MAIN_CITIES.map((c) => (
+          <span key={c} className="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest">{c}</span>
+        ))}
+      </div>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">En cours d'ouverture</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {OPENING_CITIES.map((c) => (
+          <span key={c} className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">{c}</span>
+        ))}
+      </div>
     </div>
   );
 }
