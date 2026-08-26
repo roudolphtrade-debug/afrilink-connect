@@ -809,8 +809,9 @@ function FavoritesView({
 /* ---------------- MESSAGING ---------------- */
 
 function MessagingView({
-  activeConv, setActiveConv,
-}: { activeConv: string | null; setActiveConv: (id: string | null) => void }) {
+  activeConv, setActiveConv, unreadMap, markRead,
+}: { activeConv: string | null; setActiveConv: (id: string | null) => void; unreadMap: Record<string, number>; markRead: (id: string) => void }) {
+
   const [drafts, setDrafts] = useState<Record<string, { from: string; text: string; time: string }[]>>({});
   const [input, setInput] = useState("");
   const [mobileThread, setMobileThread] = useState(false);
