@@ -869,46 +869,273 @@ function MessagingView({
 
 /* ---------------- PROFILE ---------------- */
 
-function ProfileView() {
+function ProfileView({
+  user, isAuthed, onFavorites,
+}: { user: AppUser; isAuthed: boolean; onFavorites: () => void }) {
+  if (!isAuthed) {
+    return (
+      <EmptyState
+        icon={<User className="h-5 w-5" />}
+        title="Créez votre profil AfriLink"
+        desc="Connectez-vous pour publier, échanger avec les pros et retrouver vos favoris sur tous vos appareils."
+        action={
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/inscription" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              Créer un compte
+            </Link>
+            <Link to="/connexion" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">
+              Se connecter
+            </Link>
+          </div>
+        }
+      />
+    );
+  }
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-3xl border border-border bg-white shadow-soft">
-        <div className="h-32 bg-gradient-to-br from-forest to-forest/70" />
+      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+        <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
         <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
-          <div className="rounded-full ring-4 ring-white">
-            <Avatar initials={CURRENT_USER.initials} color={CURRENT_USER.color} size={96} />
+          <div className="rounded-full ring-4 ring-card">
+            <Avatar initials={user.initials} color={user.color} size={96} />
           </div>
           <div className="flex-1">
-            <h2 className="font-display text-2xl font-bold">{CURRENT_USER.name}</h2>
-            <p className="text-sm text-muted-foreground">{CURRENT_USER.role} · {CURRENT_USER.city}</p>
+            <h2 className="font-display text-2xl font-bold">{user.name}</h2>
+            <p className="text-sm text-muted-foreground">{user.role} · {user.city}</p>
           </div>
-          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:border-primary/40">Modifier le profil</button>
+          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
+            Modifier le profil
+          </button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: "Favoris", value: 2 },
+          { label: "Favoris", value: 2, onClick: onFavorites },
           { label: "Conversations", value: 3 },
           { label: "Posts publiés", value: 1 },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-white p-5 shadow-soft">
+          <button
+            key={s.label}
+            onClick={s.onClick}
+            className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
+          >
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
             <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
-          </div>
+          </button>
         ))}
       </div>
 
-      <div className="rounded-3xl border border-border bg-white p-6 shadow-soft">
-        <h3 className="font-semibold">À propos</h3>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Je viens d'arriver à Douala avec ma famille. Je cherche à me constituer un réseau fiable pour l'installation, la scolarité et les loisirs.
-        </p>
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h3 className="font-semibold">Statuts de la communauté</h3>
+        <div className="mt-4 space-y-3">
+          {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
+            <div key={s} className="flex items-start gap-3">
+              <StatusBadge status={s} className="mt-0.5 shrink-0" />
+              <p className="text-sm text-muted-foreground">{STATUS_META[s].description}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <button className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-destructive/40 hover:text-destructive">
+      <button
+        onClick={signOut}
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:text-destructive"
+      >
         <LogOut className="h-4 w-4" /> Se déconnecter
       </button>
+    </div>
+  );
+}
+
+/* ---------------- COMMUNAUTÉ ---------------- */
+
+function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
+  const loading = useLoading([]);
+  const highlights = useMemo(
+    () => PROS.filter((p) => p.status === "verifie" || p.status === "equipe").slice(0, 6),
+    [],
+  );
+  return (
+    <div className="space-y-6">
+      <section className="overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">La communauté</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Une confiance construite depuis 2022</h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            [STATS.plans, STATS.plansLabel],
+            [STATS.members, STATS.membersLabel],
+            [STATS.pros, STATS.prosLabel],
+          ].map(([v, l]) => (
+            <div key={l} className="rounded-2xl bg-muted/50 p-4">
+              <p className="font-display text-2xl font-bold text-accent">{v}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{l}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <div className="flex items-center gap-4">
+          <Avatar initials={FOUNDER.initials} color="var(--forest)" size={64} />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-display text-lg font-semibold">{FOUNDER.name}</h3>
+              <StatusBadge status="equipe" />
+            </div>
+            <p className="text-sm text-muted-foreground">{FOUNDER.role} · {FOUNDER.city}</p>
+          </div>
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+        <button
+          onClick={() => onOpen(FOUNDER)}
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40"
+        >
+          Voir le profil <ArrowRight className="h-4 w-4" />
+        </button>
+      </section>
+
+      <section>
+        <h3 className="mb-4 font-display text-lg font-semibold">Membres mis en avant</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {loading
+            ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+            : highlights.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onOpen(p)}
+                  className="flex items-center gap-3 rounded-3xl border border-border bg-card p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
+                >
+                  <Avatar initials={p.initials} color={p.color} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{p.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
+                    </p>
+                  </div>
+                  <StatusBadge status={p.status ?? "reference"} />
+                </button>
+              ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ---------------- GUIDES ---------------- */
+
+function GuidesView() {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Guides</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Préparer votre arrivée, étape par étape</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Démarches, bonnes pratiques et contacts indispensables par pays.
+        </p>
+        <Link
+          to="/guide"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+        >
+          Ouvrir le guide d'arrivée <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {CATEGORIES.map((c) => {
+          const Icon = CATEGORY_ICONS[c.icon];
+          return (
+            <div key={c.slug} className="rounded-3xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+              <span className="icon-circle mb-4"><Icon className="h-5 w-5" /></span>
+              <p className="font-semibold">{c.label}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Les repères essentiels de l'univers {c.label.toLowerCase()} dans les villes couvertes.
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- BIBLIOTHÈQUE ---------------- */
+
+function LibraryView({ locked }: { locked: boolean }) {
+  const loading = useLoading([]);
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bibliothèque</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Les ressources de la communauté</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {locked
+            ? "Visible par tous, accessible aux membres connectés."
+            : "Accès complet — téléchargez et consultez librement."}
+        </p>
+        {locked && (
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <Link to="/connexion" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              <Lock className="h-4 w-4" /> Débloquer la bibliothèque
+            </Link>
+            <Link to="/inscription" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">
+              Créer un compte
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {loading
+          ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+          : LIBRARY.map((item) => (
+              <div key={item.id} className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft">
+                <div className={locked ? "select-none blur-[3px]" : ""}>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {item.format}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {CATEGORIES.find((c) => c.slug === item.category)?.label}
+                    </span>
+                  </div>
+                  <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                    <Download className="h-4 w-4" /> Consulter
+                  </span>
+                </div>
+                {locked && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-card/55 backdrop-blur-[1px]">
+                    <span className="icon-circle"><Lock className="h-5 w-5" /></span>
+                    <Link to="/connexion" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
+                      Se connecter pour ouvrir
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- COUVERTURE ---------------- */
+
+function CoverageCard() {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+      <h3 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Villes couvertes</h3>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {MAIN_CITIES.map((c) => (
+          <span key={c} className="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest">{c}</span>
+        ))}
+      </div>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">En cours d'ouverture</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {OPENING_CITIES.map((c) => (
+          <span key={c} className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">{c}</span>
+        ))}
+      </div>
     </div>
   );
 }
