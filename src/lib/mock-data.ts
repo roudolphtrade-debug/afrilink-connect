@@ -361,7 +361,7 @@ export const CURRENT_USER = {
 export type FeedPost = {
   id: string;
   kind: "demande" | "bon-plan" | "annonce" | "verif";
-  author: { name: string; initials: string; color: string; city: string; verified?: boolean };
+  author: { name: string; initials: string; color: string; city: string; verified?: boolean; avatar?: string };
   time: string;
   category?: string;
   title: string;
@@ -374,7 +374,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f1",
     kind: "demande",
-    author: { name: "Sophie L.", initials: "SL", color: "#D4A64A", city: "Douala" },
+    author: { name: "Sophie L.", initials: "SL", color: "#D4A64A", city: "Douala" , avatar: portrait("Sophie L.") },
     time: "il y a 12 min",
     category: "maison",
     title: "Cherche un bon plombier à Bonapriso ce week-end 🙏",
@@ -385,7 +385,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f2",
     kind: "bon-plan",
-    author: { name: "Marc D.", initials: "MD", color: "#0F2B1E", city: "Yaoundé", verified: false },
+    author: { name: "Marc D.", initials: "MD", color: "#0F2B1E", city: "Yaoundé", verified: false , avatar: portrait("Marc D.") },
     time: "il y a 1 h",
     category: "loisirs",
     title: "Super brunch découvert à Bastos ce dimanche",
@@ -396,7 +396,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f3",
     kind: "demande",
-    author: { name: "Awa T.", initials: "AT", color: "#3E7A5C", city: "Douala" },
+    author: { name: "Awa T.", initials: "AT", color: "#3E7A5C", city: "Douala" , avatar: portrait("Awa T.") },
     time: "il y a 2 h",
     category: "education",
     title: "Prof de maths pour 4e — 2 fois par semaine",
@@ -407,7 +407,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f4",
     kind: "annonce",
-    author: { name: "Franck Kamdem", initials: "FK", color: "#B8863A", city: "Douala", verified: false },
+    author: { name: "Franck Kamdem", initials: "FK", color: "#B8863A", city: "Douala", verified: false , avatar: portrait("Franck Kamdem") },
     time: "il y a 4 h",
     category: "immobilier",
     title: "3 pièces meublé disponible à Bonapriso — septembre",
@@ -428,7 +428,7 @@ export const FEED: FeedPost[] = [
   {
     id: "f6",
     kind: "bon-plan",
-    author: { name: "Nadia R.", initials: "NR", color: "#9C6E2B", city: "Kribi" },
+    author: { name: "Nadia R.", initials: "NR", color: "#9C6E2B", city: "Kribi" , avatar: portrait("Nadia R.") },
     time: "hier",
     category: "loisirs",
     title: "Week-end télétravail à Kribi — logement testé approuvé",
@@ -490,3 +490,43 @@ export const NOTIFICATIONS = [
   { id: "n3", text: "Votre profil a été consulté 8 fois cette semaine", time: "3 h", unread: false },
   { id: "n4", text: "Dr. Estelle a validé votre rendez-vous", time: "hier", unread: false },
 ];
+
+/* ---------- Témoignages communauté (fictifs, illustratifs) ---------- */
+
+export type Testimonial = {
+  name: string;
+  role: string;
+  initials: string;
+  color: string;
+  quote: string;
+};
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    name: "Nadia B.",
+    role: "Rentrée à Douala après 11 ans à Lyon",
+    initials: "NB",
+    color: "#0F2B1E",
+    quote:
+      "Mon premier mois, j'ai passé plus de temps à chercher un électricien qu'à travailler. Ici, on m'a donné un nom, un prix et un avis — j'ai appelé, c'était réglé le lendemain.",
+    avatarSeed: "Nadia B.",
+  },
+  {
+    name: "Yannick T.",
+    role: "Consultant, allers-retours Paris — Yaoundé",
+    initials: "YT",
+    color: "#B8863A",
+    quote:
+      "Ce qui change tout, c'est de savoir qui a déjà testé. Je ne cherche plus le meilleur prestataire du pays, je cherche celui que quelqu'un de la communauté recommande vraiment.",
+    avatarSeed: "Yannick T.",
+  },
+  {
+    name: "Fatou D.",
+    role: "Maman de deux enfants, installée à Dakar",
+    initials: "FD",
+    color: "#3E7A5C",
+    quote:
+      "J'avais peur de déranger en posant des questions basiques. Personne ne m'a jugée : école, pédiatre, garde d'enfants, j'ai eu trois réponses utiles le même soir.",
+    avatarSeed: "Fatou D.",
+  },
+].map((t) => ({ ...t, avatar: portrait(t.avatarSeed) }));
