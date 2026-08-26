@@ -140,6 +140,8 @@ const seed: (Omit<Pro, "id" | "color" | "initials" | "country" | "kind" | "avata
 
   // ==== Équipe AfriLink ====
   { name: "Odile Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", historic: true, bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
+  { name: "Roudolph Doualla", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Co-fondateur AfriLink", historic: true, bio: "Co-fondateur d'AfriLink, issu du monde de la tech. Il transforme le réseau de confiance né sur le terrain en une plateforme fiable, simple et accessible à toute la communauté." },
+
 
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
@@ -302,7 +304,10 @@ export const PROS: Pro[] = seed.map((p, i) => {
   };
 });
 
-export const FOUNDER = PROS.find((p) => p.status === "equipe")!;
+export const TEAM = PROS.filter((p) => p.status === "equipe");
+export const FOUNDER = PROS.find((p) => p.name === "Odile Ebongue")!;
+export const COFOUNDER = PROS.find((p) => p.name === "Roudolph Doualla")!;
+
 
 /** Contacts historiques réels référencés depuis Les Bons Plans du Bled. */
 export const HISTORIC_PROS = PROS.filter((p) => p.historic);
@@ -324,24 +329,180 @@ export const STATS = {
 export const MAIN_CITIES = ["Douala", "Yaoundé", "Dakar", "Abidjan"] as const;
 export const OPENING_CITIES = ["Libreville", "Cotonou", "Lomé", "Brazzaville"] as const;
 
-/* ---------- Bibliothèque (verrouillée avant connexion) ---------- */
+/* ---------- Bibliothèque (ouvrages du domaine public + notes de lecture) ---------- */
 
 export type LibraryItem = {
   id: string;
   title: string;
+  author: string;
+  year: number;
   format: string;
+  pages: number;
+  language: string;
+  license: string;
+  sourceLabel: string;
+  sourceUrl: string;
+  /** Dégradé de couverture (aucune image inventée). */
+  cover: [string, string];
   desc: string;
+  /** Note de lecture rédigée par AfriLink — aperçu ouvert à tous. */
+  preview: string;
+  /** Sommaire complet, réservé aux membres connectés. */
+  chapters: string[];
   category: string;
 };
 
 export const LIBRARY: LibraryItem[] = [
-  { id: "lib-1", title: "Checklist d'arrivée au Cameroun", format: "PDF", desc: "Les démarches à faire dans les 30 premiers jours : enregistrement consulaire, titre de séjour, compte bancaire.", category: "admin" },
-  { id: "lib-2", title: "Trouver un logement à Douala", format: "Guide", desc: "Quartiers, ordres de prix, pièges à éviter et questions à poser avant de signer.", category: "immobilier" },
-  { id: "lib-3", title: "Santé : les bons réflexes", format: "Guide", desc: "Assurance internationale, urgences, praticiens de confiance dans les villes couvertes.", category: "sante" },
-  { id: "lib-4", title: "Scolariser ses enfants", format: "Guide", desc: "Systèmes scolaires, calendriers d'inscription et soutien scolaire à domicile.", category: "education" },
-  { id: "lib-5", title: "Se déplacer en sécurité", format: "Fiche", desc: "Chauffeurs, location, trajets aéroport et interurbain : ce qu'il faut savoir.", category: "transport" },
-  { id: "lib-6", title: "Créer son activité sur place", format: "PDF", desc: "Formalités de création d'entreprise, recrutement local et coûts à anticiper.", category: "emploi" },
+  {
+    id: "lib-1",
+    title: "Voyage à Tombouctou",
+    author: "René Caillié",
+    year: 1830,
+    format: "Livre",
+    pages: 475,
+    language: "Français",
+    license: "Domaine public",
+    sourceLabel: "Wikisource",
+    sourceUrl: "https://fr.wikisource.org/wiki/Journal_d%E2%80%99un_voyage_%C3%A0_Tombouctou_et_%C3%A0_Jenn%C3%A9",
+    cover: ["#0F2B1E", "#3E7A5C"],
+    desc: "Le récit fondateur d'une traversée de l'Afrique de l'Ouest, du Sénégal au Niger, par un voyageur parti sans escorte.",
+    preview:
+      "Note de lecture AfriLink — Caillié raconte moins des exploits que des détails de terrain : négocier un passage, se loger chez l'habitant, comprendre les usages avant de demander un service. C'est exactement la logique qui fonde AfriLink : la bonne personne avant la bonne adresse.",
+    chapters: [
+      "Départ de Saint-Louis et préparatifs",
+      "Séjour chez les Braknas",
+      "La route de Kankan",
+      "Djenné et le fleuve Niger",
+      "Tombouctou",
+      "La traversée du Sahara",
+    ],
+    category: "loisirs",
+  },
+  {
+    id: "lib-2",
+    title: "Travels in West Africa",
+    author: "Mary H. Kingsley",
+    year: 1897,
+    format: "Livre",
+    pages: 743,
+    language: "Anglais",
+    license: "Domaine public",
+    sourceLabel: "Project Gutenberg",
+    sourceUrl: "https://www.gutenberg.org/ebooks/5891",
+    cover: ["#2F6B4F", "#D4A64A"],
+    desc: "Observations de première main sur le Gabon, le Cameroun et le golfe de Guinée : commerce, langues, sociétés locales.",
+    preview:
+      "Note de lecture AfriLink — Kingsley décrit les circuits commerciaux du Wouri et du Gabon avec un souci du concret rare pour l'époque. Utile pour comprendre pourquoi les réseaux de confiance priment encore aujourd'hui sur les annuaires.",
+    chapters: [
+      "From Liverpool to Sierra Leone",
+      "Along the Gold Coast",
+      "In the Ogowé",
+      "Fishing in the rapids",
+      "Ascent of Mungo Mah Lobeh (Mont Cameroun)",
+      "Trade and labour in West Africa",
+    ],
+    category: "education",
+  },
+  {
+    id: "lib-3",
+    title: "The Interesting Narrative of the Life of Olaudah Equiano",
+    author: "Olaudah Equiano",
+    year: 1789,
+    format: "Livre",
+    pages: 294,
+    language: "Anglais",
+    license: "Domaine public",
+    sourceLabel: "Project Gutenberg",
+    sourceUrl: "https://www.gutenberg.org/ebooks/15399",
+    cover: ["#9C6E2B", "#0F2B1E"],
+    desc: "L'autobiographie majeure d'un homme né en pays igbo, déporté, affranchi, devenu figure de l'abolitionnisme.",
+    preview:
+      "Note de lecture AfriLink — Un texte de référence sur l'identité, l'exil et le retour. À lire avant tout projet de réinstallation : il rappelle que revenir n'est jamais seulement une question logistique.",
+    chapters: [
+      "Enfance en pays igbo",
+      "La traversée",
+      "Les Antilles",
+      "Le rachat de la liberté",
+      "Voyages en Europe",
+      "L'engagement abolitionniste",
+    ],
+    category: "education",
+  },
+  {
+    id: "lib-4",
+    title: "African Life and Customs",
+    author: "Edward W. Blyden",
+    year: 1908,
+    format: "Essai",
+    pages: 91,
+    language: "Anglais",
+    license: "Domaine public",
+    sourceLabel: "Project Gutenberg",
+    sourceUrl: "https://www.gutenberg.org/ebooks/60123",
+    cover: ["#3E7A5C", "#B8863A"],
+    desc: "Essai court sur l'organisation sociale africaine : famille élargie, entraide, transmission et institutions locales.",
+    preview:
+      "Note de lecture AfriLink — Blyden formalise ce que la communauté vit tous les jours : l'entraide comme institution. Une grille de lecture utile pour comprendre nos statuts Référencé, Recommandé et Vérifié.",
+    chapters: [
+      "The African family",
+      "Communal life",
+      "Property and land",
+      "Education and transmission",
+      "Religion and social order",
+    ],
+    category: "admin",
+  },
+  {
+    id: "lib-5",
+    title: "Fables sénégalaises recueillies de l'Ouolof",
+    author: "Baron Roger",
+    year: 1828,
+    format: "Recueil",
+    pages: 288,
+    language: "Français",
+    license: "Domaine public",
+    sourceLabel: "Gallica (BnF)",
+    sourceUrl: "https://gallica.bnf.fr/ark:/12148/bpt6k5822842f",
+    cover: ["#D4A64A", "#2F6B4F"],
+    desc: "L'un des premiers recueils de fables wolof transcrites, avec notes sur les usages et la langue.",
+    preview:
+      "Note de lecture AfriLink — Une porte d'entrée dans les codes de politesse et la manière de demander un service en Afrique de l'Ouest. Court, lisible, parfait avant un premier séjour à Dakar.",
+    chapters: [
+      "Avant-propos sur la langue ouolof",
+      "Fables des animaux",
+      "Fables des hommes",
+      "Proverbes et dictons",
+      "Notes sur les usages",
+    ],
+    category: "loisirs",
+  },
+  {
+    id: "lib-6",
+    title: "Voyage dans l'Afrique occidentale",
+    author: "Anne Raffenel",
+    year: 1846,
+    format: "Livre",
+    pages: 512,
+    language: "Français",
+    license: "Domaine public",
+    sourceLabel: "Gallica (BnF)",
+    sourceUrl: "https://gallica.bnf.fr/ark:/12148/bpt6k103765q",
+    cover: ["#B8863A", "#0F2B1E"],
+    desc: "Description détaillée du Sénégal et de la haute vallée du fleuve : routes, marchés, saisons, ravitaillement.",
+    preview:
+      "Note de lecture AfriLink — Le chapitre sur les marchés et les saisons reste étonnamment actuel pour anticiper les prix et les périodes creuses. Complément historique à nos guides d'arrivée.",
+    chapters: [
+      "Saint-Louis et la côte",
+      "Le fleuve Sénégal",
+      "Bakel et le haut fleuve",
+      "Marchés et échanges",
+      "Climat et saisons",
+      "Retour et enseignements",
+    ],
+    category: "admin",
+  },
 ];
+
 
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 

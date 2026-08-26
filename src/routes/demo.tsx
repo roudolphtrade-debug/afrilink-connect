@@ -11,6 +11,7 @@ import { Avatar } from "@/components/Avatar";
 import { LocationMap } from "@/components/LocationMap";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
+import { HelpDrawer } from "@/components/HelpDrawer";
 import { useSession, signOut } from "@/lib/auth-store";
 import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
 
@@ -36,7 +37,10 @@ export const Route = createFileRoute("/demo")({
   component: AppShell,
 });
 
-type Tab = "feed" | "search" | "community" | "guides" | "library" | "messages" | "favorites" | "profile";
+type Tab = "feed" | "search" | "community" | "guides" | "library" | "messages" | "favorites" | "profile" | "settings";
+
+export type ProfileOverride = { name: string; city: string; bio: string };
+
 
 /** Petit délai simulé pour afficher les skeletons de chargement. */
 function useLoading(deps: unknown[], ms = 500) {
@@ -60,6 +64,8 @@ export function AppShell() {
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
   const [readConvs, setReadConvs] = usePersistedState<string[]>("afrilink.readConvs", []);
+  const [profileEdits, setProfileEdits] = usePersistedState<ProfileOverride>("afrilink.profile", { name: "", city: "", bio: "" });
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const unreadMap = useMemo(() => {
     const m: Record<string, number> = {};
@@ -73,9 +79,14 @@ export function AppShell() {
   const markAllRead = () => setReadConvs(MOCK_CONVERSATIONS.map((c) => c.id));
 
 
-  const user = session
+  const baseUser = session
     ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink", avatar: portrait(session.name) }
     : CURRENT_USER;
+  const user = {
+    ...baseUser,
+    name: profileEdits.name.trim() || baseUser.name,
+    city: profileEdits.city.trim() || baseUser.city,
+  };
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
@@ -88,6 +99,25 @@ export function AppShell() {
     setActiveConv("new-" + pro.id);
     setTab("messages");
   };
+
+  const searchFor = (term: string) => {
+    setQuery(term);
+    setTab("search");
+  };
+
+  const deleteAccount = () => {
+    ["afrilink.favorites", "afrilink.favLibrary", "afrilink.readConvs", "afrilink.profile",
+      "afrilink.filters.cat", "afrilink.filters.status", "afrilink.filters.country",
+      "afrilink.filters.city", "afrilink.filters.sort", "afrilink.settings"].forEach((k) => {
+        try { window.localStorage.removeItem(k); } catch { /* ignore */ }
+      });
+    signOut();
+    setFavorites([]);
+    setFavLibrary([]);
+    setProfileEdits({ name: "", city: "", bio: "" });
+    setTab("feed");
+  };
+
 
   const nav: { id: Tab; label: string; icon: typeof HomeIcon; badge?: number }[] = [
     { id: "feed", label: "Accueil", icon: HomeIcon },
@@ -241,10 +271,16 @@ export function AppShell() {
               </button>
             ))}
             <div className="my-2 h-px bg-border" />
-            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+            <button
+              onClick={() => setTab("settings")}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${tab === "settings" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
               <Settings className="h-4 w-4" /> Paramètres
             </button>
-            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted"
+            >
               <HelpCircle className="h-4 w-4" /> Aide
             </button>
           </nav>
@@ -255,20 +291,40 @@ export function AppShell() {
           {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
           {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
-          {tab === "guides" && <GuidesView />}
+          {tab === "guides" && <GuidesView onCategory={searchFor} />}
           {tab === "library" && <LibraryView locked={!session} favLibrary={favLibrary} toggleLibFav={toggleLibFav} />}
           {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} favLibrary={favLibrary} toggleLibFav={toggleLibFav} onOpen={setOpenPro} onExplore={() => setTab("search")} onLibrary={() => setTab("library")} />}
           {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} unreadMap={unreadMap} markRead={markRead} />}
-
-          {tab === "profile" && <ProfileView user={user} isAuthed={!!session} onFavorites={() => setTab("favorites")} />}
+          {tab === "settings" && (
+            <SettingsView
+              user={user}
+              isAuthed={!!session}
+              profileEdits={profileEdits}
+              setProfileEdits={setProfileEdits}
+              onDeleteAccount={deleteAccount}
+              onHelp={() => setHelpOpen(true)}
+            />
+          )}
+          {tab === "profile" && (
+            <ProfileView
+              user={user}
+              isAuthed={!!session}
+              bio={profileEdits.bio}
+              onFavorites={() => setTab("favorites")}
+              onEdit={() => setTab("settings")}
+              onMessages={() => setTab("messages")}
+              onFeed={() => setTab("feed")}
+            />
+          )}
         </main>
 
         {/* RIGHT RAIL */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-4">
-            <CoverageCard />
-            <TrendingCard />
+            <CoverageCard onCity={searchFor} />
+            <TrendingCard onTag={searchFor} />
             <SuggestedProsCard onOpen={setOpenPro} />
+
             <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-xs text-muted-foreground">
               <p className="font-semibold text-accent">Vous êtes en aperçu</p>
               <p className="mt-1">Cette version utilise des données de démonstration. Les vraies connexions arrivent bientôt.</p>
@@ -307,6 +363,16 @@ export function AppShell() {
         </span>
       </div>
 
+      {/* AIDE FLOTTANTE */}
+      <button
+        onClick={() => setHelpOpen(true)}
+        className="fixed bottom-20 left-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-xs font-bold shadow-elevated transition hover:-translate-y-0.5 hover:border-primary/40 md:bottom-4"
+      >
+        <HelpCircle className="h-4 w-4 text-accent" /> Aide
+      </button>
+      <HelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} />
+
+
       {openPro && (
         <ProfileModal
           pro={openPro}
@@ -325,30 +391,45 @@ export function AppShell() {
 type AppUser = { name: string; initials: string; color: string; city: string; role: string; avatar?: string };
 
 function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
-  const loading = useLoading([]);
   const [posts, setPosts] = useState(FEED);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
+  const [saved, setSaved] = useState<Record<string, boolean>>({});
+  const [openReplies, setOpenReplies] = useState<string | null>(null);
   const [composer, setComposer] = useState("");
+  const [kind, setKind] = useState<"demande" | "bon-plan">("demande");
+  const [postCat, setPostCat] = useState<string>("maison");
+  const [filter, setFilter] = useState<string>("all");
+  const [flash, setFlash] = useState<string | null>(null);
+  const loading = useLoading([filter], 320);
+
+  const visible = posts.filter((p) => filter === "all" || p.category === filter);
+  const countFor = (slug: string) => posts.filter((p) => p.category === slug).length;
 
   const toggleLike = (id: string) => {
     setLiked((l) => ({ ...l, [id]: !l[id] }));
     setPosts((ps) => ps.map((p) => p.id === id ? { ...p, likes: p.likes + (liked[id] ? -1 : 1) } : p));
   };
 
+  const toggleSave = (id: string) => setSaved((s) => ({ ...s, [id]: !s[id] }));
+
   const publish = () => {
     if (!composer.trim()) return;
     const newPost: FeedPost = {
       id: "new-" + Date.now(),
-      kind: "demande",
-      author: { name: user.name, initials: user.initials, color: user.color, city: user.city },
+      kind,
+      author: { name: user.name, initials: user.initials, color: user.color, city: user.city, avatar: user.avatar },
       time: "à l'instant",
-      title: composer.slice(0, 80),
+      category: postCat,
+      title: composer.split("\n")[0].slice(0, 80),
       body: composer,
       replies: 0,
       likes: 0,
     };
     setPosts((ps) => [newPost, ...ps]);
     setComposer("");
+    setFilter("all");
+    setFlash(kind === "demande" ? "Votre demande est publiée dans le fil." : "Votre bon plan est publié dans le fil.");
+    setTimeout(() => setFlash(null), 4000);
   };
 
   return (
@@ -374,55 +455,122 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
         <div className="flex gap-3">
           <Avatar initials={user.initials} color={user.color} src={user.avatar} />
           <div className="flex-1">
+            <div className="mb-2 flex flex-wrap items-center gap-1.5">
+              <button
+                onClick={() => setKind("demande")}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "demande" ? "bg-forest text-forest-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+              >
+                Demande
+              </button>
+              <button
+                onClick={() => setKind("bon-plan")}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "bon-plan" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+              >
+                Bon plan
+              </button>
+              <select
+                value={postCat}
+                onChange={(e) => setPostCat(e.target.value)}
+                aria-label="Univers de la publication"
+                className="ml-auto rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-semibold"
+              >
+                {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+              </select>
+            </div>
             <textarea
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
-              placeholder="Posez une question à la communauté, partagez un bon plan…"
+              placeholder={kind === "demande"
+                ? "De quoi avez-vous besoin ? (métier, quartier, délai…)"
+                : "Partagez un bon plan : le lieu, le prix, pourquoi vous le recommandez."}
               rows={2}
               className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-white"
             />
-            <div className="mt-2 flex items-center justify-between">
-              <div className="flex gap-1.5 text-xs text-muted-foreground">
-                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">Demande</span>
-                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">Bon plan</span>
-              </div>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="text-[11px] text-muted-foreground">
+                Publication de démonstration : visible dans ce fil, sur cet appareil uniquement.
+              </p>
               <button
                 onClick={publish}
                 disabled={!composer.trim()}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition disabled:opacity-40"
               >
                 <PenSquare className="h-3.5 w-3.5" /> Publier
               </button>
             </div>
           </div>
         </div>
+        {flash && (
+          <p className="mt-3 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
+        )}
       </div>
 
       {/* CATEGORY CHIPS */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        <button className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground">Pour vous</button>
-        {CATEGORIES.slice(0, 6).map((c) => {
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <button
+          onClick={() => setFilter("all")}
+          className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white hover:border-primary/40"}`}
+        >
+          Pour vous <span className="opacity-60">{posts.length}</span>
+        </button>
+        {CATEGORIES.map((c) => {
           const Icon = CATEGORY_ICONS[c.icon];
+          const active = filter === c.slug;
           return (
-            <button key={c.slug} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-semibold hover:border-primary/40">
+            <button
+              key={c.slug}
+              onClick={() => setFilter(active ? "all" : c.slug)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
+                active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-white hover:border-primary/40"
+              }`}
+            >
               <Icon className="h-3.5 w-3.5" />
-              {c.label}
+              {c.label} <span className="opacity-60">{countFor(c.slug)}</span>
             </button>
           );
         })}
       </div>
 
       {/* POSTS */}
-      {loading
-        ? [0, 1, 2].map((i) => <PostSkeleton key={i} />)
-        : posts.map((p) => (
-            <PostCard key={p.id} post={p} liked={!!liked[p.id]} onLike={() => toggleLike(p.id)} />
-          ))}
+      {loading ? (
+        [0, 1, 2].map((i) => <PostSkeleton key={i} />)
+      ) : visible.length === 0 ? (
+        <EmptyState
+          icon={<PenSquare className="h-5 w-5" />}
+          title="Rien encore dans cet univers"
+          desc="Soyez la première personne à publier une demande ou un bon plan ici."
+          action={
+            <button onClick={() => setFilter("all")} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              Voir tout le fil
+            </button>
+          }
+        />
+      ) : (
+        visible.map((p) => (
+          <PostCard
+            key={p.id}
+            post={p}
+            liked={!!liked[p.id]}
+            saved={!!saved[p.id]}
+            repliesOpen={openReplies === p.id}
+            onLike={() => toggleLike(p.id)}
+            onSave={() => toggleSave(p.id)}
+            onToggleReplies={() => setOpenReplies(openReplies === p.id ? null : p.id)}
+            onReply={() => setPosts((ps) => ps.map((x) => x.id === p.id ? { ...x, replies: x.replies + 1 } : x))}
+          />
+        ))
+      )}
     </div>
   );
 }
 
-function PostCard({ post, liked, onLike }: { post: FeedPost; liked: boolean; onLike: () => void }) {
+
+function PostCard({
+  post, liked, saved, repliesOpen, onLike, onSave, onToggleReplies, onReply,
+}: {
+  post: FeedPost; liked: boolean; saved: boolean; repliesOpen: boolean;
+  onLike: () => void; onSave: () => void; onToggleReplies: () => void; onReply: () => void;
+}) {
   const cat = CATEGORIES.find((c) => c.slug === post.category);
   const kindLabel: Record<FeedPost["kind"], { label: string; className: string }> = {
     demande: { label: "Demande", className: "bg-forest/10 text-forest" },
@@ -461,40 +609,97 @@ function PostCard({ post, liked, onLike }: { post: FeedPost; liked: boolean; onL
         <button onClick={onLike} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${liked ? "bg-accent/15 text-accent" : "text-muted-foreground hover:bg-muted"}`}>
           <ThumbsUp className={`h-3.5 w-3.5 ${liked ? "fill-accent" : ""}`} /> {post.likes}
         </button>
-        <button className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold text-muted-foreground hover:bg-muted">
+        <button
+          onClick={onToggleReplies}
+          aria-expanded={repliesOpen}
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${repliesOpen ? "bg-muted text-forest" : "text-muted-foreground hover:bg-muted"}`}
+        >
           <MessageCircle className="h-3.5 w-3.5" /> {post.replies} réponses
         </button>
-        <button className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold text-muted-foreground hover:bg-muted">
-          <Bookmark className="h-3.5 w-3.5" /> Enregistrer
+        <button
+          onClick={onSave}
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${saved ? "bg-accent/15 text-accent" : "text-muted-foreground hover:bg-muted"}`}
+        >
+          <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-accent" : ""}`} /> {saved ? "Enregistré" : "Enregistrer"}
         </button>
       </div>
+      {repliesOpen && <PostReplies onReply={onReply} />}
     </article>
   );
 }
 
+function PostReplies({ onReply }: { onReply: () => void }) {
+  const [draft, setDraft] = useState("");
+  const [sent, setSent] = useState<string[]>([]);
+
+  const send = () => {
+    if (!draft.trim()) return;
+    setSent((s) => [...s, draft.trim()]);
+    setDraft("");
+    onReply();
+  };
+
+  return (
+    <div className="mt-3 space-y-3 rounded-2xl bg-muted/40 p-3">
+      {sent.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          Aucune réponse affichée pour l'instant — écrivez la première.
+        </p>
+      ) : (
+        sent.map((m, i) => (
+          <p key={i} className="rounded-2xl bg-white px-3 py-2 text-sm shadow-soft">{m}</p>
+        ))
+      )}
+      <div className="flex gap-2">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          placeholder="Répondre…"
+          className="flex-1 rounded-full border border-border bg-white px-4 py-2 text-sm outline-none focus:border-primary"
+        />
+        <button
+          onClick={send}
+          disabled={!draft.trim()}
+          className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40"
+        >
+          Envoyer
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 /* ---------------- RIGHT RAIL ---------------- */
 
-function TrendingCard() {
+function TrendingCard({ onTag }: { onTag: (term: string) => void }) {
   const trends = [
-    { tag: "#Bonapriso", posts: "42 posts cette semaine" },
-    { tag: "#PermisDeConduire", posts: "28 discussions" },
-    { tag: "#Kribi", posts: "19 bons plans" },
-    { tag: "#RetourAuBled", posts: "15 posts" },
+    { tag: "#Bonapriso", term: "Bonapriso", posts: "42 posts cette semaine" },
+    { tag: "#PermisDeConduire", term: "permis", posts: "28 discussions" },
+    { tag: "#Kribi", term: "Kribi", posts: "19 bons plans" },
+    { tag: "#RetourAuBled", term: "Douala", posts: "15 posts" },
   ];
   return (
     <div className="rounded-2xl border border-border bg-white p-4 shadow-soft">
       <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-accent" /> Tendances au Cameroun</h3>
       <ul className="mt-3 space-y-2">
         {trends.map((t) => (
-          <li key={t.tag} className="rounded-xl p-2 hover:bg-muted">
-            <p className="text-sm font-semibold">{t.tag}</p>
-            <p className="text-xs text-muted-foreground">{t.posts}</p>
+          <li key={t.tag}>
+            <button
+              onClick={() => onTag(t.term)}
+              className="w-full rounded-xl p-2 text-left transition hover:bg-muted"
+            >
+              <p className="text-sm font-semibold">{t.tag}</p>
+              <p className="text-xs text-muted-foreground">{t.posts}</p>
+            </button>
           </li>
         ))}
       </ul>
     </div>
   );
 }
+
 
 function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
   const suggested = PROS.filter((p) => p.verified && ["Douala", "Yaoundé", "Kribi"].includes(p.city)).slice(0, 3);
@@ -1119,8 +1324,11 @@ function MessagingView({
 /* ---------------- PROFILE ---------------- */
 
 function ProfileView({
-  user, isAuthed, onFavorites,
-}: { user: AppUser; isAuthed: boolean; onFavorites: () => void }) {
+  user, isAuthed, bio, onFavorites, onEdit, onMessages, onFeed,
+}: {
+  user: AppUser; isAuthed: boolean; bio: string;
+  onFavorites: () => void; onEdit: () => void; onMessages: () => void; onFeed: () => void;
+}) {
   if (!isAuthed) {
     return (
       <EmptyState
@@ -1163,8 +1371,17 @@ function ProfileView({
             {isFounder && (
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
             )}
+            {isFounder && (
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+            )}
+            {!isFounder && bio.trim() && (
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{bio}</p>
+            )}
           </div>
-          <button className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
+          <button
+            onClick={onEdit}
+            className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40"
+          >
             Modifier le profil
           </button>
         </div>
@@ -1174,8 +1391,8 @@ function ProfileView({
       <div className="grid gap-4 sm:grid-cols-3">
         {[
           { label: "Favoris", value: 2, onClick: onFavorites },
-          { label: "Conversations", value: 3 },
-          { label: "Posts publiés", value: 1 },
+          { label: "Conversations", value: 3, onClick: onMessages },
+          { label: "Posts publiés", value: 1, onClick: onFeed },
         ].map((s) => (
           <button
             key={s.label}
@@ -1190,6 +1407,7 @@ function ProfileView({
 
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
         <h3 className="font-semibold">Statuts de la communauté</h3>
+
         <div className="mt-4 space-y-3">
           {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
             <div key={s} className="flex items-start gap-3">
@@ -1286,7 +1504,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
 
 /* ---------------- GUIDES ---------------- */
 
-function GuidesView() {
+function GuidesView({ onCategory }: { onCategory: (term: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
@@ -1306,16 +1524,24 @@ function GuidesView() {
         {CATEGORIES.map((c) => {
           const Icon = CATEGORY_ICONS[c.icon];
           return (
-            <div key={c.slug} className="rounded-3xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+            <button
+              key={c.slug}
+              onClick={() => onCategory(c.label)}
+              className="rounded-3xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-medium"
+            >
               <span className="icon-circle mb-4"><Icon className="h-5 w-5" /></span>
               <p className="font-semibold">{c.label}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Les repères essentiels de l'univers {c.label.toLowerCase()} dans les villes couvertes.
               </p>
-            </div>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">
+                Voir les pros <ArrowRight className="h-3 w-3" />
+              </span>
+            </button>
           );
         })}
       </div>
+
     </div>
   );
 }
@@ -1324,6 +1550,7 @@ function GuidesView() {
 
 function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; favLibrary: string[]; toggleLibFav: (id: string) => void }) {
   const [cat, setCat] = useState<string>("all");
+  const [reading, setReading] = useState<LibraryItem | null>(null);
   const loading = useLoading([cat]);
   const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
   const libCats = CATEGORIES.filter((c) => LIBRARY.some((i) => i.category === c.slug));
@@ -1334,8 +1561,8 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
         <h2 className="mt-2 font-display text-2xl font-bold">Les ressources de la communauté</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {locked
-            ? "Visible par tous, accessible aux membres connectés."
-            : "Accès complet — téléchargez et consultez librement."}
+            ? "Ouvrages du domaine public : titres et notes de lecture visibles par tous, sommaire et lecture réservés aux membres."
+            : "Ouvrages du domaine public — sommaire, note de lecture et source officielle en accès libre."}
         </p>
         {locked && (
           <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -1362,30 +1589,46 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
         <EmptyState
           icon={<BookOpen className="h-5 w-5" />}
           title="Aucune ressource ici"
-          desc="Choisissez un autre univers pour retrouver les guides de la communauté."
+          desc="Choisissez un autre univers pour retrouver les ouvrages de la communauté."
           action={<button onClick={() => setCat("all")} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Voir tout</button>}
         />
       ) : (
-      <div className="grid gap-4 sm:grid-cols-2">
-        {loading
-          ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
-          : items.map((item) => (
-              <div key={item.id} className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft">
-                <div className={locked ? "select-none blur-[3px]" : ""}>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                      {item.format}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {CATEGORIES.find((c) => c.slug === item.category)?.label}
-                    </span>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {loading
+            ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
+            : items.map((item) => (
+                <article key={item.id} className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+                  <div className="flex gap-4 p-5">
+                    <div
+                      className="relative flex h-32 w-24 shrink-0 flex-col justify-end overflow-hidden rounded-xl p-2.5 text-[10px] font-semibold leading-tight text-white shadow-medium"
+                      style={{ background: `linear-gradient(150deg, ${item.cover[0]}, ${item.cover[1]})` }}
+                      aria-hidden="true"
+                    >
+                      <span className="absolute inset-y-0 left-1.5 w-px bg-white/25" />
+                      <span className="line-clamp-3">{item.title}</span>
+                      <span className="mt-1 opacity-70">{item.year}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
+                        <span className="rounded-full bg-forest-sage/15 px-2 py-0.5 text-[10px] font-bold text-forest-sage">{item.license}</span>
+                      </div>
+                      <p className="mt-2 font-display text-base font-semibold leading-snug">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{item.author} · {item.year}</p>
+                      <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.desc}</p>
+                      <p className="mt-2 text-[11px] text-muted-foreground">
+                        {item.pages} pages · {item.language} · {CATEGORIES.find((c) => c.slug === item.category)?.label}
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                      <Download className="h-4 w-4" /> Consulter
-                    </span>
+                  <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-3">
+                    <button
+                      onClick={() => setReading(item)}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+                    >
+                      {locked ? <Lock className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+                      {locked ? "Aperçu limité" : "Lire / consulter"}
+                    </button>
                     {!locked && (
                       <button
                         onClick={() => toggleLibFav(item.id)}
@@ -1396,42 +1639,353 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
                       </button>
                     )}
                   </div>
-
-                </div>
-                {locked && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-card/55 backdrop-blur-[1px]">
-                    <span className="icon-circle"><Lock className="h-5 w-5" /></span>
-                    <Link to="/connexion" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
-                      Se connecter pour ouvrir
-                    </Link>
-                  </div>
-                )}
-              </div>
-            ))}
-      </div>
+                </article>
+              ))}
+        </div>
       )}
-    </div>
 
+      {reading && <ReaderModal item={reading} locked={locked} onClose={() => setReading(null)} />}
+    </div>
   );
 }
 
+function ReaderModal({ item, locked, onClose }: { item: LibraryItem; locked: boolean; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest/60 p-0 backdrop-blur-sm md:items-center md:p-6" onClick={onClose}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-card shadow-elevated md:rounded-3xl"
+      >
+        <div
+          className="relative p-6 text-white"
+          style={{ background: `linear-gradient(140deg, ${item.cover[0]}, ${item.cover[1]})` }}
+        >
+          <button onClick={onClose} aria-label="Fermer" className="absolute right-4 top-4 rounded-full bg-white/15 p-2 hover:bg-white/25">
+            <X className="h-4 w-4" />
+          </button>
+          <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">{item.license}</p>
+          <h3 className="mt-2 font-display text-2xl font-bold leading-tight">{item.title}</h3>
+          <p className="mt-1 text-sm opacity-85">{item.author} · {item.year} · {item.pages} pages · {item.language}</p>
+        </div>
+
+        <div className="space-y-5 p-6">
+          <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+
+          <div className="rounded-2xl bg-muted/50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Aperçu</p>
+            <p className="mt-2 text-sm leading-relaxed">{item.preview}</p>
+          </div>
+
+          <div className="relative">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sommaire</p>
+            <ol className={`mt-3 space-y-2 text-sm ${locked ? "select-none blur-[3px]" : ""}`}>
+              {item.chapters.map((c, i) => (
+                <li key={c} className="flex gap-3">
+                  <span className="w-5 shrink-0 text-right font-semibold text-accent">{i + 1}</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ol>
+            {locked && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-card/70">
+                <span className="icon-circle"><Lock className="h-5 w-5" /></span>
+                <p className="max-w-xs text-center text-xs text-muted-foreground">
+                  Le sommaire complet et la lecture sont réservés aux membres AfriLink.
+                </p>
+                <Link to="/connexion" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
+                  Se connecter
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {!locked && (
+            <a
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+            >
+              <Download className="h-4 w-4" /> Lire sur {item.sourceLabel}
+            </a>
+          )}
+          <p className="text-[11px] text-muted-foreground">
+            Ouvrage du domaine public. AfriLink renvoie vers la source officielle et n'héberge aucun contenu protégé.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 /* ---------------- COUVERTURE ---------------- */
 
-function CoverageCard() {
+function CoverageCard({ onCity }: { onCity: (term: string) => void }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
       <h3 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Villes couvertes</h3>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {MAIN_CITIES.map((c) => (
-          <span key={c} className="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest">{c}</span>
+          <button
+            key={c}
+            onClick={() => onCity(c)}
+            className="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest transition hover:bg-forest hover:text-forest-foreground"
+          >
+            {c}
+          </button>
         ))}
       </div>
       <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">En cours d'ouverture</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {OPENING_CITIES.map((c) => (
-          <span key={c} className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">{c}</span>
+          <span key={c} title="Ouverture prochaine — pas encore de pros référencés" className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">{c}</span>
         ))}
       </div>
     </div>
   );
 }
+
+/* ---------------- PARAMÈTRES ---------------- */
+
+type AppSettings = {
+  notifMessages: boolean;
+  notifNouveautes: boolean;
+  notifNewsletter: boolean;
+  profilPublic: boolean;
+  villeVisible: boolean;
+  langue: string;
+  devise: string;
+};
+
+const DEFAULT_SETTINGS: AppSettings = {
+  notifMessages: true,
+  notifNouveautes: true,
+  notifNewsletter: false,
+  profilPublic: true,
+  villeVisible: true,
+  langue: "Français",
+  devise: "FCFA",
+};
+
+function SettingsSection({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+      <h3 className="font-display text-lg font-semibold">{title}</h3>
+      {desc && <p className="mt-1 text-sm text-muted-foreground">{desc}</p>}
+      <div className="mt-4 space-y-4">{children}</div>
+    </section>
+  );
+}
+
+function Toggle({ label, desc, checked, onChange }: { label: string; desc?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-start justify-between gap-4">
+      <span>
+        <span className="block text-sm font-semibold">{label}</span>
+        {desc && <span className="block text-xs text-muted-foreground">{desc}</span>}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-primary" : "bg-muted-foreground/30"}`}
+      >
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${checked ? "left-[22px]" : "left-0.5"}`} />
+      </button>
+    </label>
+  );
+}
+
+function SettingsView({
+  user, isAuthed, profileEdits, setProfileEdits, onDeleteAccount, onHelp,
+}: {
+  user: AppUser;
+  isAuthed: boolean;
+  profileEdits: ProfileOverride;
+  setProfileEdits: (v: ProfileOverride | ((p: ProfileOverride) => ProfileOverride)) => void;
+  onDeleteAccount: () => void;
+  onHelp: () => void;
+}) {
+  const [settings, setSettings] = usePersistedState<AppSettings>("afrilink.settings", DEFAULT_SETTINGS);
+  const [draft, setDraft] = useState<ProfileOverride>({
+    name: profileEdits.name || user.name,
+    city: profileEdits.city || user.city,
+    bio: profileEdits.bio,
+  });
+  const [saved, setSaved] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const set = <K extends keyof AppSettings>(k: K, v: AppSettings[K]) => setSettings((s) => ({ ...s, [k]: v }));
+
+  if (!isAuthed) {
+    return (
+      <EmptyState
+        icon={<Settings className="h-5 w-5" />}
+        title="Paramètres réservés aux membres"
+        desc="Connectez-vous pour gérer votre profil, vos notifications et votre confidentialité."
+        action={
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/connexion" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Se connecter</Link>
+            <Link to="/inscription" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">Créer un compte</Link>
+          </div>
+        }
+      />
+    );
+  }
+
+  const save = () => {
+    setProfileEdits({ name: draft.name.trim(), city: draft.city.trim(), bio: draft.bio.trim() });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Paramètres</p>
+        <h2 className="mt-2 font-display text-2xl font-bold">Votre compte AfriLink</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Les réglages sont enregistrés sur cet appareil pendant la phase de démonstration.
+        </p>
+      </div>
+
+      <SettingsSection title="Profil" desc="Ce que voit la communauté lorsqu'elle vous rencontre.">
+        <div className="flex items-center gap-4">
+          <Avatar initials={user.initials} color={user.color} src={user.avatar} size={64} />
+          <p className="text-xs text-muted-foreground">
+            Le changement de photo sera disponible à l'ouverture des comptes réels.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Nom affiché</span>
+            <input
+              value={draft.name}
+              onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+              className="mt-1.5 w-full rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-card"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Ville</span>
+            <select
+              value={draft.city}
+              onChange={(e) => setDraft((d) => ({ ...d, city: e.target.value }))}
+              className="mt-1.5 w-full rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-card"
+            >
+              {[...MAIN_CITIES, ...CITIES].filter((c, i, a) => a.indexOf(c) === i).map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Présentation</span>
+          <textarea
+            value={draft.bio}
+            onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
+            rows={3}
+            placeholder="Quelques lignes sur votre parcours et ce que vous cherchez."
+            className="mt-1.5 w-full resize-none rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-card"
+          />
+        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={save} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+            Enregistrer
+          </button>
+          {saved && <span className="text-xs font-semibold text-forest-sage">Profil mis à jour.</span>}
+        </div>
+      </SettingsSection>
+
+      <SettingsSection title="Notifications">
+        <Toggle label="Nouveaux messages" desc="Être prévenu dès qu'un pro ou un membre vous écrit." checked={settings.notifMessages} onChange={(v) => set("notifMessages", v)} />
+        <Toggle label="Nouveautés dans ma ville" desc="Pros vérifiés et bons plans ajoutés autour de vous." checked={settings.notifNouveautes} onChange={(v) => set("notifNouveautes", v)} />
+        <Toggle label="Lettre mensuelle" desc="Un récapitulatif, une fois par mois, sans relance." checked={settings.notifNewsletter} onChange={(v) => set("notifNewsletter", v)} />
+      </SettingsSection>
+
+      <SettingsSection title="Confidentialité">
+        <Toggle label="Profil visible dans la communauté" desc="Désactivez pour naviguer sans apparaître dans l'annuaire." checked={settings.profilPublic} onChange={(v) => set("profilPublic", v)} />
+        <Toggle label="Afficher ma ville" desc="Votre quartier exact n'est jamais partagé." checked={settings.villeVisible} onChange={(v) => set("villeVisible", v)} />
+        <Link to="/aide" className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
+          Lire notre politique de confidentialité <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </SettingsSection>
+
+      <SettingsSection title="Sécurité">
+        <p className="text-sm text-muted-foreground">
+          La gestion du mot de passe et la double authentification seront activées à l'ouverture des comptes réels.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/connexion" className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
+            Changer de compte
+          </Link>
+          <button onClick={onHelp} className="rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40">
+            Signaler un problème
+          </button>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection title="Préférences">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Langue</span>
+            <select
+              value={settings.langue}
+              onChange={(e) => set("langue", e.target.value)}
+              className="mt-1.5 w-full rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-card"
+            >
+              {["Français", "English"].map((l) => <option key={l}>{l}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Devise affichée</span>
+            <select
+              value={settings.devise}
+              onChange={(e) => set("devise", e.target.value)}
+              className="mt-1.5 w-full rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-card"
+            >
+              {["FCFA", "EUR"].map((d) => <option key={d}>{d}</option>)}
+            </select>
+          </label>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection title="Compte">
+        <button
+          onClick={signOut}
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-primary/40"
+        >
+          <LogOut className="h-4 w-4" /> Se déconnecter
+        </button>
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm font-semibold text-destructive">Supprimer mon compte</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Efface vos favoris, votre profil et vos préférences enregistrés sur cet appareil. Action définitive.
+          </p>
+          {confirmDelete ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={onDeleteAccount}
+                className="rounded-full bg-destructive px-4 py-2 text-xs font-semibold text-destructive-foreground"
+              >
+                Oui, tout supprimer
+              </button>
+              <button onClick={() => setConfirmDelete(false)} className="rounded-full border border-border px-4 py-2 text-xs font-semibold">
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="mt-3 rounded-full border border-destructive/40 px-4 py-2 text-xs font-semibold text-destructive"
+            >
+              Supprimer mon compte
+            </button>
+          )}
+        </div>
+      </SettingsSection>
+    </div>
+  );
+}
+

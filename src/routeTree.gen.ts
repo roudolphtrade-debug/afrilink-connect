@@ -15,6 +15,7 @@ import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AideRouteImport } from './routes/aide'
 import { Route as IndexRouteImport } from './routes/index'
 
 const InscriptionRoute = InscriptionRouteImport.update({
@@ -47,6 +48,11 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AideRoute = AideRouteImport.update({
+  id: '/aide',
+  path: '/aide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aide': typeof AideRoute
   '/app': typeof AppRoute
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aide': typeof AideRoute
   '/app': typeof AppRoute
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aide': typeof AideRoute
   '/app': typeof AppRoute
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aide'
     | '/app'
     | '/connexion'
     | '/demo'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aide'
     | '/app'
     | '/connexion'
     | '/demo'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/aide'
     | '/app'
     | '/connexion'
     | '/demo'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AideRoute: typeof AideRoute
   AppRoute: typeof AppRoute
   ConnexionRoute: typeof ConnexionRoute
   DemoRoute: typeof DemoRoute
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aide': {
+      id: '/aide'
+      path: '/aide'
+      fullPath: '/aide'
+      preLoaderRoute: typeof AideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AideRoute: AideRoute,
   AppRoute: AppRoute,
   ConnexionRoute: ConnexionRoute,
   DemoRoute: DemoRoute,
