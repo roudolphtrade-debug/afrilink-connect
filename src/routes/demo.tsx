@@ -726,16 +726,21 @@ function ProfileModal({
 /* ---------------- FAVORITES ---------------- */
 
 function FavoritesView({
-  favorites, toggleFav, onOpen,
-}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void }) {
+  favorites, toggleFav, onOpen, onExplore,
+}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void; onExplore: () => void }) {
   const list = PROS.filter((p) => favorites.includes(p.id));
   if (list.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-border bg-white p-12 text-center">
-        <Heart className="mx-auto h-10 w-10 text-muted-foreground" />
-        <p className="mt-4 font-semibold">Aucun favori pour l'instant</p>
-        <p className="mt-1 text-sm text-muted-foreground">Ajoutez des profils depuis la recherche pour les retrouver ici.</p>
-      </div>
+      <EmptyState
+        icon={<Heart className="h-5 w-5" />}
+        title="Aucun favori pour l'instant"
+        desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
+        action={
+          <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+            <Compass className="h-4 w-4" /> Explorer les pros
+          </button>
+        }
+      />
     );
   }
   return (
