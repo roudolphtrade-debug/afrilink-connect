@@ -371,9 +371,9 @@ function LandingPage() {
               <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
               <div className="mt-8 grid grid-cols-3 gap-6">
-                <Stat value="12 000+" label="Membres" />
-                <Stat value="1 200+" label="Pros vérifiés" />
-                <Stat value="4,7/5" label="Satisfaction" />
+                <Stat value={STATS.plans} label="Bons plans" />
+                <Stat value={STATS.members} label="Membres" />
+                <Stat value={STATS.pros} label="Pros de confiance" />
               </div>
             </Reveal>
             <div className="space-y-4">
