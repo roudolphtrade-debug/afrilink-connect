@@ -803,7 +803,7 @@ function ProfileModal({
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
             <div className={isTeam ? "rounded-full ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}>
-              <Avatar initials={pro.initials} color={pro.color} size={72} />
+              <Avatar initials={pro.initials} color={pro.color} src={pro.avatar} alt={pro.name} size={72} />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -823,21 +823,17 @@ function ProfileModal({
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X /></button>
         </div>
 
+        <div className="relative mt-6 flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-forest via-forest-light to-forest-sage">
+          <span className="font-display text-5xl font-bold tracking-tight text-forest-foreground/90">
+            {pro.initials}
+          </span>
+          <span className="absolute bottom-3 left-4 rounded-full bg-black/25 px-3 py-1 text-[11px] font-medium text-white backdrop-blur">
+            {pro.kind === "place"
+              ? "Visuels officiels en cours de collecte"
+              : `${cat?.label} · ${pro.city}`}
+          </span>
+        </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl">
-          <img src={pro.photo} alt={pro.name} className="h-48 w-full object-cover" loading="lazy" />
-        </div>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {pro.photos.map((src, i) => (
-            <img
-              key={src}
-              src={src}
-              alt={`${pro.name} — photo ${i + 1}`}
-              className="h-20 w-full rounded-xl object-cover"
-              loading="lazy"
-            />
-          ))}
-        </div>
 
         <div className="mt-6 flex gap-3 rounded-2xl bg-accent/10 p-4 text-sm">
           <ShieldCheck className="h-5 w-5 shrink-0 text-accent" />
