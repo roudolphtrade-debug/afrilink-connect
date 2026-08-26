@@ -121,13 +121,20 @@ export type Pro = {
   price?: string;
   color: string;
   initials: string;
-  photo: string;
-  photos: string[];
+  /** "place" = établissement / institution réelle : jamais de portrait inventé. */
+  kind: "person" | "place";
+  /** Portrait homogène et stable pour les profils communautaires (jamais pour un lieu réel). */
+  avatar?: string;
+  /** Contact historique issu de Les Bons Plans du Bled (depuis 2022). */
+  historic?: boolean;
 };
 
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
-const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photos">[] = [
+const seed: (Omit<Pro, "id" | "color" | "initials" | "country" | "kind" | "avatar"> & {
+  historic?: boolean;
+})[] = [
+
   // ==== Équipe AfriLink ====
   { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
 
