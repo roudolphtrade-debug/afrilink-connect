@@ -488,6 +488,8 @@ function SearchView({
     });
   }, [q, cat, country, city]);
 
+  const loading = useLoading([q, cat, country, city], 350);
+
   return (
     <div>
       <div className="rounded-3xl border border-border bg-white p-5 shadow-soft">
