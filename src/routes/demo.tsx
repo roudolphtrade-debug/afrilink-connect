@@ -801,6 +801,7 @@ function MessagingView({
 }: { activeConv: string | null; setActiveConv: (id: string | null) => void }) {
   const [drafts, setDrafts] = useState<Record<string, { from: string; text: string; time: string }[]>>({});
   const [input, setInput] = useState("");
+  const [mobileThread, setMobileThread] = useState(false);
 
   const isNew = activeConv?.startsWith("new-");
   const newProId = isNew ? activeConv!.replace("new-", "") : null;
@@ -815,14 +816,31 @@ function MessagingView({
       ? drafts[activeConv!] ?? []
       : [];
 
+  const openConv = (id: string) => {
+    setActiveConv(id);
+    setMobileThread(true);
+  };
+
   const send = () => {
     if (!input.trim() || !activeConv) return;
+    const text = input.trim();
+    const id = activeConv;
     setDrafts((d) => ({
       ...d,
-      [activeConv]: [...(d[activeConv] ?? []), { from: "me", text: input, time: "maintenant" }],
+      [id]: [...(d[id] ?? []), { from: "me", text, time: "À l'instant" }],
     }));
     setInput("");
+    setTimeout(() => {
+      setDrafts((d) => ({
+        ...d,
+        [id]: [
+          ...(d[id] ?? []),
+          { from: "them", text: "Merci pour votre message ! Je reviens vers vous très vite.", time: "À l'instant" },
+        ],
+      }));
+    }, 1600);
   };
+
 
   return (
     <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-white shadow-soft md:grid-cols-[280px_1fr]">
