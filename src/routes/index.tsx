@@ -138,7 +138,20 @@ function HeroSearch() {
           </button>
         ))}
       </div>
-      <p className="mt-4 text-xs text-muted-foreground">
+      <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <div className="flex -space-x-3">
+          {HISTORIC_PROS.slice(0, 4).map((p) => (
+            <div key={p.id} className="rounded-full ring-2 ring-secondary">
+              <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={34} />
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          <strong className="text-foreground">{STATS.members} membres</strong> et{" "}
+          <strong className="text-foreground">{STATS.plans} bons plans &amp; contacts</strong> partagés depuis 2022.
+        </p>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
         Bientôt : {OPENING_CITIES.join(" · ")}
       </p>
     </div>
@@ -384,6 +397,43 @@ function LandingPage() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* VILLES */}
+      <section id="villes" className="section-cream">
+        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Nos villes</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Là où la communauté est déjà active</h2>
+          </Reveal>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {MAIN_CITIES.map((c, i) => (
+              <Reveal key={c} delay={i * 60}>
+                <div className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-medium">
+                  <span className="flex items-center gap-3 font-semibold">
+                    <MapPin className="h-4 w-4 text-accent" /> {c}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-forest-sage">
+                    <span className="h-1.5 w-1.5 rounded-full bg-forest-sage" /> Ouverte
+                  </span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={120}>
+            <p className="mt-10 text-center text-sm font-semibold text-muted-foreground">En cours d'ouverture</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              {OPENING_CITIES.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center gap-2 rounded-full border border-dashed border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground transition hover:border-accent/40 hover:text-foreground"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent/70" /> {c}
+                </span>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
