@@ -665,15 +665,24 @@ function ProfileModal({
 }: { pro: Pro; isFav: boolean; onFav: () => void; onContact: () => void; onClose: () => void }) {
   const cat = CATEGORIES.find((c) => c.slug === pro.category);
   const reviews = MOCK_REVIEWS.default;
+  const isTeam = pro.status === "equipe";
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest/60 p-0 backdrop-blur-sm md:items-center md:p-6" onClick={onClose}>
       <div
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-6 shadow-elevated md:rounded-3xl md:p-8"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-card p-0 shadow-elevated md:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {isTeam && (
+          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-xs font-semibold text-forest-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Profil Équipe AfriLink — vérifié par la plateforme
+          </div>
+        )}
+        <div className="p-6 md:p-8">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
-            <Avatar initials={pro.initials} color={pro.color} size={72} />
+            <div className={isTeam ? "rounded-full ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}>
+              <Avatar initials={pro.initials} color={pro.color} size={72} />
+            </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-2xl font-bold">{pro.name}</h3>
@@ -691,6 +700,7 @@ function ProfileModal({
           </div>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X /></button>
         </div>
+
 
         <div className="mt-6 overflow-hidden rounded-2xl">
           <img src={pro.photo} alt={pro.name} className="h-48 w-full object-cover" loading="lazy" />
