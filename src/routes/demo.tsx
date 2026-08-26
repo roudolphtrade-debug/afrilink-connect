@@ -191,30 +191,34 @@ export function AppShell() {
 
         {/* MAIN */}
         <main className="min-w-0">
-          {tab === "feed" && <FeedView onOpenSearch={() => setTab("search")} />}
+          {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
           {tab === "search" && <SearchView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
-          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "community" && <CommunityView onOpen={setOpenPro} />}
+          {tab === "guides" && <GuidesView />}
+          {tab === "library" && <LibraryView locked={!session} />}
+          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} onExplore={() => setTab("search")} />}
           {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} />}
-          {tab === "profile" && <ProfileView />}
+          {tab === "profile" && <ProfileView user={user} isAuthed={!!session} onFavorites={() => setTab("favorites")} />}
         </main>
 
         {/* RIGHT RAIL */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-4">
+            <CoverageCard />
             <TrendingCard />
             <SuggestedProsCard onOpen={setOpenPro} />
             <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-xs text-muted-foreground">
               <p className="font-semibold text-accent">Vous êtes en aperçu</p>
-              <p className="mt-1">Cette version utilise des données fictives pour la démonstration. Les vraies connexions arrivent bientôt.</p>
+              <p className="mt-1">Cette version utilise des données de démonstration. Les vraies connexions arrivent bientôt.</p>
             </div>
           </div>
         </aside>
       </div>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-white/95 backdrop-blur md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="grid grid-cols-5">
-          {nav.map((n) => (
+          {mobileNav.map((n) => (
             <button
               key={n.id}
               onClick={() => setTab(n.id)}
