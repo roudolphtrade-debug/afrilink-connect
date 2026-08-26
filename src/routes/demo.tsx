@@ -761,7 +761,7 @@ function ProfileModal({
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="sticky bottom-0 -mx-6 mt-8 flex flex-wrap gap-3 border-t border-border bg-card/95 px-6 py-4 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
           <button onClick={onContact} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90">
             <MessageCircle className="h-4 w-4" /> Contacter
           </button>
@@ -769,8 +769,10 @@ function ProfileModal({
             <Heart className={`h-4 w-4 ${isFav ? "fill-accent" : ""}`} /> {isFav ? "Ajouté" : "Ajouter aux favoris"}
           </button>
         </div>
+        </div>
       </div>
     </div>
+
   );
 }
 
