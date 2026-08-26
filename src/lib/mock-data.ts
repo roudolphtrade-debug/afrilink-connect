@@ -420,7 +420,7 @@ export const MOCK_REVIEWS: Record<string, { author: string; rating: number; text
 export const MOCK_CONVERSATIONS = [
   {
     id: "c1",
-    proId: "pro-4", // Franck Kamdem
+    proId: "pro-5", // Franck Kamdem
     lastMessage: "Parfait, je vous envoie les visites demain matin.",
     unread: 2,
     messages: [
@@ -432,7 +432,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c2",
-    proId: "pro-5", // Nadège Mbida
+    proId: "pro-6", // Nadège Mbida
     lastMessage: "Le rendez-vous à la sous-préfecture est confirmé.",
     unread: 0,
     messages: [
@@ -443,7 +443,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c3",
-    proId: "pro-3", // Dr. Estelle Ngo Bakang
+    proId: "pro-4", // Dr. Estelle Ngo Bakang
     lastMessage: "Je passe vers 17h avec la trousse.",
     unread: 1,
     messages: [

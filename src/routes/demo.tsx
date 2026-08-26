@@ -34,7 +34,7 @@ type Tab = "feed" | "search" | "favorites" | "messages" | "profile";
 
 export function AppShell() {
   const [tab, setTab] = useState<Tab>("feed");
-  const [favorites, setFavorites] = useState<string[]>(["pro-4", "pro-8"]);
+  const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
