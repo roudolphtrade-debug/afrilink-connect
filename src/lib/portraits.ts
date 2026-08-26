@@ -20,24 +20,36 @@ const FEMALE_FIRST_NAMES = new Set([
   "marie", "estelle", "nadège", "ariane", "christelle", "sandrine", "léa", "aline",
   "grace", "grâce", "clarisse", "amina", "aïcha", "fatou", "maria", "chidinma",
   "ablavi", "prisca", "bernadette", "amira", "aya", "odile", "awa", "nadia",
-  "sophie", "carine", "laure", "sarah", "aminata",
+  "sophie", "carine", "laure", "sarah", "aminata", "teranga",
 ]);
 
 function firstName(name: string) {
   return name.replace(/^Dr\.?\s*/i, "").trim().split(/[\s-]+/)[0]?.toLowerCase() ?? "";
 }
 
-function hash(seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return h;
-}
+/**
+ * Attribution déterministe et *distincte* : chaque nouveau profil reçoit le
+ * portrait suivant du pool de son genre (round-robin), ce qui évite les doublons
+ * entre profils voisins (ex. Fatou D. et Nadia B.) tout en restant stable :
+ * un même nom renvoie toujours la même photo partout dans l'app.
+ */
+const assigned = new Map<string, string>();
+let womenCursor = 0;
+let menCursor = 0;
 
-/** Portrait photo réaliste, stable et déterministe pour les profils de démonstration. */
 export function portrait(seed: string) {
   const key = firstName(seed);
   if (key === "odile") return ODILE_PHOTO;
   if (key === "roudolph") return ROUDOLPH_PHOTO;
-  const pool = FEMALE_FIRST_NAMES.has(key) ? WOMEN : MEN;
-  return pool[hash(seed) % pool.length];
+
+  const cacheKey = seed.trim().toLowerCase();
+  const existing = assigned.get(cacheKey);
+  if (existing) return existing;
+
+  const female = FEMALE_FIRST_NAMES.has(key);
+  const pool = female ? WOMEN : MEN;
+  const idx = female ? womenCursor++ : menCursor++;
+  const picked = pool[idx % pool.length];
+  assigned.set(cacheKey, picked);
+  return picked;
 }
