@@ -105,10 +105,8 @@ export const STATUS_META: Record<ProStatus, { label: string; description: string
   },
 };
 
-/** Portrait illustré déterministe (même style pour tous les profils communautaires). */
-export function portrait(seed: string) {
-  return `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`;
-}
+export { portrait } from "./portraits";
+import { portrait } from "./portraits";
 
 export type Pro = {
   id: string;
@@ -141,7 +139,7 @@ const seed: (Omit<Pro, "id" | "color" | "initials" | "country" | "kind" | "avata
 })[] = [
 
   // ==== Équipe AfriLink ====
-  { name: "Odile-Grâce Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", historic: true, bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
+  { name: "Odile Ebongue", category: "emploi", city: "Douala", rating: 5, reviews: 0, verified: true, status: "equipe", role: "Fondatrice AfriLink", historic: true, bio: "Fondatrice d'AfriLink et de Les Bons Plans du Bled. Installée à Douala, elle accompagne la diaspora et les nouveaux arrivants depuis 2022, en connectant les bonnes personnes avant les bonnes adresses." },
 
   // ==== Cameroun (priorité) ====
   { name: "Marie Tchoumi", category: "maison", city: "Douala", neighborhood: "Bonapriso", rating: 4.9, reviews: 87, verified: false, bio: "Menuisière-ébéniste, mobilier sur-mesure en bois locaux (iroko, sapelli). Livraison Douala & Yaoundé.", price: "à partir de 45 000 FCFA" },
@@ -348,12 +346,12 @@ export const LIBRARY: LibraryItem[] = [
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 
 export const CURRENT_USER = {
-  name: "Odile-Grâce Ebongue",
+  name: "Odile Ebongue",
   initials: "OE",
   color: "#0F2B1E",
   city: "Douala",
   role: "Fondatrice AfriLink",
-  avatar: portrait("Odile-Grâce Ebongue"),
+  avatar: portrait("Odile Ebongue"),
 };
 
 /* ---------- Fil d'actualité (bons plans, demandes, alertes) ---------- */

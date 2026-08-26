@@ -3,7 +3,7 @@ import { useMemo, useState, type Ref } from "react";
 import {
   ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
-  Plane, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, ArrowRight, Check, X, MapPin,
+  Plane, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, Quote, ArrowRight, Check, X, MapPin,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -14,6 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS } from "@/lib/mock-data";
+
+const CITY_META: Record<string, { country: string; flag: string }> = {
+  Douala: { country: "Cameroun", flag: "🇨🇲" },
+  "Yaoundé": { country: "Cameroun", flag: "🇨🇲" },
+  Dakar: { country: "Sénégal", flag: "🇸🇳" },
+  Abidjan: { country: "Côte d\u2019Ivoire", flag: "🇨🇮" },
+  Libreville: { country: "Gabon", flag: "🇬🇦" },
+  Cotonou: { country: "Bénin", flag: "🇧🇯" },
+  "Lomé": { country: "Togo", flag: "🇹🇬" },
+  Brazzaville: { country: "Congo", flag: "🇨🇬" },
+};
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -173,14 +184,14 @@ const steps = [
 ];
 
 const universes = [
-  { icon: Hammer, label: "Maison & Artisanat" },
-  { icon: HeartPulse, label: "Santé & Bien-être" },
-  { icon: GraduationCap, label: "Éducation" },
-  { icon: Truck, label: "Transport & Logistique" },
-  { icon: FileText, label: "Services administratifs" },
-  { icon: Sparkles, label: "Loisirs & Lifestyle" },
-  { icon: HomeIcon, label: "Immobilier" },
-  { icon: Briefcase, label: "Emploi & Business" },
+  { icon: Hammer, label: "Maison & Artisanat", examples: "Menuiserie · Plomberie · Électricité" },
+  { icon: HeartPulse, label: "Santé & Bien-être", examples: "Pédiatrie · Kiné · Dentiste" },
+  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · TOEFL · Écoles" },
+  { icon: Truck, label: "Transport & Logistique", examples: "Chauffeur · Aéroport · Déménagement" },
+  { icon: FileText, label: "Services administratifs", examples: "Visa · Permis · Banque" },
+  { icon: Sparkles, label: "Loisirs & Lifestyle", examples: "Excursions · Beauté · Restaurants" },
+  { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
+  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Création" },
 ];
 
 const profiles = [
@@ -365,9 +376,16 @@ function LandingPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {universes.map((u, i) => (
               <Reveal key={u.label} delay={i * 60}>
-                <div className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
-                  <span className="icon-circle"><u.icon className="h-5 w-5" /></span>
-                  <p className="font-medium">{u.label}</p>
+                <div className="group flex items-start gap-4 rounded-2xl border border-transparent bg-card p-5 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-medium">
+                  <span className="icon-circle shrink-0 transition-transform duration-300 group-hover:scale-105">
+                    <u.icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-medium">{u.label}</p>
+                    <p className="mt-1 max-h-0 overflow-hidden text-xs leading-relaxed text-muted-foreground opacity-0 transition-all duration-300 ease-out group-hover:max-h-16 group-hover:opacity-100">
+                      {u.examples}
+                    </p>
+                  </div>
                 </div>
               </Reveal>
             ))}
@@ -410,10 +428,14 @@ function LandingPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {MAIN_CITIES.map((c, i) => (
               <Reveal key={c} delay={i * 60}>
-                <div className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-medium">
-                  <span className="flex items-center gap-3 font-semibold">
-                    <MapPin className="h-4 w-4 text-accent" /> {c}
+                <div className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-medium">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-xl transition-transform duration-300 group-hover:scale-105">
+                    {CITY_META[c].flag}
                   </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{c}</p>
+                    <p className="text-xs text-muted-foreground">{CITY_META[c].country}</p>
+                  </div>
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-forest-sage">
                     <span className="h-1.5 w-1.5 rounded-full bg-forest-sage" /> Ouverte
                   </span>
@@ -429,7 +451,8 @@ function LandingPage() {
                   key={c}
                   className="inline-flex items-center gap-2 rounded-full border border-dashed border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground transition hover:border-accent/40 hover:text-foreground"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent/70" /> {c}
+                  <span className="text-base leading-none">{CITY_META[c].flag}</span> {c}
+                  <span className="text-xs text-muted-foreground/70">· {CITY_META[c].country}</span>
                 </span>
               ))}
             </div>
@@ -453,9 +476,7 @@ function LandingPage() {
             {TESTIMONIALS.map((t, ti) => (
               <Reveal key={t.name} delay={ti * 100}>
                 <div className="rounded-3xl bg-white/5 p-8 backdrop-blur">
-                  <div className="flex items-center gap-1 text-accent">
-                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
-                  </div>
+                  <Quote className="h-6 w-6 text-accent/70" aria-hidden="true" />
                   <p className="mt-5 font-display text-lg italic leading-relaxed text-forest-foreground/95">
                     "{t.quote}"
                   </p>
@@ -510,8 +531,10 @@ function LandingPage() {
       {/* CTA FINAL */}
       <section className="section-cream">
         <Reveal className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
-          <h2 className="text-3xl font-bold md:text-5xl">
-            Les bonnes personnes. Les bons plans. La bonne connexion.
+          <h2 className="text-3xl font-bold leading-[1.15] md:text-5xl">
+            <span className="block">Les bonnes <span className="text-forest-sage">personnes</span>.</span>
+            <span className="mt-1 block">Les bons <span className="text-accent">plans</span>.</span>
+            <span className="mt-1 block">La bonne <span className="text-forest-light">connexion</span>.</span>
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button

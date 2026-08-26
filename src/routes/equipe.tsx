@@ -20,11 +20,11 @@ export const Route = createFileRoute("/equipe")({
 
 const team = [
   {
-    name: "Odile-Grâce Ebongue",
+    name: "Odile Ebongue",
     role: "Fondatrice",
     initials: "OE",
     color: "var(--forest)",
-    bio: "En s'installant au Cameroun, Odile-Grâce a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
+    bio: "En s'installant au Cameroun, Odile a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
   },
   {
     name: "Roudolph Doualla",
@@ -73,7 +73,7 @@ function TeamPage() {
               <Reveal key={m.name} delay={i * 80}>
                 <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
                   <div className="flex justify-center">
-                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={72} />
+                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={104} />
                   </div>
                   <p className="mt-5 font-display text-lg font-semibold">{m.name}</p>
                   <p className="mt-1 text-sm text-accent">{m.role}</p>
