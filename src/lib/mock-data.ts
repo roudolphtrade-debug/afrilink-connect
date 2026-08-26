@@ -258,11 +258,19 @@ const seed: Omit<Pro, "id" | "color" | "initials" | "country" | "photo" | "photo
   { name: "Salon Praia Beauté", category: "sante", city: "Praia", rating: 4.5, reviews: 16, verified: false, bio: "Salon de beauté et bien-être, soins capillaires, manucure." },
 ];
 
+function deriveStatus(p: (typeof seed)[number]): ProStatus {
+  if (p.status) return p.status;
+  if (p.verified) return "verifie";
+  if (p.rating >= 4.8) return "recommande";
+  return "reference";
+}
+
 export const PROS: Pro[] = seed.map((p, i) => {
   const id = `pro-${i + 1}`;
   return {
     ...p,
     id,
+    status: deriveStatus(p),
     country: CITY_COUNTRY[p.city] ?? "Autres",
     color: colors[i % colors.length],
     initials: p.name.replace(/^Dr\.?\s*/, "").split(" ").map((n) => n[0]?.toUpperCase()).slice(0, 2).join(""),
@@ -271,6 +279,43 @@ export const PROS: Pro[] = seed.map((p, i) => {
     photos: [1, 2, 3].map((n) => `https://picsum.photos/seed/${id}-${n}/600/450`),
   };
 });
+
+export const FOUNDER = PROS.find((p) => p.status === "equipe")!;
+
+/* ---------- Chiffres réels AfriLink ---------- */
+
+export const STATS = {
+  plans: "+390",
+  plansLabel: "bons plans & contacts partagés depuis 2022",
+  members: "+200",
+  membersLabel: "membres historiques de la communauté",
+  pros: "20+",
+  prosLabel: "professionnels de confiance",
+};
+
+/* ---------- Villes ouvertes / en cours d'ouverture ---------- */
+
+export const MAIN_CITIES = ["Douala", "Yaoundé", "Dakar", "Abidjan"] as const;
+export const OPENING_CITIES = ["Libreville", "Cotonou", "Lomé", "Brazzaville"] as const;
+
+/* ---------- Bibliothèque (verrouillée avant connexion) ---------- */
+
+export type LibraryItem = {
+  id: string;
+  title: string;
+  format: string;
+  desc: string;
+  category: string;
+};
+
+export const LIBRARY: LibraryItem[] = [
+  { id: "lib-1", title: "Checklist d'arrivée au Cameroun", format: "PDF", desc: "Les démarches à faire dans les 30 premiers jours : enregistrement consulaire, titre de séjour, compte bancaire.", category: "admin" },
+  { id: "lib-2", title: "Trouver un logement à Douala", format: "Guide", desc: "Quartiers, ordres de prix, pièges à éviter et questions à poser avant de signer.", category: "immobilier" },
+  { id: "lib-3", title: "Santé : les bons réflexes", format: "Guide", desc: "Assurance internationale, urgences, praticiens de confiance dans les villes couvertes.", category: "sante" },
+  { id: "lib-4", title: "Scolariser ses enfants", format: "Guide", desc: "Systèmes scolaires, calendriers d'inscription et soutien scolaire à domicile.", category: "education" },
+  { id: "lib-5", title: "Se déplacer en sécurité", format: "Fiche", desc: "Chauffeurs, location, trajets aéroport et interurbain : ce qu'il faut savoir.", category: "transport" },
+  { id: "lib-6", title: "Créer son activité sur place", format: "PDF", desc: "Formalités de création d'entreprise, recrutement local et coûts à anticiper.", category: "emploi" },
+];
 
 /* ---------- Utilisateur simulé (session "connectée") ---------- */
 
