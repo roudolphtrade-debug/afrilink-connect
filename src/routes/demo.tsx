@@ -613,8 +613,13 @@ function ProCard({
   pro, isFav, onFav, onOpen,
 }: { pro: Pro; isFav: boolean; onFav: () => void; onOpen: () => void }) {
   const category = CATEGORIES.find((c) => c.slug === pro.category);
+  const highlighted = pro.status === "verifie" || pro.status === "equipe";
   return (
-    <div className="group flex flex-col rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated">
+    <div
+      className={`group relative flex flex-col rounded-3xl border bg-card p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-elevated ${
+        highlighted ? "border-accent/40 ring-1 ring-accent/20" : "border-border"
+      }`}
+    >
       <div className="flex items-start gap-4">
         <img
           src={pro.photo}
