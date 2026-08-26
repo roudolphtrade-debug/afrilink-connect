@@ -4,7 +4,7 @@ import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
   Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight, ArrowLeft,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
-  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download,
+  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download, RotateCcw,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -53,9 +53,20 @@ export function AppShell() {
   const [tab, setTab] = useState<Tab>("feed");
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(["pro-5", "pro-9"]);
+  const [favLibrary, setFavLibrary] = useState<string[]>([]);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
   const [activeConv, setActiveConv] = useState<string | null>("c1");
   const [notifOpen, setNotifOpen] = useState(false);
+  const [readConvs, setReadConvs] = useState<string[]>([]);
+
+  const unreadMap = useMemo(() => {
+    const m: Record<string, number> = {};
+    MOCK_CONVERSATIONS.forEach((c) => { m[c.id] = readConvs.includes(c.id) ? 0 : c.unread; });
+    return m;
+  }, [readConvs]);
+  const unreadTotal = Object.values(unreadMap).reduce((a, b) => a + b, 0);
+  const unreadConvCount = Object.values(unreadMap).filter((n) => n > 0).length;
+  const markRead = (id: string) => setReadConvs((r) => (r.includes(id) ? r : [...r, id]));
 
   const user = session
     ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink" }
@@ -63,6 +74,9 @@ export function AppShell() {
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+
+  const toggleLibFav = (id: string) =>
+    setFavLibrary((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   const openMessagesFor = (pro: Pro) => {
     setOpenPro(null);
@@ -76,11 +90,13 @@ export function AppShell() {
     { id: "community", label: "Communauté", icon: Users },
     { id: "guides", label: "Guides", icon: BookOpen },
     { id: "library", label: "Bibliothèque", icon: Library },
-    { id: "messages", label: "Messages", icon: MessageCircle, badge: 3 },
+    { id: "messages", label: "Messages", icon: MessageCircle, badge: unreadTotal || undefined },
+    { id: "favorites", label: "Mes favoris", icon: Heart, badge: (favorites.length + favLibrary.length) || undefined },
     { id: "profile", label: "Profil", icon: User },
   ];
 
-  const mobileNav = nav.filter((n) => ["feed", "search", "community", "library", "messages"].includes(n.id));
+  const mobileNav = nav.filter((n) => ["feed", "search", "library", "favorites", "messages"].includes(n.id));
+
 
   const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length;
 
@@ -199,9 +215,10 @@ export function AppShell() {
           {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView />}
-          {tab === "library" && <LibraryView locked={!session} />}
-          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} onExplore={() => setTab("search")} />}
-          {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} />}
+          {tab === "library" && <LibraryView locked={!session} favLibrary={favLibrary} toggleLibFav={toggleLibFav} />}
+          {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} favLibrary={favLibrary} toggleLibFav={toggleLibFav} onOpen={setOpenPro} onExplore={() => setTab("search")} onLibrary={() => setTab("library")} />}
+          {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} unreadMap={unreadMap} markRead={markRead} />}
+
           {tab === "profile" && <ProfileView user={user} isAuthed={!!session} onFavorites={() => setTab("favorites")} />}
         </main>
 
@@ -485,23 +502,33 @@ function SearchView({
     setCity("all");
   };
 
-  const results = useMemo(() => {
+  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all" } = {}) => {
     const term = q.trim().toLowerCase();
-    const list = PROS.filter((p) => {
-      const matchQ = !term
-        || p.name.toLowerCase().includes(term)
-        || p.bio.toLowerCase().includes(term)
-        || (CATEGORIES.find((c) => c.slug === p.category)?.label ?? "").toLowerCase().includes(term)
-        || p.city.toLowerCase().includes(term);
-      const matchC = cat === "all" || p.category === cat;
-      const matchS = status === "all" || (p.status ?? "reference") === status;
-      const matchCountry = country === "all" || p.country === country;
-      const matchCity = city === "all" || p.city === city;
-      return matchQ && matchC && matchS && matchCountry && matchCity;
-    });
+    const c = o.cat ?? cat;
+    const s = o.status ?? status;
+    const matchQ = !term
+      || p.name.toLowerCase().includes(term)
+      || p.bio.toLowerCase().includes(term)
+      || (CATEGORIES.find((x) => x.slug === p.category)?.label ?? "").toLowerCase().includes(term)
+      || p.city.toLowerCase().includes(term);
+    return matchQ
+      && (c === "all" || p.category === c)
+      && (s === "all" || (p.status ?? "reference") === s)
+      && (country === "all" || p.country === country)
+      && (city === "all" || p.city === city);
+  };
+
+  const results = useMemo(() => {
+    const list = PROS.filter((p) => matches(p));
     const weight = (s?: ProStatus) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
     return list.sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, cat, status, country, city]);
+
+  const countFor = (o: { cat?: string; status?: ProStatus | "all" }) => PROS.filter((p) => matches(p, o)).length;
+
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "";
+  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); };
 
   const loading = useLoading([q, cat, status, country, city], 350);
 
@@ -535,22 +562,27 @@ function SearchView({
           </select>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes catégories</FilterChip>
+          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>
+            Toutes catégories <span className="opacity-60">{countFor({ cat: "all" })}</span>
+          </FilterChip>
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.icon];
+            const n = countFor({ cat: c.slug });
             return (
               <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
-                <Icon className="h-3.5 w-3.5" /> {c.label}
+                <Icon className="h-3.5 w-3.5" /> {c.label} <span className="opacity-60">{n}</span>
               </FilterChip>
             );
           })}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
-          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>Tous</FilterChip>
+          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>
+            Tous <span className="opacity-60">{countFor({ status: "all" })}</span>
+          </FilterChip>
           {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
             <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-              {STATUS_META[s].label}
+              {STATUS_META[s].label} <span className="opacity-60">{countFor({ status: s })}</span>
             </FilterChip>
           ))}
         </div>
@@ -567,13 +599,22 @@ function SearchView({
         </div>
       </div>
 
-      <div className="mt-6 h-5">
+      <div className="mt-6 flex min-h-[32px] items-center justify-between gap-3">
         {loading ? (
           <Shimmer className="h-4 w-40" />
         ) : (
           <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
         )}
+        {hasFilters && (
+          <button
+            onClick={reset}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
+          </button>
+        )}
       </div>
+
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {loading ? (
@@ -779,38 +820,82 @@ function ProfileModal({
 /* ---------------- FAVORITES ---------------- */
 
 function FavoritesView({
-  favorites, toggleFav, onOpen, onExplore,
-}: { favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void; onExplore: () => void }) {
+  favorites, toggleFav, favLibrary, toggleLibFav, onOpen, onExplore, onLibrary,
+}: {
+  favorites: string[]; toggleFav: (id: string) => void;
+  favLibrary: string[]; toggleLibFav: (id: string) => void;
+  onOpen: (p: Pro) => void; onExplore: () => void; onLibrary: () => void;
+}) {
+  const [tab, setTab] = useState<"pros" | "resources">("pros");
   const list = PROS.filter((p) => favorites.includes(p.id));
-  if (list.length === 0) {
-    return (
-      <EmptyState
-        icon={<Heart className="h-5 w-5" />}
-        title="Aucun favori pour l'instant"
-        desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
-        action={
-          <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-            <Compass className="h-4 w-4" /> Explorer les pros
-          </button>
-        }
-      />
-    );
-  }
+  const resources = LIBRARY.filter((i) => favLibrary.includes(i.id));
+
   return (
     <div>
-      <h2 className="mb-4 font-display text-2xl font-bold">Vos favoris</h2>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+      <h2 className="mb-4 font-display text-2xl font-bold">Mes favoris</h2>
+      <div className="mb-5 flex flex-wrap gap-2">
+        <FilterChip active={tab === "pros"} onClick={() => setTab("pros")}>Professionnels ({list.length})</FilterChip>
+        <FilterChip active={tab === "resources"} onClick={() => setTab("resources")}>Ressources ({resources.length})</FilterChip>
       </div>
+
+      {tab === "pros" ? (
+        list.length === 0 ? (
+          <EmptyState
+            icon={<Heart className="h-5 w-5" />}
+            title="Aucun favori pour l'instant"
+            desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
+            action={
+              <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+                <Compass className="h-4 w-4" /> Explorer les pros
+              </button>
+            }
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {list.map((p) => <ProCard key={p.id} pro={p} isFav onFav={() => toggleFav(p.id)} onOpen={() => onOpen(p)} />)}
+          </div>
+        )
+      ) : resources.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="h-5 w-5" />}
+          title="Aucune ressource enregistrée"
+          desc="Enregistrez des guides depuis la Bibliothèque pour les retrouver ici."
+          action={
+            <button onClick={onLibrary} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+              <Library className="h-4 w-4" /> Ouvrir la bibliothèque
+            </button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {resources.map((item) => (
+            <div key={item.id} className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+              <div className="flex items-start justify-between gap-3">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
+                <button onClick={() => toggleLibFav(item.id)} aria-label="Retirer des favoris" className="rounded-full border border-border p-2 text-accent">
+                  <Heart className="h-4 w-4 fill-current" />
+                </button>
+              </div>
+              <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                <Download className="h-4 w-4" /> Consulter
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
+
 /* ---------------- MESSAGING ---------------- */
 
 function MessagingView({
-  activeConv, setActiveConv,
-}: { activeConv: string | null; setActiveConv: (id: string | null) => void }) {
+  activeConv, setActiveConv, unreadMap, markRead,
+}: { activeConv: string | null; setActiveConv: (id: string | null) => void; unreadMap: Record<string, number>; markRead: (id: string) => void }) {
+
   const [drafts, setDrafts] = useState<Record<string, { from: string; text: string; time: string }[]>>({});
   const [input, setInput] = useState("");
   const [mobileThread, setMobileThread] = useState(false);
@@ -819,7 +904,7 @@ function MessagingView({
   const newProId = isNew ? activeConv!.replace("new-", "") : null;
   const newPro = newProId ? PROS.find((p) => p.id === newProId) : null;
 
-  const convs = MOCK_CONVERSATIONS.map((c) => ({ ...c, pro: PROS.find((p) => p.id === c.proId)! }));
+  const convs = MOCK_CONVERSATIONS.map((c) => ({ ...c, unread: unreadMap[c.id] ?? 0, pro: PROS.find((p) => p.id === c.proId)! }));
   const current = convs.find((c) => c.id === activeConv);
   const currentPro = current?.pro ?? newPro ?? null;
   const currentMessages = current
@@ -831,7 +916,9 @@ function MessagingView({
   const openConv = (id: string) => {
     setActiveConv(id);
     setMobileThread(true);
+    markRead(id);
   };
+
 
   const send = () => {
     if (!input.trim() || !activeConv) return;
@@ -1145,7 +1232,7 @@ function GuidesView() {
 
 /* ---------------- BIBLIOTHÈQUE ---------------- */
 
-function LibraryView({ locked }: { locked: boolean }) {
+function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; favLibrary: string[]; toggleLibFav: (id: string) => void }) {
   const [cat, setCat] = useState<string>("all");
   const loading = useLoading([cat]);
   const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
@@ -1205,9 +1292,21 @@ function LibraryView({ locked }: { locked: boolean }) {
                   </div>
                   <p className="mt-3 font-display text-lg font-semibold leading-snug">{item.title}</p>
                   <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                    <Download className="h-4 w-4" /> Consulter
-                  </span>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                      <Download className="h-4 w-4" /> Consulter
+                    </span>
+                    {!locked && (
+                      <button
+                        onClick={() => toggleLibFav(item.id)}
+                        aria-label={favLibrary.includes(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                        className={`rounded-full border p-2 transition ${favLibrary.includes(item.id) ? "border-accent/50 text-accent" : "border-border text-muted-foreground hover:border-accent/40 hover:text-accent"}`}
+                      >
+                        <Heart className={`h-4 w-4 ${favLibrary.includes(item.id) ? "fill-current" : ""}`} />
+                      </button>
+                    )}
+                  </div>
+
                 </div>
                 {locked && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-card/55 backdrop-blur-[1px]">
