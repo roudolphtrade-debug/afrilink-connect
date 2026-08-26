@@ -843,8 +843,8 @@ function MessagingView({
 
 
   return (
-    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-white shadow-soft md:grid-cols-[280px_1fr]">
-      <div className="border-b border-border md:border-b-0 md:border-r">
+    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-card shadow-soft md:grid-cols-[280px_1fr]">
+      <div className={`border-b border-border md:block md:border-b-0 md:border-r ${mobileThread ? "hidden" : "block"}`}>
         <div className="p-4">
           <h3 className="font-semibold">Conversations</h3>
         </div>
@@ -852,7 +852,7 @@ function MessagingView({
           {convs.map((c) => (
             <button
               key={c.id}
-              onClick={() => setActiveConv(c.id)}
+              onClick={() => openConv(c.id)}
               className={`flex w-full items-center gap-3 border-t border-border p-4 text-left transition hover:bg-muted/50 ${activeConv === c.id ? "bg-muted/60" : ""}`}
             >
               <Avatar initials={c.pro.initials} color={c.pro.color} />
@@ -866,27 +866,41 @@ function MessagingView({
             </button>
           ))}
           {isNew && newPro && (
-            <div className="flex items-center gap-3 border-t border-border bg-accent/10 p-4">
+            <button
+              onClick={() => openConv(activeConv!)}
+              className="flex w-full items-center gap-3 border-t border-border bg-accent/10 p-4 text-left"
+            >
               <Avatar initials={newPro.initials} color={newPro.color} />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{newPro.name}</p>
                 <p className="truncate text-xs text-muted-foreground">Nouvelle conversation</p>
               </div>
-            </div>
+            </button>
           )}
         </div>
       </div>
 
-      <div className="flex min-h-[520px] flex-col">
+      <div className={`min-h-[520px] flex-col md:flex ${mobileThread ? "flex" : "hidden"}`}>
         {currentPro ? (
           <>
             <div className="flex items-center gap-3 border-b border-border p-4">
+              <button
+                onClick={() => setMobileThread(false)}
+                className="rounded-full p-2 text-muted-foreground hover:bg-muted md:hidden"
+                aria-label="Retour aux conversations"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
               <Avatar initials={currentPro.initials} color={currentPro.color} />
-              <div>
-                <p className="font-semibold">{currentPro.name}</p>
-                <p className="text-xs text-muted-foreground">{CATEGORIES.find((c) => c.slug === currentPro.category)?.label} · {currentPro.city}</p>
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 truncate font-semibold">
+                  {currentPro.name}
+                  <StatusBadge status={currentPro.status ?? "reference"} />
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{CATEGORIES.find((c) => c.slug === currentPro.category)?.label} · {currentPro.city}</p>
               </div>
             </div>
+
             <div className="flex-1 space-y-3 overflow-y-auto bg-cream/50 p-4">
               {currentMessages.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">Envoyez le premier message ✨</p>
