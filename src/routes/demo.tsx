@@ -531,10 +531,12 @@ function SearchView({
 }) {
   const q = query;
   const setQ = setQuery;
-  const [cat, setCat] = useState<string>("all");
-  const [status, setStatus] = useState<ProStatus | "all">("all");
-  const [country, setCountry] = useState<string>("all");
-  const [city, setCity] = useState<string>("all");
+  const [cat, setCat] = usePersistedState<string>("afrilink.filters.cat", "all");
+  const [status, setStatus] = usePersistedState<ProStatus | "all">("afrilink.filters.status", "all");
+  const [country, setCountry] = usePersistedState<string>("afrilink.filters.country", "all");
+  const [city, setCity] = usePersistedState<string>("afrilink.filters.city", "all");
+  const [sort, setSort] = usePersistedState<SortKey>("afrilink.filters.sort", "pertinence");
+
 
   const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
 
