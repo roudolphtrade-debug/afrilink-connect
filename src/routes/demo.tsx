@@ -545,6 +545,16 @@ function SearchView({
             );
           })}
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
+          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>Tous</FilterChip>
+          {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
+            <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
+              {STATUS_META[s].label}
+            </FilterChip>
+          ))}
+        </div>
+
         <div className="mt-3 flex flex-col gap-2 md:hidden">
           <select value={country} onChange={(e) => handleCountryChange(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
             <option value="all">Tous les pays</option>
