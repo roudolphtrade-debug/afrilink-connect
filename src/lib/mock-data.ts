@@ -31,7 +31,7 @@ export const JOURNEYS = [
   { slug: "famille", label: "Famille", desc: "Santé des enfants, école, personnel de maison.", cats: ["sante", "education", "maison"] },
   { slug: "travail", label: "Travail", desc: "Emploi, contrats, mobilité quotidienne.", cats: ["emploi", "admin", "transport"] },
   { slug: "entrepreneuriat", label: "Entrepreneuriat", desc: "Créer, financer et développer son activité.", cats: ["emploi", "finance", "admin"] },
-  { slug: "voyage", label: "Voyage", desc: "Séjour, transferts, découvertes et bonnes tables.", cats: ["loisirs", "transport", "immobilier"] },
+  { slug: "voyage", label: "Séjour & voyage", desc: "Séjour, transferts, découvertes et bonnes tables.", cats: ["loisirs", "transport", "immobilier"] },
 ] as const;
 
 

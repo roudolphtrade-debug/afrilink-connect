@@ -254,7 +254,7 @@ function HeroSearch() {
 }
 
 const ACTIONS = [
-  { icon: Search, title: "Rechercher", desc: "Un contact déjà éprouvé, dans votre ville et votre quartier." },
+  { icon: Search, title: "Rechercher", desc: "Un contact référencé par la communauté, dans votre ville et votre quartier." },
   { icon: Handshake, title: "Demander", desc: "Posez votre besoin à la communauté et recevez des réponses utiles." },
   { icon: Send, title: "Partager", desc: "Transmettez vos bons plans pour renforcer le réseau." },
 ];
@@ -273,9 +273,9 @@ const universes = [
 
 const TRUST_LEVELS = [
   { label: "Référencé", desc: "Fiche issue de l'historique Les Bons Plans du Bled, en attente de revalidation." },
-  { label: "Recommandé", desc: "Au moins un membre de la communauté a témoigné de son expérience." },
+{ label: "Recommandé", desc: "Au moins un membre a recommandé ce contact à partir de son expérience." },
   { label: "Vérifié AfriLink", desc: "Contrôle effectué par l'équipe : identité, activité et joignabilité." },
-  { label: "Équipe AfriLink", desc: "Membres fondateurs, identifiables et joignables directement." },
+  { label: "Équipe AfriLink", desc: "Membres fondateurs et équipe officielle AfriLink." },
 ];
 
 function LandingPage() {
@@ -308,8 +308,8 @@ function LandingPage() {
             <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] md:text-6xl">
               Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-              Cherchez un contact, demandez à la communauté ou partagez un bon plan — ville par ville.
+<p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
+              Cherchez. Demandez. Partagez. Votre réseau de confiance, ville par ville.
             </p>
           </Reveal>
 
@@ -358,8 +358,8 @@ function LandingPage() {
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Activité réelle</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">Des contacts déjà partagés par la communauté</h2>
-            <p className="mt-4 text-muted-foreground">
-              Ces fiches proviennent de l'historique Les Bons Plans du Bled, repris tel quel dans AfriLink.
+<p className="mt-4 text-muted-foreground">
+              Ces fiches proviennent de l'historique Les Bons Plans du Bled et sont progressivement revalidées dans AfriLink.
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
