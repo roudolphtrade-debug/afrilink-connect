@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
+import { AvatarPicker } from "@/components/AvatarPicker";
 import { LocationMap } from "@/components/LocationMap";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
@@ -47,7 +48,7 @@ export const Route = createFileRoute("/demo")({
 
 type Tab = "feed" | "search" | "community" | "guides" | "library" | "messages" | "favorites" | "profile" | "settings";
 
-export type ProfileOverride = { name: string; city: string; bio: string };
+export type ProfileOverride = { name: string; city: string; bio: string; avatar?: string };
 
 
 /** Petit délai simulé pour afficher les skeletons de chargement. */
@@ -93,7 +94,11 @@ export function AppShell() {
     ...baseUser,
     name: profileEdits.name.trim() || baseUser.name,
     city: profileEdits.city.trim() || baseUser.city,
+    avatar: profileEdits.avatar || baseUser.avatar,
   };
+  /** Photo de profil personnalisée : conservée en local avec le reste du profil. */
+  const setAvatar = (dataUrl: string | null) =>
+    setProfileEdits((p) => ({ ...p, avatar: dataUrl ?? undefined }));
 
   const toggleFav = (id: string) =>
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
@@ -326,6 +331,7 @@ export function AppShell() {
               isAuthed={!!session}
               profileEdits={profileEdits}
               setProfileEdits={setProfileEdits}
+              onAvatarChange={setAvatar}
               onDeleteAccount={deleteAccount}
               onHelp={() => setHelpOpen(true)}
             />
@@ -335,6 +341,8 @@ export function AppShell() {
               user={user}
               isAuthed={!!session}
               bio={profileEdits.bio}
+              hasCustomAvatar={!!profileEdits.avatar}
+              onAvatarChange={setAvatar}
               onFavorites={() => setTab("favorites")}
               onEdit={() => setTab("settings")}
               onMessages={() => setTab("messages")}
@@ -1485,9 +1493,10 @@ function MessagingView({
 /* ---------------- PROFILE ---------------- */
 
 function ProfileView({
-  user, isAuthed, bio, onFavorites, onEdit, onMessages, onFeed,
+  user, isAuthed, bio, hasCustomAvatar, onAvatarChange, onFavorites, onEdit, onMessages, onFeed,
 }: {
   user: AppUser; isAuthed: boolean; bio: string;
+  hasCustomAvatar: boolean; onAvatarChange: (v: string | null) => void;
   onFavorites: () => void; onEdit: () => void; onMessages: () => void; onFeed: () => void;
 }) {
   if (!isAuthed) {
@@ -1520,18 +1529,21 @@ function ProfileView({
         )}
         <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
         <div className="-mt-12 flex flex-col items-start gap-4 p-6 md:flex-row md:items-end">
-          <div className={`rounded-full ring-4 ring-card ${isFounder ? "outline outline-2 outline-offset-2 outline-accent" : ""}`}>
-            <Avatar initials={user.initials} color={user.color} src={user.avatar} size={96} />
-          </div>
+          <AvatarPicker
+            initials={user.initials}
+            color={user.color}
+            src={user.avatar}
+            size={96}
+            hasCustom={hasCustomAvatar}
+            onChange={onAvatarChange}
+            className={`rounded-full ring-4 ring-card ${isFounder ? "outline outline-2 outline-offset-2 outline-accent" : ""}`}
+          />
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-display text-2xl font-bold">{user.name}</h2>
               {isFounder && <StatusBadge status="equipe" />}
             </div>
             <p className="text-sm text-muted-foreground">{user.role} · {user.city}</p>
-            {isFounder && (
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
-            )}
             {isFounder && (
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
             )}
@@ -1959,10 +1971,11 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc?: stri
 }
 
 function SettingsView({
-  user, isAuthed, profileEdits, setProfileEdits, onDeleteAccount, onHelp,
+  user, isAuthed, profileEdits, setProfileEdits, onAvatarChange, onDeleteAccount, onHelp,
 }: {
   user: AppUser;
   isAuthed: boolean;
+  onAvatarChange: (v: string | null) => void;
   profileEdits: ProfileOverride;
   setProfileEdits: (v: ProfileOverride | ((p: ProfileOverride) => ProfileOverride)) => void;
   onDeleteAccount: () => void;
@@ -1995,7 +2008,7 @@ function SettingsView({
   }
 
   const save = () => {
-    setProfileEdits({ name: draft.name.trim(), city: draft.city.trim(), bio: draft.bio.trim() });
+    setProfileEdits((p) => ({ ...p, name: draft.name.trim(), city: draft.city.trim(), bio: draft.bio.trim() }));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -2011,10 +2024,18 @@ function SettingsView({
       </div>
 
       <SettingsSection title="Profil" desc="Ce que voit la communauté lorsqu'elle vous rencontre.">
-        <div className="flex items-center gap-4">
-          <Avatar initials={user.initials} color={user.color} src={user.avatar} size={64} />
-          <p className="text-xs text-muted-foreground">
-            Le changement de photo sera disponible à l'ouverture des comptes réels.
+        <div className="flex flex-wrap items-center gap-4">
+          <AvatarPicker
+            initials={user.initials}
+            color={user.color}
+            src={user.avatar}
+            size={64}
+            hasCustom={!!profileEdits.avatar}
+            onChange={onAvatarChange}
+            showRemove
+          />
+          <p className="max-w-xs text-xs text-muted-foreground">
+            Photo recadrée en carré et enregistrée sur cet appareil. JPG, PNG ou WebP, 8 Mo maximum.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
