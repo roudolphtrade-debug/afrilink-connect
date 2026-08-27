@@ -7,11 +7,11 @@ export const ROUDOLPH_PHOTO = roudolphAsset.url;
 
 // 18 portraits féminins + 18 portraits masculins, tous distincts.
 const womenModules = import.meta.glob<{ default: string }>(
-  "@/assets/portraits/w*.jpg",
+  "../assets/portraits/w*.jpg",
   { eager: true },
 );
 const menModules = import.meta.glob<{ default: string }>(
-  "@/assets/portraits/m*.jpg",
+  "../assets/portraits/m*.jpg",
   { eager: true },
 );
 
