@@ -663,10 +663,13 @@ export const MOCK_REVIEWS: Record<string, { author: string; rating: number; text
   ],
 };
 
+/** Résolution par nom : les identifiants d'index ne sont jamais fiables après un ré-import. */
+const proIdByName = (name: string) => PROS.find((p) => p.name === name)?.id ?? PROS[0]!.id;
+
 export const MOCK_CONVERSATIONS = [
   {
     id: "c1",
-    proId: "pro-5", // Franck Kamdem
+    proId: proIdByName("Franck Kamdem"),
     lastMessage: "Parfait, je vous envoie les visites demain matin.",
     unread: 2,
     messages: [
@@ -678,7 +681,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c2",
-    proId: "pro-6", // Nadège Mbida
+    proId: proIdByName("Nadège Mbida"),
     lastMessage: "Le rendez-vous à la sous-préfecture est confirmé.",
     unread: 0,
     messages: [
@@ -689,7 +692,7 @@ export const MOCK_CONVERSATIONS = [
   },
   {
     id: "c3",
-    proId: "pro-4", // Dr. Estelle Ngo Bakang
+    proId: proIdByName("Dr. Estelle Ngo Bakang"),
     lastMessage: "Je passe vers 17h avec la trousse.",
     unread: 1,
     messages: [
