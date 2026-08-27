@@ -195,13 +195,13 @@ export function AppShell() {
                     ) : (
                       unreadConvs.map((c) => (
                         <button
-                          key={c.id}
-                          onClick={() => { setActiveConv(c.id); markRead(c.id); setTab("messages"); setNotifOpen(false); }}
+                          key={c.key}
+                          onClick={() => { setActiveOther(c.other); markRead(c.key); setTab("messages"); setNotifOpen(false); }}
                           className="flex w-full items-start gap-3 border-b border-border bg-accent/5 p-3 text-left text-sm transition hover:bg-accent/10"
                         >
-                          <Avatar initials={c.pro.initials} color={c.pro.color} src={c.pro.avatar} alt={c.pro.name} size={32} />
+                          <Avatar initials={c.initials} color={c.pro?.color ?? "#0F2B1E"} src={c.avatar} alt={c.name} size={32} />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold">{c.pro.name}</p>
+                            <p className="truncate font-semibold">{c.name}</p>
                             <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
                           </div>
                           <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
