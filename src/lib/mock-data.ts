@@ -107,6 +107,8 @@ export const STATUS_META: Record<ProStatus, { label: string; description: string
 
 export { portrait } from "./portraits";
 import { portrait } from "./portraits";
+import { LISTINGS } from "@/data/listings";
+
 
 export type Pro = {
   id: string;
