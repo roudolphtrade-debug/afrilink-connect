@@ -423,6 +423,8 @@ function LandingPage() {
               <Reveal key={u.label} delay={i * 50}>
                 <Link
                   to="/app"
+                  search={{ cat: u.slug }}
+
                   className="group flex items-start gap-4 rounded-2xl border border-transparent bg-card p-5 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-medium"
                 >
                   <span className="icon-circle shrink-0 transition-transform duration-300 group-hover:scale-105">
