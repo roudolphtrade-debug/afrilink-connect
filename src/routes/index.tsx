@@ -348,8 +348,9 @@ function LandingPage() {
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Activité réelle</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">Des contacts déjà partagés par la communauté</h2>
-<p className="mt-4 text-muted-foreground">
-              Ces fiches proviennent de l'historique Les Bons Plans du Bled et sont progressivement revalidées dans AfriLink.
+            <p className="mt-4 text-muted-foreground">
+              Ces fiches proviennent de l'historique Les Bons Plans du Bled et sont progressivement revalidées dans
+              AfriLink. Les membres de l'équipe AfriLink n'y figurent pas.
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
