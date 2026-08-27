@@ -62,9 +62,6 @@ export function SiteHeader() {
             <a href="/#univers" onClick={() => setOpen(false)}>
               Univers
             </a>
-            <a href="/#univers" onClick={() => setOpen(false)}>
-              Univers
-            </a>
             <Link to="/app" onClick={() => setOpen(false)}>
               Entrer
             </Link>
