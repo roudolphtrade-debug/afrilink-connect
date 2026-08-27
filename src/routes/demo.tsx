@@ -907,27 +907,50 @@ function SearchView({
           </select>
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => handleCityChange(e.target.value)}
             className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
           >
             <option value="all">Toutes les villes</option>
             {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
+          {districts.length > 0 && (
+            <select
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
+            >
+              <option value="all">Tous les quartiers</option>
+              {districts.map((d) => <option key={d}>{d}</option>)}
+            </select>
+          )}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>
-            Toutes catégories <span className="opacity-60">{countFor({ cat: "all" })}</span>
+          <FilterChip active={cat === "all"} onClick={() => handleCatChange("all")}>
+            Toutes catégories <span className="opacity-60">{countFor({ cat: "all", sub: "all" })}</span>
           </FilterChip>
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.icon];
-            const n = countFor({ cat: c.slug });
+            const n = countFor({ cat: c.slug, sub: "all" });
             return (
-              <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
+              <FilterChip key={c.slug} active={cat === c.slug} onClick={() => handleCatChange(c.slug)}>
                 <Icon className="h-3.5 w-3.5" /> {c.label} <span className="opacity-60">{n}</span>
               </FilterChip>
             );
           })}
         </div>
+        {cat !== "all" && (SUBCATEGORIES[cat]?.length ?? 0) > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sous-catégorie</span>
+            <FilterChip active={sub === "all"} onClick={() => setSub("all")}>
+              Toutes <span className="opacity-60">{countFor({ sub: "all" })}</span>
+            </FilterChip>
+            {SUBCATEGORIES[cat]!.map((s) => (
+              <FilterChip key={s} active={sub === s} onClick={() => setSub(s)}>
+                {s} <span className="opacity-60">{countFor({ sub: s })}</span>
+              </FilterChip>
+            ))}
+          </div>
+        )}
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
           <FilterChip active={status === "all"} onClick={() => setStatus("all")}>
@@ -957,11 +980,18 @@ function SearchView({
             <option value="all">Tous les pays</option>
             {COUNTRIES.map((c) => <option key={c.name}>{c.name}</option>)}
           </select>
-          <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
+          <select value={city} onChange={(e) => handleCityChange(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
             <option value="all">Toutes les villes</option>
             {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
+          {districts.length > 0 && (
+            <select value={district} onChange={(e) => setDistrict(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
+              <option value="all">Tous les quartiers</option>
+              {districts.map((d) => <option key={d}>{d}</option>)}
+            </select>
+          )}
         </div>
+
       </div>
 
       <div className="mt-6 flex min-h-[32px] flex-wrap items-center justify-between gap-3">
