@@ -840,21 +840,27 @@ function SearchView({
 
 
 
-  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string } = {}) => {
+  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string; sub?: string } = {}) => {
     const term = q.trim().toLowerCase();
     const c = o.cat ?? cat;
     const s = o.status ?? status;
     const t = o.ctype ?? ctype;
+    const sc = o.sub ?? sub;
     const matchQ = !term
       || p.name.toLowerCase().includes(term)
       || p.bio.toLowerCase().includes(term)
       || (CATEGORIES.find((x) => x.slug === p.category)?.label ?? "").toLowerCase().includes(term)
       || p.city.toLowerCase().includes(term);
+    const subTerms = sc === "all" ? [] : sc.toLowerCase().split(/[\s&']+/).filter((w) => w.length > 3);
+    const matchSub = sc === "all"
+      || subTerms.some((w) => `${p.name} ${p.bio}`.toLowerCase().includes(w));
     return matchQ
+      && matchSub
       && (c === "all" || p.category === c)
       && (s === "all" || (p.status ?? "reference") === s)
       && (country === "all" || p.country === country)
       && (city === "all" || p.city === city)
+      && (district === "all" || p.neighborhood === district)
       && (t === "all" || (p.contentType ?? "pro") === t);
   };
 
@@ -868,14 +874,15 @@ function SearchView({
       return weight(a.status) - weight(b.status) || b.rating - a.rating;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, cat, status, country, city, sort, ctype]);
+  }, [q, cat, status, country, city, district, sub, sort, ctype]);
 
-  const countFor = (o: { cat?: string; status?: ProStatus | "all"; ctype?: string }) => PROS.filter((p) => matches(p, o)).length;
+  const countFor = (o: { cat?: string; status?: ProStatus | "all"; ctype?: string; sub?: string }) => PROS.filter((p) => matches(p, o)).length;
 
-  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || ctype !== "all" || q.trim() !== "" || sort !== "pertinence";
-  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setCtype("all"); setSort("pertinence"); };
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || district !== "all" || sub !== "all" || ctype !== "all" || q.trim() !== "" || sort !== "pertinence";
+  const reset = () => { setQ(""); setCat("all"); setSub("all"); setStatus("all"); setCountry("all"); setCity("all"); setDistrict("all"); setCtype("all"); setSort("pertinence"); };
 
-  const loading = useLoading([q, cat, status, country, city, sort, ctype], 350);
+  const loading = useLoading([q, cat, sub, status, country, city, district, sort, ctype], 350);
+
 
 
 
