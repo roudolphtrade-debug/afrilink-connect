@@ -520,7 +520,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             </p>
           </div>
           <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
-            <Compass className="h-4 w-4" /> Explorer les pros
+            <Compass className="h-4 w-4" /> Explorer AfriLink
           </button>
         </div>
       </div>
@@ -599,7 +599,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             onClick={() => setFilter("all")}
             className={`rounded-full px-3 py-1 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white text-muted-foreground hover:border-primary/40"}`}
           >
-            Tous <span className="opacity-60">{posts.length}</span>
+            Tous
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
@@ -1295,7 +1295,7 @@ function FavoritesView({
             desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
             action={
               <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-                <Compass className="h-4 w-4" /> Explorer les pros
+                <Compass className="h-4 w-4" /> Explorer AfriLink
               </button>
             }
           />

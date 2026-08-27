@@ -300,6 +300,8 @@ function LandingPage() {
 
   /** Activité réelle : fiches historiques réellement importées, sans contenu inventé. */
   const activity = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").slice(0, 6), []);
+  /** Fiches historiques réellement importées, hors équipe AfriLink. */
+  const historicCount = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").length, []);
   const cityCounts = useMemo(
     () =>
       Object.fromEntries(
@@ -472,7 +474,7 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Nos villes</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Là où la communauté est déjà active</h2>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Les villes couvertes par AfriLink</h2>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {MAIN_CITIES.map((c, i) => (
@@ -554,7 +556,7 @@ function LandingPage() {
             <Reveal delay={80}>
               <div className="h-full rounded-2xl border border-border bg-card p-6">
                 <span className="icon-circle mb-4 inline-flex"><BadgeCheck className="h-5 w-5" /></span>
-                <p className="font-display text-3xl font-bold">{HISTORIC_PROS.length}</p>
+                <p className="font-display text-3xl font-bold">{historicCount}</p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   fiches historiques réellement importées, conservées au statut Référencé.
                 </p>
