@@ -19,7 +19,7 @@ import { useSession, signOut } from "@/lib/auth-store";
 import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
 import {
   identityFor, ensureSeed, useThreads, conversationsFor, openThread, sendMessage,
-  markThreadRead, markAllRead as markAllThreadsRead, deleteThread, formatTime, autoReply,
+  markThreadRead, markAllRead as markAllThreadsRead, deleteThread, formatTime, autoReply, proOf,
   displayNameOf, initialsOf, type ParticipantId, type ConversationView,
 } from "@/lib/messaging";
 
