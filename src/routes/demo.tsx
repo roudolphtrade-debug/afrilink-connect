@@ -459,6 +459,19 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
       </div>
 
       {/* COMPOSER */}
+      {!authed ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-dashed border-accent/50 bg-accent/5 p-4">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Publier une demande ou un bon plan</span> — réservé aux membres AfriLink.
+          </p>
+          <button
+            onClick={onLogin}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+          >
+            <PenSquare className="h-3.5 w-3.5" /> Rejoindre la communauté
+          </button>
+        </div>
+      ) : (
       <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
         <div className="flex gap-3">
           <Avatar initials={user.initials} color={user.color} src={user.avatar} />
