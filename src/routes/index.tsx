@@ -450,6 +450,24 @@ function LandingPage() {
               </Reveal>
             ))}
           </div>
+
+          <Reveal delay={80}>
+            <p className="mt-16 text-center text-xs font-semibold uppercase tracking-widest text-accent">
+              Parcours diaspora
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {JOURNEYS.map((j) => (
+                <Link
+                  key={j.slug}
+                  to="/app"
+                  className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+                >
+                  <p className="font-semibold">{j.label}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{j.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
