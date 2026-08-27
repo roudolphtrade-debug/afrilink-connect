@@ -190,15 +190,17 @@ const steps = [
 ];
 
 const universes = [
-  { icon: Hammer, label: "Maison & Artisanat", examples: "Menuiserie · Plomberie · Électricité" },
-  { icon: HeartPulse, label: "Santé & Bien-être", examples: "Pédiatrie · Kiné · Dentiste" },
-  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · TOEFL · Écoles" },
-  { icon: Truck, label: "Transport & Logistique", examples: "Chauffeur · Aéroport · Déménagement" },
-  { icon: FileText, label: "Services administratifs", examples: "Visa · Permis · Banque" },
-  { icon: Sparkles, label: "Loisirs & Lifestyle", examples: "Excursions · Beauté · Restaurants" },
+  { icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
+  { icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
+  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
+  { icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
+  { icon: FileText, label: "Services administratifs & juridiques", examples: "Visa · État civil · Avocat" },
+  { icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
   { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
-  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Création" },
+  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
+  { icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
 ];
+
 
 const profiles = [
   { icon: Plane, label: "Expatriés", color: "var(--forest)" },
