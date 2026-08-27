@@ -20,7 +20,7 @@ import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
   CURRENT_USER, portrait, FEED, NOTIFICATIONS, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
-  STATUS_META,
+  STATUS_META, CONTENT_TYPES,
   type Pro, type FeedPost, type ProStatus,
 } from "@/lib/mock-data";
 
@@ -763,6 +763,7 @@ function SearchView({
   const [country, setCountry] = usePersistedState<string>("afrilink.filters.country", "all");
   const [city, setCity] = usePersistedState<string>("afrilink.filters.city", "all");
   const [sort, setSort] = usePersistedState<SortKey>("afrilink.filters.sort", "pertinence");
+  const [ctype, setCtype] = usePersistedState<string>("afrilink.filters.ctype", "all");
 
 
   const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
@@ -772,10 +773,11 @@ function SearchView({
     setCity("all");
   };
 
-  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all" } = {}) => {
+  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string } = {}) => {
     const term = q.trim().toLowerCase();
     const c = o.cat ?? cat;
     const s = o.status ?? status;
+    const t = o.ctype ?? ctype;
     const matchQ = !term
       || p.name.toLowerCase().includes(term)
       || p.bio.toLowerCase().includes(term)
@@ -785,7 +787,8 @@ function SearchView({
       && (c === "all" || p.category === c)
       && (s === "all" || (p.status ?? "reference") === s)
       && (country === "all" || p.country === country)
-      && (city === "all" || p.city === city);
+      && (city === "all" || p.city === city)
+      && (t === "all" || (p.contentType ?? "pro") === t);
   };
 
   const results = useMemo(() => {
@@ -798,14 +801,14 @@ function SearchView({
       return weight(a.status) - weight(b.status) || b.rating - a.rating;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, cat, status, country, city, sort]);
+  }, [q, cat, status, country, city, sort, ctype]);
 
-  const countFor = (o: { cat?: string; status?: ProStatus | "all" }) => PROS.filter((p) => matches(p, o)).length;
+  const countFor = (o: { cat?: string; status?: ProStatus | "all"; ctype?: string }) => PROS.filter((p) => matches(p, o)).length;
 
-  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || q.trim() !== "" || sort !== "pertinence";
-  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setSort("pertinence"); };
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || ctype !== "all" || q.trim() !== "" || sort !== "pertinence";
+  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setCtype("all"); setSort("pertinence"); };
 
-  const loading = useLoading([q, cat, status, country, city, sort], 350);
+  const loading = useLoading([q, cat, status, country, city, sort, ctype], 350);
 
 
 
@@ -859,6 +862,18 @@ function SearchView({
           {(Object.keys(STATUS_META) as ProStatus[]).map((s) => (
             <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
               {STATUS_META[s].label} <span className="opacity-60">{countFor({ status: s })}</span>
+            </FilterChip>
+          ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Type</span>
+          <FilterChip active={ctype === "all"} onClick={() => setCtype("all")}>
+            Tous <span className="opacity-60">{countFor({ ctype: "all" })}</span>
+          </FilterChip>
+          {CONTENT_TYPES.map((t) => (
+            <FilterChip key={t.slug} active={ctype === t.slug} onClick={() => setCtype(t.slug)}>
+              {t.label} <span className="opacity-60">{countFor({ ctype: t.slug })}</span>
             </FilterChip>
           ))}
         </div>
