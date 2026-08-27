@@ -160,16 +160,9 @@ function GuidePage() {
             <h2 className="text-2xl font-bold md:text-4xl">
               Une info à corriger ou un pays à ajouter ?
             </h2>
-            <p className="mt-4 text-muted-foreground">
-              Ce guide s'enrichira avec la communauté. Écrivez-nous si vous repérez une erreur ou
-              si vous voulez contribuer.
+<p className="mt-4 text-muted-foreground">
+              Ce guide s'enrichira avec la communauté. Revenez bientôt pour contribuer.
             </p>
-            <a
-              href="mailto:hello@afrilink.co"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90"
-            >
-              <Mail className="h-4 w-4" /> hello@afrilink.co
-            </a>
           </Reveal>
         </div>
       </section>
