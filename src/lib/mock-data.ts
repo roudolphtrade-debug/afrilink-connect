@@ -107,6 +107,8 @@ export const STATUS_META: Record<ProStatus, { label: string; description: string
 
 export { portrait } from "./portraits";
 import { portrait } from "./portraits";
+import { LISTINGS } from "@/data/listings";
+
 
 export type Pro = {
   id: string;
@@ -130,7 +132,19 @@ export type Pro = {
   avatar?: string;
   /** Contact historique issu de Les Bons Plans du Bled (depuis 2022). */
   historic?: boolean;
+  /* --- Champs issus de l'import historique LBPD --- */
+  /** Type de contenu : fiche pro, bon plan, institution. */
+  contentType?: "pro" | "offre" | "institution";
+  phone?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  sourceUrl?: string;
+  /** Médias historiques (archive LBPD hors ligne — repli monogramme). */
+  media?: string[];
+  importedAt?: string;
 };
+
 
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
@@ -285,7 +299,7 @@ function deriveKind(name: string): "person" | "place" {
   return PLACE_PATTERN.test(name) ? "place" : "person";
 }
 
-export const PROS: Pro[] = seed.map((p, i) => {
+const CURATED: Pro[] = seed.map((p, i) => {
   const id = `pro-${i + 1}`;
   const kind = deriveKind(p.name);
   return {
@@ -304,6 +318,39 @@ export const PROS: Pro[] = seed.map((p, i) => {
   };
 });
 
+/**
+ * Fiches historiques importées depuis l'export WordPress LBPD (120 fiches sélectionnées).
+ * Règle stricte : statut « Référencé » pour toutes — aucun « Recommandé » ni
+ * « Vérifié AfriLink » n'est attribué automatiquement.
+ */
+const IMPORTED: Pro[] = LISTINGS.map((l, i) => ({
+  id: l.id,
+  name: l.title,
+  category: l.category,
+  city: l.city,
+  country: CITY_COUNTRY[l.city] ?? "Cameroun",
+  neighborhood: l.location.split(",")[0]?.trim() || undefined,
+  rating: 0,
+  reviews: 0,
+  verified: false,
+  status: "reference" as ProStatus,
+  bio: l.desc,
+  color: colors[(i + 3) % colors.length],
+  initials: l.title.replace(/[^A-Za-zÀ-ÿ ]/g, " ").trim().split(/\s+/).map((n) => n[0]?.toUpperCase() ?? "").slice(0, 2).join(""),
+  kind: "place" as const,
+  historic: true,
+  contentType: l.type,
+  phone: l.phone || undefined,
+  email: l.email || undefined,
+  website: l.website || undefined,
+  address: l.location || undefined,
+  sourceUrl: l.sourceUrl || undefined,
+  media: [l.image, ...l.gallery].filter(Boolean),
+  importedAt: l.date,
+}));
+
+export const PROS: Pro[] = [...CURATED, ...IMPORTED];
+
 export const TEAM = PROS.filter((p) => p.status === "equipe");
 export const FOUNDER = PROS.find((p) => p.name === "Odile Ebongue")!;
 export const COFOUNDER = PROS.find((p) => p.name === "Roudolph Doualla")!;
@@ -311,6 +358,14 @@ export const COFOUNDER = PROS.find((p) => p.name === "Roudolph Doualla")!;
 
 /** Contacts historiques réels référencés depuis Les Bons Plans du Bled. */
 export const HISTORIC_PROS = PROS.filter((p) => p.historic);
+
+/** Types de contenu importés (filtre Explorer). */
+export const CONTENT_TYPES = [
+  { value: "pro", label: "Fiches pros" },
+  { value: "offre", label: "Bons plans" },
+  { value: "institution", label: "Institutions" },
+] as const;
+
 
 
 /* ---------- Chiffres réels AfriLink ---------- */

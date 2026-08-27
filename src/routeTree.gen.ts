@@ -17,6 +17,7 @@ import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AideRouteImport } from './routes/aide'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicPdfRouteImport } from './routes/api/public/pdf'
 
 const InscriptionRoute = InscriptionRouteImport.update({
   id: '/inscription',
@@ -58,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPdfRoute = ApiPublicPdfRouteImport.update({
+  id: '/api/public/pdf',
+  path: '/api/public/pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/equipe': typeof EquipeRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/guide'
     | '/inscription'
+    | '/api/public/pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/guide'
     | '/inscription'
+    | '/api/public/pdf'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/guide'
     | '/inscription'
+    | '/api/public/pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   EquipeRoute: typeof EquipeRoute
   GuideRoute: typeof GuideRoute
   InscriptionRoute: typeof InscriptionRoute
+  ApiPublicPdfRoute: typeof ApiPublicPdfRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pdf': {
+      id: '/api/public/pdf'
+      path: '/api/public/pdf'
+      fullPath: '/api/public/pdf'
+      preLoaderRoute: typeof ApiPublicPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   EquipeRoute: EquipeRoute,
   GuideRoute: GuideRoute,
   InscriptionRoute: InscriptionRoute,
+  ApiPublicPdfRoute: ApiPublicPdfRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
