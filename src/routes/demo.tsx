@@ -1548,26 +1548,65 @@ function GuidesView({ onCategory }: { onCategory: (term: string) => void }) {
 
 /* ---------------- BIBLIOTHÈQUE ---------------- */
 
+function LibraryCover({ item, className = "" }: { item: LibraryEntry; className?: string }) {
+  const [broken, setBroken] = useState(false);
+  const palette: [string, string] = item.archived ? ["#0F2B1E", "#2F6B4F"] : ["#9C6E2B", "#0F2B1E"];
+  if (item.cover && !broken) {
+    return (
+      <img
+        src={item.cover}
+        alt={`Couverture — ${item.title}`}
+        loading="lazy"
+        onError={() => setBroken(true)}
+        className={`object-cover ${className}`}
+      />
+    );
+  }
+  return (
+    <div
+      className={`relative flex flex-col justify-end p-2.5 text-[10px] font-semibold leading-tight text-white ${className}`}
+      aria-hidden="true"
+      style={{ background: `linear-gradient(150deg, ${palette[0]}, ${palette[1]})` }}
+    >
+      <span className="absolute inset-y-0 left-1.5 w-px bg-white/25" />
+      <span className="line-clamp-4">{item.title}</span>
+      <span className="mt-1 opacity-70">{item.year}</span>
+    </div>
+  );
+}
+
 function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; favLibrary: string[]; toggleLibFav: (id: string) => void }) {
   const [cat, setCat] = useState<string>("all");
-  const [reading, setReading] = useState<LibraryItem | null>(null);
-  const loading = useLoading([cat]);
-  const items = LIBRARY.filter((i) => cat === "all" || i.category === cat);
-  const libCats = CATEGORIES.filter((c) => LIBRARY.some((i) => i.category === c.slug));
+  const [format, setFormat] = useState<string>("all");
+  const [q, setQ] = useState("");
+  const [reading, setReading] = useState<LibraryEntry | null>(null);
+  const loading = useLoading([cat, format, q]);
+
+  const formats = Array.from(new Set(LIBRARY_ENTRIES.map((i) => i.format)));
+  const libCats = CATEGORIES.filter((c) => LIBRARY_ENTRIES.some((i) => i.category === c.slug));
+  const term = q.trim().toLowerCase();
+  const items = LIBRARY_ENTRIES.filter(
+    (i) =>
+      (cat === "all" || i.category === cat) &&
+      (format === "all" || i.format === format) &&
+      (!term || i.title.toLowerCase().includes(term) || i.author.toLowerCase().includes(term)),
+  );
+  const readable = LIBRARY_ENTRIES.filter((i) => !i.archived).length;
+
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
         <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bibliothèque</p>
-        <h2 className="mt-2 font-display text-2xl font-bold">Les ressources de la communauté</h2>
+        <h2 className="mt-2 font-display text-2xl font-bold">{LIBRARY_ENTRIES.length} ouvrages & publications</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {locked
-            ? "Ouvrages du domaine public : titres et notes de lecture visibles par tous, sommaire et lecture réservés aux membres."
-            : "Ouvrages du domaine public — sommaire, note de lecture et source officielle en accès libre."}
+          Fonds importé de la bibliothèque Les Bons Plans du Bled (doublons et fiches de test retirés),
+          enrichi de {readable} ouvrages du domaine public lisibles dans la visionneuse intégrée.
+          {locked ? " L'aperçu est ouvert à tous ; la lecture complète est réservée aux membres." : ""}
         </p>
         {locked && (
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <Link to="/connexion" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-              <Lock className="h-4 w-4" /> Débloquer la bibliothèque
+              <Lock className="h-4 w-4" /> Débloquer la lecture complète
             </Link>
             <Link to="/inscription" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">
               Créer un compte
@@ -1576,48 +1615,68 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
         )}
       </div>
 
-      {!locked && (
-        <div className="flex flex-wrap gap-2">
-          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Toutes les ressources</FilterChip>
+      <div className="rounded-3xl border border-border bg-card p-4 shadow-soft">
+        <div className="flex items-center gap-3 rounded-full border border-border bg-muted/40 px-4 py-2.5">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Rechercher un titre, un auteur…"
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>Tous les univers</FilterChip>
           {libCats.map((c) => (
             <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>{c.label}</FilterChip>
           ))}
         </div>
-      )}
+        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Format</span>
+          <FilterChip active={format === "all"} onClick={() => setFormat("all")}>Tous</FilterChip>
+          {formats.map((f) => (
+            <FilterChip key={f} active={format === f} onClick={() => setFormat(f)}>{f}</FilterChip>
+          ))}
+          {(cat !== "all" || format !== "all" || term) && (
+            <button
+              onClick={() => { setCat("all"); setFormat("all"); setQ(""); }}
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
+            </button>
+          )}
+        </div>
+      </div>
+
+      {!loading && <p className="text-sm text-muted-foreground">{items.length} ressource(s)</p>}
 
       {!loading && items.length === 0 ? (
         <EmptyState
           icon={<BookOpen className="h-5 w-5" />}
           title="Aucune ressource ici"
-          desc="Choisissez un autre univers pour retrouver les ouvrages de la communauté."
-          action={<button onClick={() => setCat("all")} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Voir tout</button>}
+          desc="Changez d'univers, de format ou effacez la recherche pour retrouver le fonds complet."
+          action={<button onClick={() => { setCat("all"); setFormat("all"); setQ(""); }} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Voir tout</button>}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {loading
             ? [0, 1, 2, 3].map((i) => <ProCardSkeleton key={i} />)
             : items.map((item) => (
-                <article key={item.id} className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
-                  <div className="flex gap-4 p-5">
-                    <div
-                      className="relative flex h-32 w-24 shrink-0 flex-col justify-end overflow-hidden rounded-xl p-2.5 text-[10px] font-semibold leading-tight text-white shadow-medium"
-                      style={{ background: `linear-gradient(150deg, ${item.cover[0]}, ${item.cover[1]})` }}
-                      aria-hidden="true"
-                    >
-                      <span className="absolute inset-y-0 left-1.5 w-px bg-white/25" />
-                      <span className="line-clamp-3">{item.title}</span>
-                      <span className="mt-1 opacity-70">{item.year}</span>
-                    </div>
+                <article key={item.id} className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium">
+                  <div className="flex flex-1 gap-4 p-5">
+                    <LibraryCover item={item} className="h-32 w-24 shrink-0 rounded-xl shadow-medium" />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
-                        <span className="rounded-full bg-forest-sage/15 px-2 py-0.5 text-[10px] font-bold text-forest-sage">{item.license}</span>
+                        {item.archived
+                          ? <span className="rounded-full bg-forest/10 px-2 py-0.5 text-[10px] font-bold text-forest">Archive LBPD</span>
+                          : <span className="rounded-full bg-forest-sage/15 px-2 py-0.5 text-[10px] font-bold text-forest-sage">Lecture intégrée</span>}
                       </div>
                       <p className="mt-2 font-display text-base font-semibold leading-snug">{item.title}</p>
                       <p className="text-xs text-muted-foreground">{item.author} · {item.year}</p>
-                      <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.desc}</p>
+                      {item.desc && <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.desc}</p>}
                       <p className="mt-2 text-[11px] text-muted-foreground">
-                        {item.pages} pages · {item.language} · {CATEGORIES.find((c) => c.slug === item.category)?.label}
+                        {CATEGORIES.find((c) => c.slug === item.category)?.label} · {item.source}
                       </p>
                     </div>
                   </div>
@@ -1627,96 +1686,35 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
                     >
                       {locked ? <Lock className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
-                      {locked ? "Aperçu limité" : "Lire / consulter"}
+                      {locked ? `Aperçu ${FREE_PAGES} pages` : "Ouvrir la visionneuse"}
                     </button>
-                    {!locked && (
-                      <button
-                        onClick={() => toggleLibFav(item.id)}
-                        aria-label={favLibrary.includes(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
-                        className={`rounded-full border p-2 transition ${favLibrary.includes(item.id) ? "border-accent/50 text-accent" : "border-border text-muted-foreground hover:border-accent/40 hover:text-accent"}`}
-                      >
-                        <Heart className={`h-4 w-4 ${favLibrary.includes(item.id) ? "fill-current" : ""}`} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => toggleLibFav(item.id)}
+                      aria-label={favLibrary.includes(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                      className={`rounded-full border p-2 transition ${favLibrary.includes(item.id) ? "border-accent/50 text-accent" : "border-border text-muted-foreground hover:border-accent/40 hover:text-accent"}`}
+                    >
+                      <Heart className={`h-4 w-4 ${favLibrary.includes(item.id) ? "fill-current" : ""}`} />
+                    </button>
                   </div>
                 </article>
               ))}
         </div>
       )}
 
-      {reading && <ReaderModal item={reading} locked={locked} onClose={() => setReading(null)} />}
+      {reading && (
+        <PdfReader
+          url={reading.pdfUrl}
+          title={reading.title}
+          author={reading.author}
+          locked={locked}
+          onClose={() => setReading(null)}
+          onSignIn={() => { window.location.href = "/connexion"; }}
+        />
+      )}
     </div>
   );
 }
 
-function ReaderModal({ item, locked, onClose }: { item: LibraryItem; locked: boolean; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-forest/60 p-0 backdrop-blur-sm md:items-center md:p-6" onClick={onClose}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-card shadow-elevated md:rounded-3xl"
-      >
-        <div
-          className="relative p-6 text-white"
-          style={{ background: `linear-gradient(140deg, ${item.cover[0]}, ${item.cover[1]})` }}
-        >
-          <button onClick={onClose} aria-label="Fermer" className="absolute right-4 top-4 rounded-full bg-white/15 p-2 hover:bg-white/25">
-            <X className="h-4 w-4" />
-          </button>
-          <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">{item.license}</p>
-          <h3 className="mt-2 font-display text-2xl font-bold leading-tight">{item.title}</h3>
-          <p className="mt-1 text-sm opacity-85">{item.author} · {item.year} · {item.pages} pages · {item.language}</p>
-        </div>
-
-        <div className="space-y-5 p-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
-
-          <div className="rounded-2xl bg-muted/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Aperçu</p>
-            <p className="mt-2 text-sm leading-relaxed">{item.preview}</p>
-          </div>
-
-          <div className="relative">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sommaire</p>
-            <ol className={`mt-3 space-y-2 text-sm ${locked ? "select-none blur-[3px]" : ""}`}>
-              {item.chapters.map((c, i) => (
-                <li key={c} className="flex gap-3">
-                  <span className="w-5 shrink-0 text-right font-semibold text-accent">{i + 1}</span>
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ol>
-            {locked && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-card/70">
-                <span className="icon-circle"><Lock className="h-5 w-5" /></span>
-                <p className="max-w-xs text-center text-xs text-muted-foreground">
-                  Le sommaire complet et la lecture sont réservés aux membres AfriLink.
-                </p>
-                <Link to="/connexion" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
-                  Se connecter
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {!locked && (
-            <a
-              href={item.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-            >
-              <Download className="h-4 w-4" /> Lire sur {item.sourceLabel}
-            </a>
-          )}
-          <p className="text-[11px] text-muted-foreground">
-            Ouvrage du domaine public. AfriLink renvoie vers la source officielle et n'héberge aucun contenu protégé.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 
 /* ---------------- COUVERTURE ---------------- */
