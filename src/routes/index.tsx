@@ -135,17 +135,7 @@ function HeroSearch() {
               className="bg-transparent py-1 text-sm font-semibold outline-none"
             >
               {OPEN_BY_COUNTRY[country].map((c) => <option key={c} value={c}>{c}</option>)}
-              {OPENING_CITIES.map((c) => (
-                <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
-              ))}
             </select>
-            <button
-              type="button"
-              onClick={() => setEditingPlace(false)}
-              className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-            >
-              OK
-            </button>
           </div>
         )}
       </div>
