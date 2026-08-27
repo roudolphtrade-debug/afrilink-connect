@@ -82,8 +82,9 @@ function HeroSearch() {
     const term = q.trim().toLowerCase();
     // Sans recherche : uniquement les contacts historiques réels de la communauté.
     if (!term) {
-      const local = HISTORIC_PROS.filter((p) => p.city === city);
-      return (local.length ? local : HISTORIC_PROS).slice(0, 5);
+      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe");
+      const local = pool.filter((p) => p.city === city);
+      return (local.length ? local : pool).slice(0, 5);
     }
     const matched = PROS.filter((p) => p.city === city).filter(
       (p) =>
