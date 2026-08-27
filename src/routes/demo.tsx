@@ -293,6 +293,12 @@ export function AppShell() {
             >
               <HelpCircle className="h-4 w-4" /> Aide
             </button>
+            <Link
+              to="/audit"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted"
+            >
+              <ShieldCheck className="h-4 w-4" /> Audit qualité
+            </Link>
           </nav>
         </aside>
 
