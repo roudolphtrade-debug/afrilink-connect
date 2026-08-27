@@ -97,9 +97,12 @@ export function AppShell() {
 
   const openMessagesFor = (pro: Pro) => {
     setOpenPro(null);
-    setActiveConv("new-" + pro.id);
+    const other: ParticipantId = `pro:${pro.id}`;
+    if (me) openThread(me, other);
+    setActiveOther(other);
     setTab("messages");
   };
+
 
   const searchFor = (term: string) => {
     setQuery(term);
