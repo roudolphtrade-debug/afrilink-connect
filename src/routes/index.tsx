@@ -152,7 +152,19 @@ function HeroSearch() {
             </select>
           </div>
         )}
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-soft">
+          <select
+            value={cat}
+            aria-label="Choisir un univers"
+            onChange={(e) => setCat(e.target.value)}
+            className="bg-transparent py-1 text-sm font-semibold outline-none"
+          >
+            <option value="all">Tous les univers</option>
+            {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+          </select>
+        </div>
       </div>
+
 
       <form
         onSubmit={(e) => { e.preventDefault(); go(); }}
