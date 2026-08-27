@@ -27,13 +27,6 @@ export function SiteFooter() {
               <li><Link to="/app">Entrer</Link></li>
             </ul>
           </div>
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-accent">Contact</h4>
-            <ul className="space-y-3 text-sm text-forest-foreground/80">
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> hello@afrilink.co</li>
-            </ul>
-
-          </div>
         </div>
         <div className="mt-12 border-t border-white/10 pt-6 text-xs text-forest-foreground/60">
           © {new Date().getFullYear()} AfriLink. Les Bons Plans du Bled.
