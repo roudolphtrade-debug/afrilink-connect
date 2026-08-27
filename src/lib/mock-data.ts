@@ -284,12 +284,15 @@ const seed: (Omit<Pro, "id" | "color" | "initials" | "country" | "kind" | "avata
   { name: "Salon Praia Beauté", category: "sante", city: "Praia", rating: 4.5, reviews: 16, verified: false, bio: "Salon de beauté et bien-être, soins capillaires, manucure." },
 ];
 
+/**
+ * Règle de validation AfriLink : aucun statut n'est attribué automatiquement.
+ * Seule l'équipe fondatrice porte le statut « Équipe » ; tout le reste est « Référencé »
+ * tant que la communauté n'a pas recommandé ni l'équipe vérifié la fiche.
+ */
 function deriveStatus(p: (typeof seed)[number]): ProStatus {
-  if (p.status) return p.status;
-  if (p.verified) return "verifie";
-  if (p.rating >= 4.8) return "recommande";
-  return "reference";
+  return p.status === "equipe" ? "equipe" : "reference";
 }
+
 
 /** Établissements, institutions et lieux réels : monogramme sobre, jamais de portrait inventé. */
 const PLACE_PATTERN =
