@@ -440,10 +440,16 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
       <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {user.name.split(" ")[0]}</p>
-            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {user.city} 👋</h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+              {authed ? `Bonjour ${user.name.split(" ")[0]}` : "Bienvenue sur AfriLink"}
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">
+              {authed ? `Bienvenue à ${user.city} 👋` : `Le fil de la communauté à ${user.city} 👋`}
+            </h1>
             <p className="mt-2 max-w-md text-forest-foreground/80">
-              Voici ce qui se passe autour de vous aujourd'hui.
+              {authed
+                ? "Voici ce qui se passe autour de vous aujourd'hui."
+                : "Explorez librement. Connectez-vous pour publier, échanger et enregistrer vos plans."}
             </p>
           </div>
           <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
