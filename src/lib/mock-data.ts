@@ -411,7 +411,7 @@ export const STATS = {
   members: "+200",
   membersLabel: "membres historiques de la communauté",
   pros: "20+",
-  prosLabel: "professionnels de confiance",
+  prosLabel: "professionnels référencés depuis 2022, revalidation en cours",
 };
 
 /* ---------- Villes ouvertes / prochaines ouvertures ---------- */
