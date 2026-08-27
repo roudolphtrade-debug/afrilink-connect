@@ -52,7 +52,13 @@ export const COUNTRIES: { name: string; cities: string[] }[] = [
   { name: "RDC", cities: ["Kinshasa", "Lubumbashi", "Goma"] },
   { name: "Centrafrique", cities: ["Bangui"] },
   { name: "Cap-Vert", cities: ["Praia", "Mindelo"] },
-  { name: "Autres", cities: ["Libreville", "Bamako", "Ouagadougou"] },
+  { name: "Gabon", cities: ["Libreville", "Port-Gentil"] },
+  { name: "Guinée", cities: ["Conakry"] },
+  { name: "Mali", cities: ["Bamako"] },
+  { name: "Rwanda", cities: ["Kigali"] },
+  { name: "Burundi", cities: ["Bujumbura"] },
+  { name: "Tchad", cities: ["N'Djamena"] },
+  { name: "Burkina Faso", cities: ["Ouagadougou"] },
 ];
 
 export const CITIES = COUNTRIES.flatMap((c) => c.cities);
