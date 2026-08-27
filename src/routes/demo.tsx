@@ -889,7 +889,7 @@ function SearchView({
   return (
     <div>
       <div className="rounded-3xl border border-border bg-white p-5 shadow-soft">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="icon-circle"><Search className="h-5 w-5" /></span>
           <input
             value={q}
