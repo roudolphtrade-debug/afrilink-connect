@@ -1,13 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Linkedin, Facebook, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Logo } from "./Logo";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./ui/tooltip";
-
-const SOCIALS = [
-  { icon: Instagram, label: "Instagram" },
-  { icon: Linkedin, label: "LinkedIn" },
-  { icon: Facebook, label: "Facebook" },
-];
 
 export function SiteFooter() {
   return (
