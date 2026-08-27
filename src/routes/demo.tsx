@@ -87,9 +87,31 @@ export function AppShell() {
 
 
 
+  /**
+   * Si le compte connecté correspond à une fiche existante (par e-mail ou par
+   * nom, ex. Odile ou Roudolph), on reprend sa vraie photo, sa ville et son rôle.
+   */
+  const mePro =
+    (me ? proOf(me) : null) ??
+    (session
+      ? PROS.find(
+          (p) =>
+            p.kind === "person" &&
+            p.name.toLowerCase() === session.name.trim().toLowerCase(),
+        ) ?? null
+      : null);
+
   const baseUser = session
-    ? { name: session.name, initials: session.initials, color: "#0F2B1E", city: CURRENT_USER.city, role: "Membre AfriLink", avatar: portrait(session.name) }
+    ? {
+        name: mePro?.name ?? session.name,
+        initials: session.initials,
+        color: mePro?.color ?? "#0F2B1E",
+        city: mePro?.city ?? CURRENT_USER.city,
+        role: mePro?.role ?? "Membre AfriLink",
+        avatar: mePro?.avatar ?? portrait(session.name),
+      }
     : CURRENT_USER;
+
   const user = {
     ...baseUser,
     name: profileEdits.name.trim() || baseUser.name,
