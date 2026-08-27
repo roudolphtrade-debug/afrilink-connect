@@ -272,7 +272,7 @@ function LandingPage() {
   const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
 
   /** Activité réelle : fiches historiques réellement importées, sans contenu inventé. */
-  const activity = useMemo(() => HISTORIC_PROS.slice(0, 6), []);
+  const activity = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").slice(0, 6), []);
   const cityCounts = useMemo(
     () =>
       Object.fromEntries(
