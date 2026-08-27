@@ -89,7 +89,9 @@ export function PdfReader({
     setRendering(true);
     try {
       const pdfPage = await doc.getPage(n);
-      const containerWidth = Math.max(320, (viewportRef.current?.clientWidth ?? 800) - 32);
+      const measured = viewportRef.current?.clientWidth ?? 0;
+      const fallback = Math.min(window.innerWidth - (thumbsOpen ? 200 : 32), 980);
+      const containerWidth = Math.max(320, Math.max(measured - 32, fallback));
       const base = pdfPage.getViewport({ scale: 1 });
       const fit = Math.min(containerWidth / base.width, 2.2);
       const viewport = pdfPage.getViewport({ scale: fit * zoom * (window.devicePixelRatio || 1) });
@@ -106,7 +108,7 @@ export function PdfReader({
     } finally {
       setRendering(false);
     }
-  }, [zoom]);
+  }, [zoom, thumbsOpen]);
 
   useEffect(() => {
     if (status === "ready") void renderPage(page);
