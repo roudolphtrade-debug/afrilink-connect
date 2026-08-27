@@ -304,7 +304,16 @@ export function AppShell() {
           {tab === "guides" && <GuidesView onCategory={searchFor} />}
           {tab === "library" && <LibraryView locked={!session} favLibrary={favLibrary} toggleLibFav={toggleLibFav} />}
           {tab === "favorites" && <FavoritesView favorites={favorites} toggleFav={toggleFav} favLibrary={favLibrary} toggleLibFav={toggleLibFav} onOpen={setOpenPro} onExplore={() => setTab("search")} onLibrary={() => setTab("library")} />}
-          {tab === "messages" && <MessagingView activeConv={activeConv} setActiveConv={setActiveConv} unreadMap={unreadMap} markRead={markRead} />}
+          {tab === "messages" && (
+            <MessagingView
+              me={me}
+              convs={convs}
+              activeOther={activeOther}
+              setActiveOther={setActiveOther}
+              markRead={markRead}
+              onOpenProfile={(pro) => setOpenPro(pro)}
+            />
+          )}
           {tab === "settings" && (
             <SettingsView
               user={user}
