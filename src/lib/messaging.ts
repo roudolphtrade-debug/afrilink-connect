@@ -182,8 +182,10 @@ export type ConversationView = {
   unread: number;
 };
 
+const EMPTY_STORE: Store = {};
+
 export function useThreads(): Store {
-  return useSyncExternalStore(subscribe, read, () => ({}) as Store);
+  return useSyncExternalStore(subscribe, read, () => EMPTY_STORE);
 }
 
 export function conversationsFor(threads: Store, me: ParticipantId | null): ConversationView[] {
