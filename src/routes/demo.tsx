@@ -872,8 +872,8 @@ function SearchView({
             Tous <span className="opacity-60">{countFor({ ctype: "all" })}</span>
           </FilterChip>
           {CONTENT_TYPES.map((t) => (
-            <FilterChip key={t.slug} active={ctype === t.slug} onClick={() => setCtype(t.slug)}>
-              {t.label} <span className="opacity-60">{countFor({ ctype: t.slug })}</span>
+            <FilterChip key={t.value} active={ctype === t.value} onClick={() => setCtype(t.value)}>
+              {t.label} <span className="opacity-60">{countFor({ ctype: t.value })}</span>
             </FilterChip>
           ))}
         </div>
