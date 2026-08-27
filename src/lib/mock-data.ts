@@ -130,7 +130,19 @@ export type Pro = {
   avatar?: string;
   /** Contact historique issu de Les Bons Plans du Bled (depuis 2022). */
   historic?: boolean;
+  /* --- Champs issus de l'import historique LBPD --- */
+  /** Type de contenu : fiche pro, bon plan, institution. */
+  contentType?: "pro" | "offre" | "institution";
+  phone?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  sourceUrl?: string;
+  /** Médias historiques (archive LBPD hors ligne — repli monogramme). */
+  media?: string[];
+  importedAt?: string;
 };
+
 
 const colors = ["#0F2B1E", "#D4A64A", "#2F6B4F", "#B8863A", "#3E7A5C", "#9C6E2B"];
 
