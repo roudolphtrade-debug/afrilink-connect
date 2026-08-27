@@ -63,7 +63,8 @@ export function PdfReader({
     (async () => {
       try {
         const pdfjs = await loadPdfjs();
-        const doc = await pdfjs.getDocument({ url, withCredentials: false }).promise;
+        const proxied = /^https?:/i.test(url) ? `/api/public/pdf?src=${encodeURIComponent(url)}` : url;
+        const doc = await pdfjs.getDocument({ url: proxied, withCredentials: false }).promise;
         if (cancelled) { doc.destroy(); return; }
         docRef.current = doc;
         setNumPages(doc.numPages);
