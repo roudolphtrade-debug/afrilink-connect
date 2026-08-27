@@ -1229,94 +1229,154 @@ function FavoritesView({
 /* ---------------- MESSAGING ---------------- */
 
 function MessagingView({
-  activeConv, setActiveConv, unreadMap, markRead,
-}: { activeConv: string | null; setActiveConv: (id: string | null) => void; unreadMap: Record<string, number>; markRead: (id: string) => void }) {
-
-  const [drafts, setDrafts] = useState<Record<string, { from: string; text: string; time: string }[]>>({});
+  me, convs, activeOther, setActiveOther, markRead, onOpenProfile,
+}: {
+  me: ParticipantId | null;
+  convs: ConversationView[];
+  activeOther: ParticipantId | null;
+  setActiveOther: (id: ParticipantId | null) => void;
+  markRead: (key: string) => void;
+  onOpenProfile: (pro: Pro) => void;
+}) {
   const [input, setInput] = useState("");
   const [mobileThread, setMobileThread] = useState(false);
+  const [picker, setPicker] = useState(false);
+  const [pickerQuery, setPickerQuery] = useState("");
 
-  const isNew = activeConv?.startsWith("new-");
-  const newProId = isNew ? activeConv!.replace("new-", "") : null;
-  const newPro = newProId ? PROS.find((p) => p.id === newProId) : null;
+  if (!me) {
+    return (
+      <EmptyState
+        icon={<MessageCircle className="h-5 w-5" />}
+        title="Connectez-vous pour échanger"
+        desc="La messagerie AfriLink est réservée aux membres. Connectez-vous pour écrire à un pro et retrouver vos conversations."
+        action={
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/connexion" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Se connecter</Link>
+            <Link to="/inscription" className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold">Créer un compte</Link>
+          </div>
+        }
+      />
+    );
+  }
 
-  const convs = MOCK_CONVERSATIONS.map((c) => ({ ...c, unread: unreadMap[c.id] ?? 0, pro: PROS.find((p) => p.id === c.proId)! }));
-  const current = convs.find((c) => c.id === activeConv);
-  const currentPro = current?.pro ?? newPro ?? null;
-  const currentMessages = current
-    ? [...current.messages, ...(drafts[current.id] ?? [])]
-    : newProId
-      ? drafts[activeConv!] ?? []
-      : [];
+  const current = convs.find((c) => c.other === activeOther) ?? null;
+  const activePro = activeOther?.startsWith("pro:") ? PROS.find((p) => p.id === activeOther.slice(4)) ?? null : null;
+  const headerName = current?.name ?? (activeOther ? displayNameOf(activeOther) : "");
+  const headerInitials = current?.initials ?? (activeOther ? initialsOf(activeOther) : "");
+  const messages = current?.messages ?? [];
 
-  const openConv = (id: string) => {
-    setActiveConv(id);
+  const openConv = (other: ParticipantId) => {
+    setActiveOther(other);
     setMobileThread(true);
-    markRead(id);
+    const key = convs.find((c) => c.other === other)?.key;
+    if (key) markRead(key);
   };
 
+  const startWith = (pro: Pro) => {
+    openThread(me, `pro:${pro.id}`);
+    setPicker(false);
+    setPickerQuery("");
+    openConv(`pro:${pro.id}`);
+  };
 
   const send = () => {
-    if (!input.trim() || !activeConv) return;
-    const text = input.trim();
-    const id = activeConv;
-    setDrafts((d) => ({
-      ...d,
-      [id]: [...(d[id] ?? []), { from: "me", text, time: "À l'instant" }],
-    }));
+    if (!input.trim() || !activeOther) return;
+    const other = activeOther;
+    sendMessage(me, other, input);
     setInput("");
-    setTimeout(() => {
-      setDrafts((d) => ({
-        ...d,
-        [id]: [
-          ...(d[id] ?? []),
-          { from: "them", text: "Merci pour votre message ! Je reviens vers vous très vite.", time: "À l'instant" },
-        ],
-      }));
-    }, 1600);
+    // Réponse simulée : la démo ne dispose pas encore de messagerie temps réel.
+    if (other.startsWith("pro:")) setTimeout(() => autoReply(me, other), 1600);
   };
 
+  const removeThread = () => {
+    if (!current) return;
+    deleteThread(current.key);
+    setActiveOther(null);
+    setMobileThread(false);
+  };
+
+  const contacts = PROS.filter(
+    (p) => !pickerQuery || p.name.toLowerCase().includes(pickerQuery.toLowerCase()) || p.city.toLowerCase().includes(pickerQuery.toLowerCase()),
+  ).slice(0, 30);
 
   return (
-    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-card shadow-soft md:grid-cols-[280px_1fr]">
+    <div className="grid gap-0 overflow-hidden rounded-3xl border border-border bg-card shadow-soft md:grid-cols-[300px_1fr]">
+      {/* Liste des conversations */}
       <div className={`border-b border-border md:block md:border-b-0 md:border-r ${mobileThread ? "hidden" : "block"}`}>
-        <div className="p-4">
+        <div className="flex items-center gap-2 p-4">
           <h3 className="font-semibold">Conversations</h3>
+          <button
+            onClick={() => setPicker((v) => !v)}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold transition hover:border-primary/40"
+          >
+            <PenSquare className="h-3.5 w-3.5" /> Nouveau
+          </button>
         </div>
+
+        {picker && (
+          <div className="border-t border-border bg-muted/30 p-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                autoFocus
+                value={pickerQuery}
+                onChange={(e) => setPickerQuery(e.target.value)}
+                placeholder="Rechercher un pro…"
+                className="w-full rounded-full border border-border bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div className="mt-2 max-h-56 space-y-1 overflow-y-auto">
+              {contacts.length === 0 && <p className="p-2 text-xs text-muted-foreground">Aucun contact trouvé.</p>}
+              {contacts.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => startWith(p)}
+                  className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-sm transition hover:bg-white"
+                >
+                  <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={28} />
+                  <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
+                  <span className="truncate text-[11px] text-muted-foreground">{p.city}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="max-h-96 overflow-y-auto md:max-h-[560px]">
+          {convs.length === 0 && !picker && (
+            <div className="p-6 text-center text-sm text-muted-foreground">
+              <MessageCircle className="mx-auto h-8 w-8 opacity-40" />
+              <p className="mt-3 font-semibold text-foreground">Aucune conversation</p>
+              <p className="mt-1">Écrivez à un pro depuis sa fiche ou via « Nouveau ».</p>
+            </div>
+          )}
           {convs.map((c) => (
             <button
-              key={c.id}
-              onClick={() => openConv(c.id)}
-              className={`flex w-full items-center gap-3 border-t border-border p-4 text-left transition hover:bg-muted/50 ${activeConv === c.id ? "bg-muted/60" : ""}`}
+              key={c.key}
+              onClick={() => openConv(c.other)}
+              className={`flex w-full items-center gap-3 border-t border-border p-4 text-left transition hover:bg-muted/50 ${activeOther === c.other ? "bg-muted/60" : ""}`}
             >
-              <Avatar initials={c.pro.initials} color={c.pro.color} src={c.pro.avatar} alt={c.pro.name} />
+              <Avatar initials={c.initials} color={c.pro?.color ?? "#0F2B1E"} src={c.avatar} alt={c.name} />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">{c.pro.name}</p>
-                <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
+                <p className="flex items-center gap-2 truncate font-semibold">
+                  <span className="truncate">{c.name}</span>
+                  <span className="ml-auto shrink-0 text-[10px] font-medium text-muted-foreground">
+                    {c.lastTs ? formatTime(c.lastTs) : ""}
+                  </span>
+                </p>
+                <p className={`truncate text-xs ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.lastMessage}</p>
               </div>
               {c.unread > 0 && (
                 <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
               )}
             </button>
           ))}
-          {isNew && newPro && (
-            <button
-              onClick={() => openConv(activeConv!)}
-              className="flex w-full items-center gap-3 border-t border-border bg-accent/10 p-4 text-left"
-            >
-              <Avatar initials={newPro.initials} color={newPro.color} src={newPro.avatar} alt={newPro.name} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">{newPro.name}</p>
-                <p className="truncate text-xs text-muted-foreground">Nouvelle conversation</p>
-              </div>
-            </button>
-          )}
         </div>
       </div>
 
+      {/* Fil */}
       <div className={`min-h-[520px] flex-col md:flex ${mobileThread ? "flex" : "hidden"}`}>
-        {currentPro ? (
+        {activeOther ? (
           <>
             <div className="flex items-center gap-3 border-b border-border p-4">
               <button
@@ -1326,28 +1386,53 @@ function MessagingView({
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
-              <Avatar initials={currentPro.initials} color={currentPro.color} src={currentPro.avatar} alt={currentPro.name} />
+              <Avatar initials={headerInitials} color={activePro?.color ?? "#0F2B1E"} src={activePro?.avatar ?? current?.avatar} alt={headerName} />
               <div className="min-w-0">
                 <p className="flex items-center gap-2 truncate font-semibold">
-                  {currentPro.name}
-                  <StatusBadge status={currentPro.status ?? "reference"} />
+                  {headerName}
+                  {activePro && <StatusBadge status={activePro.status ?? "reference"} />}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">{CATEGORIES.find((c) => c.slug === currentPro.category)?.label} · {currentPro.city}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {activePro
+                    ? `${CATEGORIES.find((c) => c.slug === activePro.category)?.label ?? ""} · ${activePro.city}`
+                    : "Membre AfriLink"}
+                </p>
+              </div>
+              <div className="ml-auto flex items-center gap-1.5">
+                {activePro && (
+                  <button
+                    onClick={() => onOpenProfile(activePro)}
+                    className="rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold transition hover:border-primary/40"
+                  >
+                    Voir le profil
+                  </button>
+                )}
+                {current && (
+                  <button
+                    onClick={removeThread}
+                    className="rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition hover:border-destructive/40 hover:text-destructive"
+                  >
+                    Supprimer
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto bg-cream/50 p-4">
-              {currentMessages.length === 0 && (
+              {messages.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">Envoyez le premier message ✨</p>
               )}
-              {currentMessages.map((m, i) => (
-                <div key={i} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${m.from === "me" ? "bg-primary text-primary-foreground" : "bg-white border border-border"}`}>
-                    <p>{m.text}</p>
-                    <p className={`mt-1 text-[10px] ${m.from === "me" ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{m.time}</p>
+              {messages.map((m) => {
+                const mine = m.from === me;
+                return (
+                  <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-primary text-primary-foreground" : "border border-border bg-white"}`}>
+                      <p>{m.text}</p>
+                      <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(m.ts)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="flex items-center gap-2 border-t border-border p-3">
               <input
@@ -1355,18 +1440,33 @@ function MessagingView({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Écrire un message…"
+                aria-label="Écrire un message"
                 className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2.5 text-sm outline-none focus:border-primary"
               />
-              <button onClick={send} className="rounded-full bg-primary p-3 text-primary-foreground hover:opacity-90">
+              <button
+                onClick={send}
+                disabled={!input.trim()}
+                aria-label="Envoyer"
+                className="rounded-full bg-primary p-3 text-primary-foreground transition hover:opacity-90 disabled:opacity-40"
+              >
                 <Send className="h-4 w-4" />
               </button>
             </div>
+            <p className="border-t border-border px-4 py-2 text-[10px] text-muted-foreground">
+              Démo : messagerie simulée et enregistrée sur cet appareil, sans temps réel.
+            </p>
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center p-8 text-center text-muted-foreground">
             <div>
               <MessageCircle className="mx-auto h-10 w-10" />
               <p className="mt-4 font-semibold">Sélectionnez une conversation</p>
+              <button
+                onClick={() => setPicker(true)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                <PenSquare className="h-3.5 w-3.5" /> Nouveau message
+              </button>
             </div>
           </div>
         )}
@@ -1374,6 +1474,7 @@ function MessagingView({
     </div>
   );
 }
+
 
 /* ---------------- PROFILE ---------------- */
 
