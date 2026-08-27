@@ -82,8 +82,9 @@ function HeroSearch() {
     const term = q.trim().toLowerCase();
     // Sans recherche : uniquement les contacts historiques réels de la communauté.
     if (!term) {
-      const local = HISTORIC_PROS.filter((p) => p.city === city);
-      return (local.length ? local : HISTORIC_PROS).slice(0, 5);
+      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe");
+      const local = pool.filter((p) => p.city === city);
+      return (local.length ? local : pool).slice(0, 5);
     }
     const matched = PROS.filter((p) => p.city === city).filter(
       (p) =>
@@ -135,17 +136,7 @@ function HeroSearch() {
               className="bg-transparent py-1 text-sm font-semibold outline-none"
             >
               {OPEN_BY_COUNTRY[country].map((c) => <option key={c} value={c}>{c}</option>)}
-              {OPENING_CITIES.map((c) => (
-                <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
-              ))}
             </select>
-            <button
-              type="button"
-              onClick={() => setEditingPlace(false)}
-              className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-            >
-              OK
-            </button>
           </div>
         )}
       </div>
@@ -282,7 +273,7 @@ function LandingPage() {
   const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
 
   /** Activité réelle : fiches historiques réellement importées, sans contenu inventé. */
-  const activity = useMemo(() => HISTORIC_PROS.slice(0, 6), []);
+  const activity = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").slice(0, 6), []);
   const cityCounts = useMemo(
     () =>
       Object.fromEntries(
@@ -358,8 +349,9 @@ function LandingPage() {
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Activité réelle</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">Des contacts déjà partagés par la communauté</h2>
-<p className="mt-4 text-muted-foreground">
-              Ces fiches proviennent de l'historique Les Bons Plans du Bled et sont progressivement revalidées dans AfriLink.
+            <p className="mt-4 text-muted-foreground">
+              Ces fiches proviennent de l'historique Les Bons Plans du Bled et sont progressivement revalidées dans
+              AfriLink. Les membres de l'équipe AfriLink n'y figurent pas.
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -521,7 +513,7 @@ function LandingPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Preuves historiques</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">Ce qui existe déjà, avant la plateforme</h2>
           </Reveal>
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-4 md:grid-cols-2">
             <Reveal>
               <div className="h-full rounded-2xl border border-border bg-card p-6">
                 <span className="icon-circle mb-4 inline-flex"><Users className="h-5 w-5" /></span>
@@ -540,19 +532,18 @@ function LandingPage() {
                 </p>
               </div>
             </Reveal>
-            <Reveal delay={160}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6">
-                <span className="icon-circle mb-4 inline-flex"><Clock className="h-5 w-5" /></span>
-                <p className="font-display text-3xl font-bold">Des semaines, parfois des mois</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  le temps qu'il faut pour reconstruire un réseau fiable en arrivant seul.
-                </p>
-              </div>
-            </Reveal>
           </div>
-          <Reveal delay={80} className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+          <Reveal delay={80} className="mt-6 flex flex-wrap items-center justify-center gap-3 text-center text-sm text-muted-foreground">
             <Compass className="h-4 w-4 text-accent" />
-            <span>Aucune donnée inventée : chaque chiffre vient de l'historique de la communauté.</span>
+            <span>Ces deux chiffres proviennent de l'historique de la communauté. Aucune donnée inventée.</span>
+          </Reveal>
+          <Reveal delay={120} className="mx-auto mt-10 max-w-2xl rounded-2xl border border-dashed border-border bg-card/60 p-6 text-center">
+            <span className="icon-circle mb-4 inline-flex"><Clock className="h-5 w-5" /></span>
+            <p className="font-display text-2xl font-bold">Des semaines, parfois des mois</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              le temps qu'il faut pour reconstruire un réseau fiable en arrivant seul. Constat qualitatif recueilli
+              auprès de la communauté, et non une statistique mesurée.
+            </p>
           </Reveal>
         </div>
       </section>
