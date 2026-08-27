@@ -392,7 +392,7 @@ export function AppShell() {
 
 type AppUser = { name: string; initials: string; color: string; city: string; role: string; avatar?: string };
 
-function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
+function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; authed: boolean; onLogin: () => void; onOpenSearch: () => void }) {
   const [posts, setPosts] = useState(FEED);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
