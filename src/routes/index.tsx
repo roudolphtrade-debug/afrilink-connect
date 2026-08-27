@@ -74,19 +74,21 @@ function HeroSearch() {
   const navigate = useNavigate();
   const [country, setCountry] = useState<string>(CITY_META[MAIN_CITIES[0]].country);
   const [city, setCity] = useState<string>(MAIN_CITIES[0]);
+  const [cat, setCat] = useState<string>("all");
   const [editingPlace, setEditingPlace] = useState(false);
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
+    const inCat = (p: (typeof PROS)[number]) => cat === "all" || p.category === cat;
     // Sans recherche : uniquement les contacts historiques réels de la communauté.
     if (!term) {
-      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe");
+      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe" && inCat(p));
       const local = pool.filter((p) => p.city === city);
       return (local.length ? local : pool).slice(0, 5);
     }
-    const matched = PROS.filter((p) => p.city === city).filter(
+    const matched = PROS.filter((p) => p.city === city && inCat(p)).filter(
       (p) =>
         p.name.toLowerCase().includes(term) ||
         p.bio.toLowerCase().includes(term) ||
@@ -94,9 +96,20 @@ function HeroSearch() {
     );
     const weight = (s?: string) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
     return [...matched].sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating).slice(0, 5);
-  }, [q, city]);
+  }, [q, city, cat]);
 
-  const go = () => navigate({ to: "/app" });
+  /** Le contexte choisi ici est transmis tel quel à Explorer (pays, ville, univers). */
+  const go = () =>
+    navigate({
+      to: "/app",
+      search: {
+        q: q.trim() || undefined,
+        country,
+        city,
+        cat: cat === "all" ? undefined : cat,
+      },
+    });
+
   const open = focused && results.length > 0;
 
   return (
