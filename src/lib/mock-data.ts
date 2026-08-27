@@ -792,3 +792,30 @@ export const TESTIMONIALS: Testimonial[] = [
     avatarSeed: "Fatou D.",
   },
 ].map((t) => ({ ...t, avatar: portrait(t.avatarSeed) }));
+
+/* ---------- Géographie en cascade : Pays → Ville → Quartier ---------- */
+
+/**
+ * Quartiers réellement renseignés dans les fiches (aucun quartier inventé).
+ * Une ville sans quartier documenté renvoie une liste vide.
+ */
+export const DISTRICTS_BY_CITY: Record<string, string[]> = PROS.reduce(
+  (acc, p) => {
+    if (!p.neighborhood) return acc;
+    const list = (acc[p.city] ??= []);
+    if (!list.includes(p.neighborhood)) list.push(p.neighborhood);
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
+Object.values(DISTRICTS_BY_CITY).forEach((l) => l.sort((a, b) => a.localeCompare(b, "fr")));
+
+export function districtsFor(city: string, country: string) {
+  if (city && city !== "all") return DISTRICTS_BY_CITY[city] ?? [];
+  const cities = country && country !== "all"
+    ? (COUNTRIES.find((c) => c.name === country)?.cities ?? [])
+    : Object.keys(DISTRICTS_BY_CITY);
+  const set = new Set<string>();
+  cities.forEach((c) => (DISTRICTS_BY_CITY[c] ?? []).forEach((d) => set.add(d)));
+  return [...set].sort((a, b) => a.localeCompare(b, "fr"));
+}
