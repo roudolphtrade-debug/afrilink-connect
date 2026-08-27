@@ -563,7 +563,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           </select>
         </div>
         <div className="flex items-start gap-2">
-          <Avatar initials={user.initials} color={user.color} src={user.avatar} className="mt-0.5" />
+          <Avatar initials={user.initials} color={user.color} src={user.avatar} />
           <div className="min-w-0 flex-1">
             <textarea
               value={composer}
