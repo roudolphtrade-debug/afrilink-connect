@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
@@ -79,8 +79,23 @@ function useLoading(deps: unknown[], ms = 500) {
 
 export function AppShell() {
   const session = useSession();
-  const [tab, setTab] = useState<Tab>("feed");
-  const [query, setQuery] = useState("");
+  /** Contexte transmis par la homepage (pays, ville, quartier, univers, requête). */
+  const rawSearch = useSearch({ strict: false }) as {
+    q?: string; country?: string; city?: string; district?: string; cat?: string;
+  };
+  const hasIncoming = Boolean(rawSearch.q || rawSearch.country || rawSearch.city || rawSearch.district || rawSearch.cat);
+  const incoming = useMemo(
+    () => ({
+      q: rawSearch.q ?? "",
+      country: rawSearch.country ?? "all",
+      city: rawSearch.city ?? "all",
+      district: rawSearch.district ?? "all",
+      cat: rawSearch.cat ?? "all",
+    }),
+    [rawSearch.q, rawSearch.country, rawSearch.city, rawSearch.district, rawSearch.cat],
+  );
+  const [tab, setTab] = useState<Tab>(hasIncoming ? "search" : "feed");
+  const [query, setQuery] = useState(incoming.q);
   const [favorites, setFavorites] = usePersistedState<string[]>("afrilink.favorites", ["pro-5", "pro-9"]);
   const [favLibrary, setFavLibrary] = usePersistedState<string[]>("afrilink.favLibrary", []);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
@@ -346,7 +361,7 @@ export function AppShell() {
         {/* MAIN */}
         <main className="min-w-0">
           {tab === "feed" && <FeedView user={user} authed={!!session} onLogin={() => setTab("profile")} onOpenSearch={() => setTab("search")} />}
-          {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
+          {tab === "search" && <SearchView query={query} setQuery={setQuery} incoming={hasIncoming ? incoming : null} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView onCategory={searchFor} />}
           {tab === "library" && <LibraryView locked={!session} favLibrary={favLibrary} toggleLibFav={toggleLibFav} />}
@@ -520,7 +535,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             </p>
           </div>
           <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
-            <Compass className="h-4 w-4" /> Explorer les pros
+            <Compass className="h-4 w-4" /> Explorer AfriLink
           </button>
         </div>
       </div>
@@ -599,7 +614,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             onClick={() => setFilter("all")}
             className={`rounded-full px-3 py-1 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white text-muted-foreground hover:border-primary/40"}`}
           >
-            Tous <span className="opacity-60">{posts.length}</span>
+            Tous
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
@@ -848,9 +863,10 @@ const proFreshness = (p: Pro) => Math.round(seededUnit(p.id + "-new") * 400);
 
 function SearchView({
 
-  query, setQuery, favorites, toggleFav, onOpen,
+  query, setQuery, incoming, favorites, toggleFav, onOpen,
 }: {
   query: string; setQuery: (v: string) => void;
+  incoming?: { q: string; country: string; city: string; district: string; cat: string } | null;
   favorites: string[]; toggleFav: (id: string) => void; onOpen: (p: Pro) => void;
 }) {
   const q = query;
@@ -883,6 +899,18 @@ function SearchView({
     setCat(next);
     setSub("all");
   };
+
+  /** Reprise fidèle du contexte choisi sur la homepage (aucune sélection arbitraire). */
+  const incomingKey = incoming ? `${incoming.q}|${incoming.country}|${incoming.city}|${incoming.district}|${incoming.cat}` : "";
+  useEffect(() => {
+    if (!incoming) return;
+    setCountry(incoming.country);
+    setCity(incoming.city);
+    setDistrict(incoming.district);
+    setCat(incoming.cat);
+    setSub("all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingKey]);
 
 
 
@@ -1295,7 +1323,7 @@ function FavoritesView({
             desc="Ajoutez des profils depuis Explorer pour les retrouver ici en un geste."
             action={
               <button onClick={onExplore} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-                <Compass className="h-4 w-4" /> Explorer les pros
+                <Compass className="h-4 w-4" /> Explorer AfriLink
               </button>
             }
           />

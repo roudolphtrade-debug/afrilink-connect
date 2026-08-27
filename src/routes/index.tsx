@@ -74,19 +74,21 @@ function HeroSearch() {
   const navigate = useNavigate();
   const [country, setCountry] = useState<string>(CITY_META[MAIN_CITIES[0]].country);
   const [city, setCity] = useState<string>(MAIN_CITIES[0]);
+  const [cat, setCat] = useState<string>("all");
   const [editingPlace, setEditingPlace] = useState(false);
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
+    const inCat = (p: (typeof PROS)[number]) => cat === "all" || p.category === cat;
     // Sans recherche : uniquement les contacts historiques réels de la communauté.
     if (!term) {
-      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe");
+      const pool = HISTORIC_PROS.filter((p) => p.status !== "equipe" && inCat(p));
       const local = pool.filter((p) => p.city === city);
       return (local.length ? local : pool).slice(0, 5);
     }
-    const matched = PROS.filter((p) => p.city === city).filter(
+    const matched = PROS.filter((p) => p.city === city && inCat(p)).filter(
       (p) =>
         p.name.toLowerCase().includes(term) ||
         p.bio.toLowerCase().includes(term) ||
@@ -94,9 +96,20 @@ function HeroSearch() {
     );
     const weight = (s?: string) => (s === "equipe" ? 0 : s === "verifie" ? 1 : s === "recommande" ? 2 : 3);
     return [...matched].sort((a, b) => weight(a.status) - weight(b.status) || b.rating - a.rating).slice(0, 5);
-  }, [q, city]);
+  }, [q, city, cat]);
 
-  const go = () => navigate({ to: "/app" });
+  /** Le contexte choisi ici est transmis tel quel à Explorer (pays, ville, univers). */
+  const go = () =>
+    navigate({
+      to: "/app",
+      search: {
+        q: q.trim() || undefined,
+        country,
+        city,
+        cat: cat === "all" ? undefined : cat,
+      },
+    });
+
   const open = focused && results.length > 0;
 
   return (
@@ -139,7 +152,19 @@ function HeroSearch() {
             </select>
           </div>
         )}
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-soft">
+          <select
+            value={cat}
+            aria-label="Choisir un univers"
+            onChange={(e) => setCat(e.target.value)}
+            className="bg-transparent py-1 text-sm font-semibold outline-none"
+          >
+            <option value="all">Tous les univers</option>
+            {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+          </select>
+        </div>
       </div>
+
 
       <form
         onSubmit={(e) => { e.preventDefault(); go(); }}
@@ -251,16 +276,17 @@ const ACTIONS = [
 ];
 
 const universes = [
-  { icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
-  { icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
-  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
-  { icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
-  { icon: FileText, label: "Administratif & juridique", examples: "Visa · État civil · Avocat" },
-  { icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
-  { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
-  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
-  { icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
+  { slug: "maison", icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
+  { slug: "sante", icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
+  { slug: "education", icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
+  { slug: "transport", icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
+  { slug: "admin", icon: FileText, label: "Administratif & juridique", examples: "Visa · État civil · Avocat" },
+  { slug: "loisirs", icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
+  { slug: "immobilier", icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
+  { slug: "emploi", icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
+  { slug: "finance", icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
 ];
+
 
 const TRUST_LEVELS = [
   { label: "Référencé", desc: "Fiche issue de l'historique Les Bons Plans du Bled, en attente de revalidation." },
@@ -274,6 +300,8 @@ function LandingPage() {
 
   /** Activité réelle : fiches historiques réellement importées, sans contenu inventé. */
   const activity = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").slice(0, 6), []);
+  /** Fiches historiques réellement importées, hors équipe AfriLink. */
+  const historicCount = useMemo(() => HISTORIC_PROS.filter((p) => p.status !== "equipe").length, []);
   const cityCounts = useMemo(
     () =>
       Object.fromEntries(
@@ -397,6 +425,8 @@ function LandingPage() {
               <Reveal key={u.label} delay={i * 50}>
                 <Link
                   to="/app"
+                  search={{ cat: u.slug }}
+
                   className="group flex items-start gap-4 rounded-2xl border border-transparent bg-card p-5 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-medium"
                 >
                   <span className="icon-circle shrink-0 transition-transform duration-300 group-hover:scale-105">
@@ -444,7 +474,7 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Nos villes</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Là où la communauté est déjà active</h2>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Les villes couvertes par AfriLink</h2>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {MAIN_CITIES.map((c, i) => (
@@ -526,7 +556,7 @@ function LandingPage() {
             <Reveal delay={80}>
               <div className="h-full rounded-2xl border border-border bg-card p-6">
                 <span className="icon-circle mb-4 inline-flex"><BadgeCheck className="h-5 w-5" /></span>
-                <p className="font-display text-3xl font-bold">{HISTORIC_PROS.length}</p>
+                <p className="font-display text-3xl font-bold">{historicCount}</p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   fiches historiques réellement importées, conservées au statut Référencé.
                 </p>
