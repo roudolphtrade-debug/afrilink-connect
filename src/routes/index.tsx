@@ -235,7 +235,7 @@ function LandingPage() {
               Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-              Douala, Yaoundé, Dakar, Abidjan — un contact vérifié plutôt qu'une recherche au hasard.
+              Douala, Yaoundé, Dakar, Abidjan, Libreville, Cotonou, Lomé, Brazzaville — un contact vérifié plutôt qu'une recherche au hasard.
             </p>
           </Reveal>
 
