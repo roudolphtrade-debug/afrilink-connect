@@ -37,6 +37,7 @@ export function PdfReader({
 }) {
   const shellRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const docRef = useRef<PdfDoc | null>(null);
   const renderTaskRef = useRef<any>(null);
 
@@ -88,9 +89,9 @@ export function PdfReader({
     setRendering(true);
     try {
       const pdfPage = await doc.getPage(n);
-      const containerWidth = canvas.parentElement?.clientWidth ?? 800;
+      const containerWidth = Math.max(320, (viewportRef.current?.clientWidth ?? 800) - 32);
       const base = pdfPage.getViewport({ scale: 1 });
-      const fit = Math.min(containerWidth / base.width, 1.6);
+      const fit = Math.min(containerWidth / base.width, 2.2);
       const viewport = pdfPage.getViewport({ scale: fit * zoom * (window.devicePixelRatio || 1) });
       canvas.width = viewport.width;
       canvas.height = viewport.height;
@@ -272,6 +273,7 @@ export function PdfReader({
           )}
 
           <div
+            ref={viewportRef}
             className="relative flex min-w-0 flex-1 items-start justify-center overflow-auto p-3"
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
