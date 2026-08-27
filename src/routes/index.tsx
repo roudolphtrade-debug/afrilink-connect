@@ -244,6 +244,32 @@ function LandingPage() {
           </Reveal>
 
           <Reveal delay={160}>
+            <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left sm:grid-cols-2">
+              <Link
+                to="/app"
+                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+              >
+                <span className="icon-circle shrink-0"><Handshake className="h-5 w-5" /></span>
+                <span>
+                  <span className="block font-semibold">Vous ne trouvez pas ? Demandez à la communauté</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Publiez votre besoin, les membres répondent avec leurs contacts éprouvés.
+                  </span>
+                </span>
+              </Link>
+              <Link
+                to="/app"
+                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+              >
+                <span className="icon-circle shrink-0"><Send className="h-5 w-5" /></span>
+                <span>
+                  <span className="block font-semibold">Partagez un bon plan</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Un artisan fiable, un médecin, une adresse : faites-en profiter les autres.
+                  </span>
+                </span>
+              </Link>
+            </div>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <JoinCommunityCta size="pill-lg" className="shadow-elevated">
                 Rejoindre la communauté
@@ -253,6 +279,7 @@ function LandingPage() {
               </Button>
             </div>
           </Reveal>
+
 
           <Reveal delay={200}>
             <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
