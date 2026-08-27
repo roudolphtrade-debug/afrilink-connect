@@ -1702,8 +1702,8 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
                       onClick={() => setReading(item)}
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
                     >
-                      {locked ? <Lock className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
-                      {locked ? `Aperçu ${FREE_PAGES} pages` : "Ouvrir la visionneuse"}
+                      {locked && !item.archived ? <Lock className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+                      {item.archived ? "Voir la fiche" : locked ? `Aperçu ${FREE_PAGES} pages` : "Ouvrir la visionneuse"}
                     </button>
                     <button
                       onClick={() => toggleLibFav(item.id)}
