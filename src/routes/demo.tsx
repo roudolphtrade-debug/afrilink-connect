@@ -12,6 +12,8 @@ import { LocationMap } from "@/components/LocationMap";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EmptyState, ProCardSkeleton, PostSkeleton, Shimmer } from "@/components/Skeletons";
 import { HelpDrawer } from "@/components/HelpDrawer";
+import { PdfReader, FREE_PAGES } from "@/components/PdfReader";
+import { LIBRARY_ENTRIES, type LibraryEntry } from "@/data/library";
 import { useSession, signOut } from "@/lib/auth-store";
 import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
 
@@ -1110,7 +1112,7 @@ function FavoritesView({
 }) {
   const [tab, setTab] = useState<"pros" | "resources">("pros");
   const list = PROS.filter((p) => favorites.includes(p.id));
-  const resources = LIBRARY.filter((i) => favLibrary.includes(i.id));
+  const resources = LIBRARY_ENTRIES.filter((i) => favLibrary.includes(i.id));
 
   return (
     <div>
