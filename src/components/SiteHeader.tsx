@@ -24,9 +24,6 @@ export function SiteHeader() {
             <a href="/#univers" className="text-sm font-medium hover:text-accent">
               Univers
             </a>
-            <a href="/#univers" className="text-sm font-medium hover:text-accent">
-              Communauté
-            </a>
             <Link to="/app" className="text-sm font-medium hover:text-accent">
               Entrer
             </Link>
