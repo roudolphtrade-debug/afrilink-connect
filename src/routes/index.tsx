@@ -13,7 +13,7 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
-import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS } from "@/lib/mock-data";
+import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS, JOURNEYS } from "@/lib/mock-data";
 
 const CITY_META: Record<string, { country: string; flag: string }> = {
   Douala: { country: "Cameroun", flag: "🇨🇲" },
@@ -24,6 +24,12 @@ const CITY_META: Record<string, { country: string; flag: string }> = {
   Cotonou: { country: "Bénin", flag: "🇧🇯" },
   "Lomé": { country: "Togo", flag: "🇹🇬" },
   Brazzaville: { country: "Congo", flag: "🇨🇬" },
+  Kinshasa: { country: "RDC", flag: "🇨🇩" },
+  Conakry: { country: "Guinée", flag: "🇬🇳" },
+  Bamako: { country: "Mali", flag: "🇲🇱" },
+  Kigali: { country: "Rwanda", flag: "🇷🇼" },
+  "N'Djamena": { country: "Tchad", flag: "🇹🇩" },
+  Bujumbura: { country: "Burundi", flag: "🇧🇮" },
 };
 
 export const Route = createFileRoute("/")({
