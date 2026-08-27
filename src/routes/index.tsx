@@ -530,19 +530,18 @@ function LandingPage() {
                 </p>
               </div>
             </Reveal>
-            <Reveal delay={160}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6">
-                <span className="icon-circle mb-4 inline-flex"><Clock className="h-5 w-5" /></span>
-                <p className="font-display text-3xl font-bold">Des semaines, parfois des mois</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  le temps qu'il faut pour reconstruire un réseau fiable en arrivant seul.
-                </p>
-              </div>
-            </Reveal>
           </div>
-          <Reveal delay={80} className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+          <Reveal delay={80} className="mt-6 flex flex-wrap items-center justify-center gap-3 text-center text-sm text-muted-foreground">
             <Compass className="h-4 w-4 text-accent" />
-            <span>Aucune donnée inventée : chaque chiffre vient de l'historique de la communauté.</span>
+            <span>Ces deux chiffres proviennent de l'historique de la communauté. Aucune donnée inventée.</span>
+          </Reveal>
+          <Reveal delay={120} className="mx-auto mt-10 max-w-2xl rounded-2xl border border-dashed border-border bg-card/60 p-6 text-center">
+            <span className="icon-circle mb-4 inline-flex"><Clock className="h-5 w-5" /></span>
+            <p className="font-display text-2xl font-bold">Des semaines, parfois des mois</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              le temps qu'il faut pour reconstruire un réseau fiable en arrivant seul. Constat qualitatif recueilli
+              auprès de la communauté, et non une statistique mesurée.
+            </p>
           </Reveal>
         </div>
       </section>
