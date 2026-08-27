@@ -15,17 +15,14 @@ export function SiteHeader() {
             <Logo />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
-            <a href="/#solution" className="text-sm font-medium hover:text-accent">
-              La solution
+            <a href="/#confiance" className="text-sm font-medium hover:text-accent">
+              Confiance
             </a>
-            <a href="/#comment" className="text-sm font-medium hover:text-accent">
-              Comment ça marche
+            <a href="/#villes" className="text-sm font-medium hover:text-accent">
+              Nos villes
             </a>
             <a href="/#univers" className="text-sm font-medium hover:text-accent">
               Univers
-            </a>
-            <a href="/#temoignages" className="text-sm font-medium hover:text-accent">
-              Communauté
             </a>
             <Link to="/app" className="text-sm font-medium hover:text-accent">
               Entrer
@@ -56,17 +53,14 @@ export function SiteHeader() {
               open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
             }`}
           >
-            <a href="/#solution" onClick={() => setOpen(false)}>
-              La solution
+            <a href="/#confiance" onClick={() => setOpen(false)}>
+              Confiance
             </a>
-            <a href="/#comment" onClick={() => setOpen(false)}>
-              Comment ça marche
+            <a href="/#villes" onClick={() => setOpen(false)}>
+              Nos villes
             </a>
             <a href="/#univers" onClick={() => setOpen(false)}>
               Univers
-            </a>
-            <a href="/#temoignages" onClick={() => setOpen(false)}>
-              Communauté
             </a>
             <Link to="/app" onClick={() => setOpen(false)}>
               Entrer

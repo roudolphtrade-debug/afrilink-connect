@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, type Ref } from "react";
 import {
-  ShieldCheck, Users, MessageCircle, Compass, Search, Send, Handshake, Sparkles,
+  ShieldCheck, Users, Compass, Search, Send, Handshake, Sparkles,
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Home as HomeIcon, Briefcase,
-  Plane, Wallet, Rocket, Baby, BookOpen, Palmtree, Star, Quote, ArrowRight, Check, X, MapPin,
+  Wallet, Star, ArrowRight, MapPin, BadgeCheck, Clock,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -13,7 +13,7 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
-import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS, JOURNEYS } from "@/lib/mock-data";
+import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, JOURNEYS } from "@/lib/mock-data";
 
 const CITY_META: Record<string, { country: string; flag: string }> = {
   Douala: { country: "Cameroun", flag: "🇨🇲" },
@@ -32,7 +32,32 @@ const CITY_META: Record<string, { country: string; flag: string }> = {
   Bujumbura: { country: "Burundi", flag: "🇧🇮" },
 };
 
+/** Pays → villes ouvertes, dérivé des villes réellement actives. */
+const OPEN_BY_COUNTRY = MAIN_CITIES.reduce<Record<string, string[]>>((acc, city) => {
+  const country = CITY_META[city].country;
+  (acc[country] ??= []).push(city);
+  return acc;
+}, {});
+const OPEN_COUNTRIES = Object.keys(OPEN_BY_COUNTRY);
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AfriLink — Les bons contacts, ville par ville" },
+      {
+        name: "description",
+        content:
+          "Cherchez un contact de confiance, demandez à la communauté ou partagez un bon plan. Douala, Yaoundé, Dakar, Abidjan et 4 autres villes.",
+      },
+      { property: "og:title", content: "AfriLink — Les bons contacts, ville par ville" },
+      {
+        property: "og:description",
+        content: "Le réseau de confiance de la diaspora africaine, actif depuis 2022.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: LandingPage,
 });
 
@@ -47,7 +72,9 @@ const QUICK_SUGGESTIONS = [
 
 function HeroSearch() {
   const navigate = useNavigate();
+  const [country, setCountry] = useState<string>(CITY_META[MAIN_CITIES[0]].country);
   const [city, setCity] = useState<string>(MAIN_CITIES[0]);
+  const [editingPlace, setEditingPlace] = useState(false);
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
 
@@ -72,7 +99,57 @@ function HeroSearch() {
   const open = focused && results.length > 0;
 
   return (
-    <div className="mx-auto mt-10 max-w-2xl">
+    <div className="mx-auto mt-8 max-w-2xl">
+      {/* Pays → Ville */}
+      <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+        {!editingPlace ? (
+          <button
+            type="button"
+            onClick={() => setEditingPlace(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-semibold shadow-soft transition hover:border-accent/50"
+          >
+            <MapPin className="h-4 w-4 text-accent" />
+            <span>{country} · {city}</span>
+            <span className="text-xs font-medium text-muted-foreground underline underline-offset-2">Modifier</span>
+          </button>
+        ) : (
+          <div className="flex flex-wrap items-center justify-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-soft">
+            <MapPin className="h-4 w-4 shrink-0 text-accent" />
+            <select
+              value={country}
+              aria-label="Choisir un pays"
+              onChange={(e) => {
+                const next = e.target.value;
+                setCountry(next);
+                setCity(OPEN_BY_COUNTRY[next][0]);
+              }}
+              className="bg-transparent py-1 text-sm font-semibold outline-none"
+            >
+              {OPEN_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <span className="text-muted-foreground">·</span>
+            <select
+              value={city}
+              aria-label="Choisir une ville"
+              onChange={(e) => setCity(e.target.value)}
+              className="bg-transparent py-1 text-sm font-semibold outline-none"
+            >
+              {OPEN_BY_COUNTRY[country].map((c) => <option key={c} value={c}>{c}</option>)}
+              {OPENING_CITIES.map((c) => (
+                <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setEditingPlace(false)}
+              className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
+            >
+              OK
+            </button>
+          </div>
+        )}
+      </div>
+
       <form
         onSubmit={(e) => { e.preventDefault(); go(); }}
         className="relative flex flex-col gap-2 rounded-3xl border border-border bg-card p-2 shadow-elevated sm:flex-row sm:items-center sm:rounded-full"
@@ -84,24 +161,10 @@ function HeroSearch() {
             onChange={(e) => setQ(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 150)}
-            placeholder="De quoi avez-vous besoin ?"
+            placeholder={`De quoi avez-vous besoin à ${city} ?`}
             aria-label="Rechercher un service ou un professionnel"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
-        </div>
-        <div className="flex items-center gap-2 border-t border-border px-2 py-1 sm:border-l sm:border-t-0 sm:py-0">
-          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            aria-label="Choisir une ville"
-            className="bg-transparent py-2 text-sm font-medium outline-none"
-          >
-            {MAIN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            {OPENING_CITIES.map((c) => (
-              <option key={c} value={c} disabled>{c} — en cours d'ouverture</option>
-            ))}
-          </select>
         </div>
         <button
           type="submit"
@@ -136,14 +199,17 @@ function HeroSearch() {
                     {p.neighborhood ? `, ${p.neighborhood}` : ""}
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold">
-                  <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {p.rating.toFixed(1)}
-                </span>
+                {p.rating > 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold">
+                    <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {p.rating.toFixed(1)}
+                  </span>
+                )}
               </button>
             ))}
           </div>
         )}
       </form>
+
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         {QUICK_SUGGESTIONS.map((s) => (
           <button
@@ -155,38 +221,42 @@ function HeroSearch() {
           </button>
         ))}
       </div>
-      <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <div className="flex -space-x-3">
-          {HISTORIC_PROS.slice(0, 4).map((p) => (
-            <div key={p.id} className="rounded-full ring-2 ring-secondary">
-              <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={34} />
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          <strong className="text-foreground">{STATS.members} membres</strong> et{" "}
-          <strong className="text-foreground">{STATS.plans} bons plans &amp; contacts</strong> partagés depuis 2022.
-        </p>
+
+      {/* Deux CTA explicites, juste sous le moteur */}
+      <div className="mt-5 grid gap-3 text-left sm:grid-cols-2">
+        <Link
+          to="/app"
+          className="group flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+        >
+          <span className="icon-circle shrink-0"><Handshake className="h-5 w-5" /></span>
+          <span>
+            <span className="block text-sm font-semibold">Vous ne trouvez pas ? Demandez à la communauté</span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Publiez votre besoin, les membres répondent avec leurs contacts éprouvés.
+            </span>
+          </span>
+        </Link>
+        <Link
+          to="/app"
+          className="group flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+        >
+          <span className="icon-circle shrink-0"><Send className="h-5 w-5" /></span>
+          <span>
+            <span className="block text-sm font-semibold">Vous avez un bon plan ? Partagez-le</span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Un artisan fiable, un médecin, une adresse : faites-en profiter les autres.
+            </span>
+          </span>
+        </Link>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        Bientôt : {OPENING_CITIES.join(" · ")}
-      </p>
     </div>
   );
 }
 
-
-const pillars = [
-  { icon: ShieldCheck, title: "Trois niveaux de confiance", desc: "Référencé, Recommandé par la communauté, puis Vérifié AfriLink après contrôle de notre équipe." },
-  { icon: Users, title: "Recommandations humaines", desc: "Des avis réels de membres qui ont déjà testé pour vous." },
-  { icon: MessageCircle, title: "Communauté active", desc: "Échangez, demandez conseil, partagez vos bons plans." },
-  { icon: Compass, title: "Accompagnement complet", desc: "Avant, pendant et après votre arrivée sur le continent." },
-];
-
-const steps = [
-  { icon: Users, title: "Créez votre profil", desc: "Deux minutes, une ville, vos besoins du moment." },
-  { icon: Search, title: "Trouvez ou demandez", desc: "Cherchez un contact de confiance ou publiez votre demande à la communauté." },
-  { icon: Send, title: "Échangez et recommandez", desc: "Discutez en direct, puis partagez votre retour pour faire monter le contact en confiance." },
+const ACTIONS = [
+  { icon: Search, title: "Rechercher", desc: "Un contact déjà éprouvé, dans votre ville et votre quartier." },
+  { icon: Handshake, title: "Demander", desc: "Posez votre besoin à la communauté et recevez des réponses utiles." },
+  { icon: Send, title: "Partager", desc: "Transmettez vos bons plans pour renforcer le réseau." },
 ];
 
 const universes = [
@@ -194,28 +264,32 @@ const universes = [
   { icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
   { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
   { icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
-  { icon: FileText, label: "Services administratifs & juridiques", examples: "Visa · État civil · Avocat" },
+  { icon: FileText, label: "Administratif & juridique", examples: "Visa · État civil · Avocat" },
   { icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
   { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
   { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
   { icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
 ];
 
-
-const profiles = [
-  { icon: Plane, label: "Expatriés", color: "var(--forest)" },
-  { icon: Users, label: "Diasporas", color: "var(--accent)" },
-  { icon: Wallet, label: "Investisseurs", color: "var(--forest-light)" },
-  { icon: Rocket, label: "Entrepreneurs", color: "var(--gold-dark)" },
-  { icon: Baby, label: "Familles", color: "var(--forest-sage)" },
-  { icon: BookOpen, label: "Étudiants", color: "var(--gold-bronze)" },
-  { icon: Palmtree, label: "Voyageurs longue durée", color: "var(--forest)" },
-  { icon: HomeIcon, label: "Retraités internationaux", color: "var(--accent)" },
+const TRUST_LEVELS = [
+  { label: "Référencé", desc: "Fiche issue de l'historique Les Bons Plans du Bled, en attente de revalidation." },
+  { label: "Recommandé", desc: "Au moins un membre de la communauté a témoigné de son expérience." },
+  { label: "Vérifié AfriLink", desc: "Contrôle effectué par l'équipe : identité, activité et joignabilité." },
+  { label: "Équipe AfriLink", desc: "Membres fondateurs, identifiables et joignables directement." },
 ];
 
 function LandingPage() {
-  
   const finalCtaMagnetic = useMagnetic<HTMLAnchorElement>();
+
+  /** Activité réelle : fiches historiques réellement importées, sans contenu inventé. */
+  const activity = useMemo(() => HISTORIC_PROS.slice(0, 6), []);
+  const cityCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        MAIN_CITIES.map((c) => [c, PROS.filter((p) => p.city === c && p.historic).length]),
+      ) as Record<string, number>,
+    [],
+  );
 
   return (
     <div>
@@ -225,7 +299,7 @@ function LandingPage() {
       <section className="section-cream relative overflow-hidden">
         <div className="pointer-events-none absolute -right-40 top-10 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-forest/10 blur-3xl" />
-        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:px-8 md:py-28">
+        <div className="relative mx-auto max-w-4xl px-4 py-16 text-center md:px-8 md:py-24">
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-card px-4 py-1.5 text-xs font-semibold text-foreground">
               <span className="h-2 w-2 rounded-full bg-accent" />
@@ -234,41 +308,29 @@ function LandingPage() {
             <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] md:text-6xl">
               Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-              Douala, Yaoundé, Dakar, Abidjan, Libreville, Cotonou, Lomé, Brazzaville — un contact vérifié plutôt qu'une recherche au hasard.
+            <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
+              Cherchez un contact, demandez à la communauté ou partagez un bon plan — ville par ville.
             </p>
           </Reveal>
 
-          <Reveal delay={120}>
+          <Reveal delay={100}>
             <HeroSearch />
           </Reveal>
 
-          <Reveal delay={160}>
-            <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left sm:grid-cols-2">
-              <Link
-                to="/app"
-                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
-              >
-                <span className="icon-circle shrink-0"><Handshake className="h-5 w-5" /></span>
-                <span>
-                  <span className="block font-semibold">Vous ne trouvez pas ? Demandez à la communauté</span>
-                  <span className="mt-1 block text-sm text-muted-foreground">
-                    Publiez votre besoin, les membres répondent avec leurs contacts éprouvés.
-                  </span>
-                </span>
-              </Link>
-              <Link
-                to="/app"
-                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
-              >
-                <span className="icon-circle shrink-0"><Send className="h-5 w-5" /></span>
-                <span>
-                  <span className="block font-semibold">Partagez un bon plan</span>
-                  <span className="mt-1 block text-sm text-muted-foreground">
-                    Un artisan fiable, un médecin, une adresse : faites-en profiter les autres.
-                  </span>
-                </span>
-              </Link>
+          {/* 3 ACTIONS */}
+          <Reveal delay={140}>
+            <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
+              {ACTIONS.map((a) => (
+                <Link
+                  key={a.title}
+                  to="/app"
+                  className="rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+                >
+                  <span className="icon-circle mb-3 inline-flex"><a.icon className="h-5 w-5" /></span>
+                  <p className="font-semibold">{a.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{a.desc}</p>
+                </Link>
+              ))}
             </div>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <JoinCommunityCta size="pill-lg" className="shadow-elevated">
@@ -280,229 +342,143 @@ function LandingPage() {
             </div>
           </Reveal>
 
-
-          <Reveal delay={200}>
-            <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
-              <Stat value={STATS.plans} label="bons plans & contacts depuis 2022" />
+          <Reveal delay={180}>
+            <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-6">
+              <Stat value={STATS.plans} label="bons plans & contacts partagés depuis 2022" />
               <Stat value={STATS.members} label="membres historiques" />
-              <Stat value={STATS.pros} label="professionnels de confiance" />
+              <Stat value={STATS.pros} label="professionnels référencés depuis 2022, revalidation en cours" />
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* LE CONSTAT */}
-      <section className="section-forest">
-        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+      {/* ACTIVITÉ RÉELLE */}
+      <section className="bg-background">
+        <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Le constat</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">
-              Arriver dans un nouveau pays, c'est arriver sans réseau.
-            </h2>
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Activité réelle</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Des contacts déjà partagés par la communauté</h2>
+            <p className="mt-4 text-muted-foreground">
+              Ces fiches proviennent de l'historique Les Bons Plans du Bled, repris tel quel dans AfriLink.
+            </p>
           </Reveal>
-          <div className="mt-14 grid gap-4 md:grid-cols-2">
-            {[
-              "Difficile de trouver des personnes fiables",
-              "Risque de mauvaises expériences",
-              "Manque de recommandations vérifiées",
-              "Perte de temps dans l'installation",
-            ].map((t, i) => (
-              <Reveal key={t} delay={i * 80}>
-                <div className="flex items-start gap-4 rounded-2xl bg-white/5 p-6 backdrop-blur">
-                  <span className="icon-circle shrink-0"><X className="h-5 w-5" /></span>
-                  <p className="text-lg font-medium">{t}</p>
-                </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {activity.map((p, i) => (
+              <Reveal key={p.id} delay={i * 60}>
+                <Link
+                  to="/app"
+                  className="flex h-full items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+                >
+                  <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={44} />
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="truncate font-semibold">{p.name}</p>
+                      <StatusBadge status={p.status ?? "reference"} />
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
+                      {p.neighborhood ? `, ${p.neighborhood}` : ""}
+                    </p>
+                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{p.bio}</p>
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>
-          <Reveal className="mx-auto mt-14 max-w-2xl rounded-3xl border border-accent/40 bg-accent/10 p-8 text-center">
-            <p className="font-display text-4xl font-bold text-accent md:text-5xl">Plusieurs mois</p>
-            <p className="mt-3 text-forest-foreground/80">temps moyen pour reconstruire un réseau fiable en arrivant seul.</p>
+          <Reveal delay={80} className="mt-8 text-center">
+            <Button variant="pill-outline" asChild>
+              <Link to="/app">Voir toute l'activité <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
           </Reveal>
-        </div>
-      </section>
-
-      {/* LA SOLUTION */}
-      <section id="solution" className="bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">La solution</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau, quatre piliers</h2>
-          </Reveal>
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {pillars.map((p, i) => (
-              <Reveal key={p.title} delay={i * 80}>
-                <div className="group rounded-3xl border border-border bg-card p-8 shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
-                  <span className="icon-circle mb-6"><p.icon className="h-6 w-6" /></span>
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">{p.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* AVANT / APRÈS */}
-      <section className="section-cream">
-        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
-          <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Avant / Après</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">La différence AfriLink</h2>
-          </Reveal>
-          <div className="mt-14 grid gap-6 md:grid-cols-2">
-            <Reveal className="rounded-3xl border border-destructive/20 bg-card p-8">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive"><X /></span>
-                <h3 className="text-xl font-semibold">Avant</h3>
-              </div>
-              <ul className="mt-6 space-y-4 text-muted-foreground">
-                <li>Vous ne connaissez personne sur place.</li>
-                <li>Vous cherchez au hasard sur des groupes non filtrés.</li>
-                <li>Vous perdez du temps et prenez des risques.</li>
-              </ul>
-            </Reveal>
-            <Reveal delay={120} className="rounded-3xl border border-forest/20 bg-forest p-8 text-forest-foreground">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground"><Check /></span>
-                <h3 className="text-xl font-semibold">Avec AfriLink</h3>
-              </div>
-              <ul className="mt-6 space-y-4 text-forest-foreground/85">
-                <li>Recommandations fiables en quelques minutes.</li>
-                <li>Personnes de confiance qui répondent vraiment.</li>
-                <li>Gain de temps et meilleure intégration.</li>
-              </ul>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* COMMENT ÇA MARCHE */}
-      <section id="comment" className="bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Comment ça marche</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Trois étapes, un vrai réseau</h2>
-          </Reveal>
-          <div className="mt-14 grid gap-5 md:grid-cols-3">
-            {steps.map((s, i) => (
-              <Reveal key={s.title} delay={i * 80}>
-                <div className="relative rounded-3xl border border-border bg-card p-6">
-                  <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="icon-circle mb-5"><s.icon className="h-5 w-5" /></span>
-                  <h3 className="font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* UNIVERS */}
       <section id="univers" className="section-cream">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Les univers couverts</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Tout ce dont vous avez besoin</h2>
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Les 9 univers</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Tout ce dont vous avez besoin</h2>
           </Reveal>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {universes.map((u, i) => (
-              <Reveal key={u.label} delay={i * 60}>
-                <div className="group flex items-start gap-4 rounded-2xl border border-transparent bg-card p-5 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-medium">
+              <Reveal key={u.label} delay={i * 50}>
+                <Link
+                  to="/app"
+                  className="group flex items-start gap-4 rounded-2xl border border-transparent bg-card p-5 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-medium"
+                >
                   <span className="icon-circle shrink-0 transition-transform duration-300 group-hover:scale-105">
                     <u.icon className="h-5 w-5" />
                   </span>
                   <div className="min-w-0">
                     <p className="font-medium">{u.label}</p>
-                    <p className="mt-1 max-h-0 overflow-hidden text-xs leading-relaxed text-muted-foreground opacity-0 transition-all duration-300 ease-out group-hover:max-h-16 group-hover:opacity-100">
-                      {u.examples}
-                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{u.examples}</p>
                   </div>
-                </div>
+                </Link>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* POUR QUI */}
+      {/* PARCOURS */}
       <section className="bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Pour qui ?</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un réseau pour chaque parcours</h2>
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Parcours</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Par où commencer ?</h2>
             <p className="mt-4 text-muted-foreground">
-              AfriLink s'adresse à toute personne qui arrive, vit, travaille, investit ou voyage en Afrique.
+              Chaque parcours regroupe les univers utiles à un moment précis de votre vie sur le continent.
             </p>
           </Reveal>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-            {profiles.map((p, i) => (
-              <Reveal key={p.label} delay={i * 60}>
-                <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ backgroundColor: p.color }}>
-                    <p.icon className="h-6 w-6" />
-                  </div>
-                  <p className="mt-4 font-semibold">{p.label}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={80}>
-            <p className="mt-16 text-center text-xs font-semibold uppercase tracking-widest text-accent">
-              Parcours diaspora
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {JOURNEYS.map((j) => (
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {JOURNEYS.map((j, i) => (
+              <Reveal key={j.slug} delay={i * 50}>
                 <Link
-                  key={j.slug}
                   to="/app"
-                  className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+                  className="block h-full rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
                 >
                   <p className="font-semibold">{j.label}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{j.desc}</p>
                 </Link>
-              ))}
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* VILLES */}
       <section id="villes" className="section-cream">
-        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Nos villes</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-5xl">Là où la communauté est déjà active</h2>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Là où la communauté est déjà active</h2>
           </Reveal>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {MAIN_CITIES.map((c, i) => (
-              <Reveal key={c} delay={i * 60}>
+              <Reveal key={c} delay={i * 50}>
                 <div className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-medium">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-xl transition-transform duration-300 group-hover:scale-105">
                     {CITY_META[c].flag}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{c}</p>
-                    <p className="text-xs text-muted-foreground">{CITY_META[c].country}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {CITY_META[c].country}
+                      {cityCounts[c] > 0 ? ` · ${cityCounts[c]} fiches` : ""}
+                    </p>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-forest-sage">
-                    <span className="h-1.5 w-1.5 rounded-full bg-forest-sage" /> Ouverte
-                  </span>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal delay={120}>
+          <Reveal delay={100}>
             <p className="mt-10 text-center text-sm font-semibold text-muted-foreground">En cours d'ouverture</p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
               {OPENING_CITIES.map((c) => (
                 <span
                   key={c}
-                  className="inline-flex items-center gap-2 rounded-full border border-dashed border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground transition hover:border-accent/40 hover:text-foreground"
+                  className="inline-flex items-center gap-2 rounded-full border border-dashed border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground"
                 >
                   <span className="text-base leading-none">{CITY_META[c].flag}</span> {c}
                   <span className="text-xs text-muted-foreground/70">· {CITY_META[c].country}</span>
@@ -513,33 +489,24 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* TÉMOIGNAGES */}
-      <section id="temoignages" className="section-forest">
-        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+      {/* CONFIANCE */}
+      <section id="confiance" className="section-forest">
+        <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Ce que dit la communauté</span>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
-              Le problème n'est pas l'absence d'offres, mais l'absence de réseau local fiable.
-            </h2>
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Confiance</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Un niveau de confiance affiché, jamais supposé</h2>
             <p className="mt-4 text-forest-foreground/75">
-              AfriLink transforme ce capital social informel en infrastructure de confiance accessible.
+              Chaque fiche porte son niveau réel. Aucun contact n'est présenté comme vérifié tant que
+              l'équipe ne l'a pas revalidé.
             </p>
           </Reveal>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((t, ti) => (
-              <Reveal key={t.name} delay={ti * 100}>
-                <div className="rounded-3xl bg-white/5 p-8 backdrop-blur">
-                  <Quote className="h-6 w-6 text-accent/70" aria-hidden="true" />
-                  <p className="mt-5 font-display text-lg italic leading-relaxed text-forest-foreground/95">
-                    "{t.quote}"
-                  </p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <Avatar initials={t.initials} color={t.color} src={t.avatar} alt={t.name} />
-                    <div>
-                      <p className="font-semibold">{t.name}</p>
-                      <p className="text-sm text-forest-foreground/60">{t.role}</p>
-                    </div>
-                  </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {TRUST_LEVELS.map((t, i) => (
+              <Reveal key={t.label} delay={i * 60}>
+                <div className="h-full rounded-2xl bg-white/5 p-6 backdrop-blur">
+                  <span className="icon-circle mb-4 inline-flex"><ShieldCheck className="h-5 w-5" /></span>
+                  <p className="font-semibold">{t.label}</p>
+                  <p className="mt-2 text-sm text-forest-foreground/75">{t.desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -547,43 +514,52 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* IMPACT / MODÈLE */}
+      {/* PREUVES HISTORIQUES */}
       <section className="bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+        <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">Preuves historiques</span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">Ce qui existe déjà, avant la plateforme</h2>
+          </Reveal>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
             <Reveal>
-              <span className="text-xs font-semibold uppercase tracking-widest text-accent">Impact & modèle</span>
-              <h2 className="mt-4 text-3xl font-bold md:text-5xl">Un modèle vertueux et transparent</h2>
-              <div className="mt-8 grid grid-cols-3 gap-6">
-                <Stat value={STATS.plans} label="bons plans & contacts depuis 2022" />
-                <Stat value={STATS.members} label="membres historiques" />
-                <Stat value={STATS.pros} label="professionnels de confiance" />
+              <div className="h-full rounded-2xl border border-border bg-card p-6">
+                <span className="icon-circle mb-4 inline-flex"><Users className="h-5 w-5" /></span>
+                <p className="font-display text-3xl font-bold">{STATS.members}</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  membres réunis depuis 2022 autour de Les Bons Plans du Bled.
+                </p>
               </div>
             </Reveal>
-            <div className="space-y-4">
-              {[
-                { t: "Gratuit pour la communauté", d: "L'accès aux recommandations et à la messagerie reste gratuit." },
-                { t: "Abonnement pros vérifiés", d: "Les professionnels validés bénéficient d'une visibilité premium." },
-                { t: "Partenariats installation", d: "Banques, assurances, logement — les bons interlocuteurs à l'arrivée." },
-              ].map((m, i) => (
-                <Reveal key={m.t} delay={i * 80}>
-                  <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-                    <span className="icon-circle shrink-0"><Check className="h-5 w-5" /></span>
-                    <div>
-                      <h3 className="font-semibold">{m.t}</h3>
-                      <p className="text-sm text-muted-foreground">{m.d}</p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal delay={80}>
+              <div className="h-full rounded-2xl border border-border bg-card p-6">
+                <span className="icon-circle mb-4 inline-flex"><BadgeCheck className="h-5 w-5" /></span>
+                <p className="font-display text-3xl font-bold">{HISTORIC_PROS.length}</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  fiches historiques réellement importées, conservées au statut Référencé.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={160}>
+              <div className="h-full rounded-2xl border border-border bg-card p-6">
+                <span className="icon-circle mb-4 inline-flex"><Clock className="h-5 w-5" /></span>
+                <p className="font-display text-3xl font-bold">Des semaines, parfois des mois</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  le temps qu'il faut pour reconstruire un réseau fiable en arrivant seul.
+                </p>
+              </div>
+            </Reveal>
           </div>
+          <Reveal delay={80} className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+            <Compass className="h-4 w-4 text-accent" />
+            <span>Aucune donnée inventée : chaque chiffre vient de l'historique de la communauté.</span>
+          </Reveal>
         </div>
       </section>
 
       {/* CTA FINAL */}
       <section className="section-cream">
-        <Reveal className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8">
+        <Reveal className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8 md:py-20">
           <h2 className="text-3xl font-bold leading-[1.15] md:text-5xl">
             <span className="block">Les bonnes <span className="text-forest-sage">personnes</span>.</span>
             <span className="mt-1 block">Les bons <span className="text-accent">plans</span>.</span>
