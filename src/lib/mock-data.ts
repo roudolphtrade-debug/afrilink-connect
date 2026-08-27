@@ -414,10 +414,18 @@ export const STATS = {
   prosLabel: "professionnels de confiance",
 };
 
-/* ---------- Villes ouvertes / en cours d'ouverture ---------- */
+/* ---------- Villes ouvertes / prochaines ouvertures ---------- */
 
-export const MAIN_CITIES = ["Douala", "Yaoundé", "Dakar", "Abidjan"] as const;
-export const OPENING_CITIES = ["Libreville", "Cotonou", "Lomé", "Brazzaville"] as const;
+/** Villes actives : la communauté y est déjà présente. */
+export const MAIN_CITIES = [
+  "Douala", "Yaoundé", "Dakar", "Abidjan",
+  "Libreville", "Cotonou", "Lomé", "Brazzaville",
+] as const;
+
+/** Prochaines ouvertures annoncées (aucune fiche publiée à ce stade). */
+export const OPENING_CITIES = [
+  "Kinshasa", "Conakry", "Bamako", "Kigali", "N'Djamena", "Bujumbura",
+] as const;
 
 /* ---------- Bibliothèque (ouvrages du domaine public + notes de lecture) ---------- */
 
