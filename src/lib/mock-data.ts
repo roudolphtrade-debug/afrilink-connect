@@ -1,13 +1,39 @@
 export const CATEGORIES = [
-  { slug: "maison", label: "Maison & Artisanat", icon: "Hammer" },
-  { slug: "sante", label: "Santé & Bien-être", icon: "HeartPulse" },
+  { slug: "maison", label: "Maison", icon: "Hammer" },
+  { slug: "sante", label: "Santé", icon: "HeartPulse" },
   { slug: "education", label: "Éducation", icon: "GraduationCap" },
-  { slug: "transport", label: "Transport & Logistique", icon: "Truck" },
-  { slug: "admin", label: "Services administratifs", icon: "FileText" },
-  { slug: "loisirs", label: "Loisirs & Lifestyle", icon: "Sparkles" },
+  { slug: "transport", label: "Transport", icon: "Truck" },
+  { slug: "admin", label: "Services administratifs & juridiques", icon: "FileText" },
+  { slug: "loisirs", label: "Loisirs", icon: "Sparkles" },
   { slug: "immobilier", label: "Immobilier", icon: "Home" },
   { slug: "emploi", label: "Emploi & Business", icon: "Briefcase" },
+  { slug: "finance", label: "Finance & Assurance", icon: "Wallet" },
 ] as const;
+
+/** Sous-catégories par univers (utilisées en filtre secondaire). */
+export const SUBCATEGORIES: Record<string, string[]> = {
+  maison: ["Menuiserie", "Plomberie", "Électricité", "Peinture & finitions", "Ménage & personnel de maison", "Décoration"],
+  sante: ["Médecine générale", "Pédiatrie", "Dentaire", "Kinésithérapie", "Pharmacie", "Bien-être & beauté"],
+  education: ["Cours à domicile", "Langues", "Écoles & crèches", "Formation professionnelle", "Préparation aux examens"],
+  transport: ["Chauffeur privé", "Transfert aéroport", "Déménagement", "Fret & logistique", "Mécanique auto"],
+  admin: ["Visa & immigration", "État civil", "Création d'entreprise", "Avocat & conseil juridique", "Ambassades & consulats"],
+  loisirs: ["Restaurants & maquis", "Excursions", "Événementiel", "Sport", "Culture & sorties"],
+  immobilier: ["Location meublée", "Location longue durée", "Achat & vente", "Séjour saisonnier", "Gestion locative"],
+  emploi: ["Recrutement", "Coaching carrière", "Freelance & prestataires", "Accompagnement retour au pays", "Création d'activité"],
+  finance: ["Banque & compte", "Transfert d'argent", "Assurance santé", "Assurance auto & habitation", "Microfinance", "Comptabilité"],
+};
+
+/** Parcours diaspora — points d'entrée thématiques vers les univers. */
+export const JOURNEYS = [
+  { slug: "installation", label: "Installation", desc: "Logement, administratif, premiers contacts.", cats: ["immobilier", "admin", "maison"] },
+  { slug: "retour", label: "Retour au pays", desc: "Se réinstaller durablement et reconstruire son réseau.", cats: ["immobilier", "emploi", "finance"] },
+  { slug: "etudes", label: "Études", desc: "Écoles, cours, logement étudiant.", cats: ["education", "immobilier"] },
+  { slug: "famille", label: "Famille", desc: "Santé des enfants, école, personnel de maison.", cats: ["sante", "education", "maison"] },
+  { slug: "travail", label: "Travail", desc: "Emploi, contrats, mobilité quotidienne.", cats: ["emploi", "admin", "transport"] },
+  { slug: "entrepreneuriat", label: "Entrepreneuriat", desc: "Créer, financer et développer son activité.", cats: ["emploi", "finance", "admin"] },
+  { slug: "voyage", label: "Voyage", desc: "Séjour, transferts, découvertes et bonnes tables.", cats: ["loisirs", "transport", "immobilier"] },
+] as const;
+
 
 // Pays en priorité (Cameroun, Côte d'Ivoire, Sénégal), puis expansion Afrique de l'Ouest / Centrale / du Nord
 export const COUNTRIES: { name: string; cities: string[] }[] = [
@@ -26,7 +52,13 @@ export const COUNTRIES: { name: string; cities: string[] }[] = [
   { name: "RDC", cities: ["Kinshasa", "Lubumbashi", "Goma"] },
   { name: "Centrafrique", cities: ["Bangui"] },
   { name: "Cap-Vert", cities: ["Praia", "Mindelo"] },
-  { name: "Autres", cities: ["Libreville", "Bamako", "Ouagadougou"] },
+  { name: "Gabon", cities: ["Libreville", "Port-Gentil"] },
+  { name: "Guinée", cities: ["Conakry"] },
+  { name: "Mali", cities: ["Bamako"] },
+  { name: "Rwanda", cities: ["Kigali"] },
+  { name: "Burundi", cities: ["Bujumbura"] },
+  { name: "Tchad", cities: ["N'Djamena"] },
+  { name: "Burkina Faso", cities: ["Ouagadougou"] },
 ];
 
 export const CITIES = COUNTRIES.flatMap((c) => c.cities);
@@ -382,10 +414,18 @@ export const STATS = {
   prosLabel: "professionnels de confiance",
 };
 
-/* ---------- Villes ouvertes / en cours d'ouverture ---------- */
+/* ---------- Villes ouvertes / prochaines ouvertures ---------- */
 
-export const MAIN_CITIES = ["Douala", "Yaoundé", "Dakar", "Abidjan"] as const;
-export const OPENING_CITIES = ["Libreville", "Cotonou", "Lomé", "Brazzaville"] as const;
+/** Villes actives : la communauté y est déjà présente. */
+export const MAIN_CITIES = [
+  "Douala", "Yaoundé", "Dakar", "Abidjan",
+  "Libreville", "Cotonou", "Lomé", "Brazzaville",
+] as const;
+
+/** Prochaines ouvertures annoncées (aucune fiche publiée à ce stade). */
+export const OPENING_CITIES = [
+  "Kinshasa", "Conakry", "Bamako", "Kigali", "N'Djamena", "Bujumbura",
+] as const;
 
 /* ---------- Bibliothèque (ouvrages du domaine public + notes de lecture) ---------- */
 
@@ -752,3 +792,30 @@ export const TESTIMONIALS: Testimonial[] = [
     avatarSeed: "Fatou D.",
   },
 ].map((t) => ({ ...t, avatar: portrait(t.avatarSeed) }));
+
+/* ---------- Géographie en cascade : Pays → Ville → Quartier ---------- */
+
+/**
+ * Quartiers réellement renseignés dans les fiches (aucun quartier inventé).
+ * Une ville sans quartier documenté renvoie une liste vide.
+ */
+export const DISTRICTS_BY_CITY: Record<string, string[]> = PROS.reduce(
+  (acc, p) => {
+    if (!p.neighborhood) return acc;
+    const list = (acc[p.city] ??= []);
+    if (!list.includes(p.neighborhood)) list.push(p.neighborhood);
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
+Object.values(DISTRICTS_BY_CITY).forEach((l) => l.sort((a, b) => a.localeCompare(b, "fr")));
+
+export function districtsFor(city: string, country: string) {
+  if (city && city !== "all") return DISTRICTS_BY_CITY[city] ?? [];
+  const cities = country && country !== "all"
+    ? (COUNTRIES.find((c) => c.name === country)?.cities ?? [])
+    : Object.keys(DISTRICTS_BY_CITY);
+  const set = new Set<string>();
+  cities.forEach((c) => (DISTRICTS_BY_CITY[c] ?? []).forEach((d) => set.add(d)));
+  return [...set].sort((a, b) => a.localeCompare(b, "fr"));
+}

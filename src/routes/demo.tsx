@@ -4,7 +4,7 @@ import {
   Search, Star, Heart, MessageCircle, ShieldCheck, X, Send, Home as HomeIcon,
   Bell, MapPin, User, Settings, LogOut, Sparkles, ThumbsUp, ArrowRight, ArrowLeft,
   Compass, Bookmark, HelpCircle, PenSquare, Hammer, HeartPulse, GraduationCap,
-  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download, RotateCcw, CheckCheck, ArrowUpDown,
+  Truck, FileText, Briefcase, Users, BookOpen, Library, Lock, LogIn, Download, RotateCcw, CheckCheck, ArrowUpDown, Wallet,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Avatar } from "@/components/Avatar";
@@ -27,12 +27,12 @@ import {
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
   CURRENT_USER, portrait, FEED, NOTIFICATIONS, MAIN_CITIES, OPENING_CITIES, STATS, FOUNDER,
-  STATUS_META, CONTENT_TYPES,
+  STATUS_META, CONTENT_TYPES, SUBCATEGORIES, districtsFor,
   type Pro, type FeedPost, type ProStatus,
 } from "@/lib/mock-data";
 
 const CATEGORY_ICONS: Record<string, typeof Hammer> = {
-  Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase,
+  Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase, Wallet,
 };
 
 export const Route = createFileRoute("/demo")({
@@ -815,30 +815,52 @@ function SearchView({
   const [city, setCity] = usePersistedState<string>("afrilink.filters.city", "all");
   const [sort, setSort] = usePersistedState<SortKey>("afrilink.filters.sort", "pertinence");
   const [ctype, setCtype] = usePersistedState<string>("afrilink.filters.ctype", "all");
+  const [district, setDistrict] = usePersistedState<string>("afrilink.filters.district", "all");
+  const [sub, setSub] = usePersistedState<string>("afrilink.filters.sub", "all");
 
 
   const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
+  const districts = districtsFor(city, country);
 
   const handleCountryChange = (next: string) => {
     setCountry(next);
     setCity("all");
+    setDistrict("all");
   };
 
-  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string } = {}) => {
+  const handleCityChange = (next: string) => {
+    setCity(next);
+    setDistrict("all");
+  };
+
+  const handleCatChange = (next: string) => {
+    setCat(next);
+    setSub("all");
+  };
+
+
+
+  const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string; sub?: string } = {}) => {
     const term = q.trim().toLowerCase();
     const c = o.cat ?? cat;
     const s = o.status ?? status;
     const t = o.ctype ?? ctype;
+    const sc = o.sub ?? sub;
     const matchQ = !term
       || p.name.toLowerCase().includes(term)
       || p.bio.toLowerCase().includes(term)
       || (CATEGORIES.find((x) => x.slug === p.category)?.label ?? "").toLowerCase().includes(term)
       || p.city.toLowerCase().includes(term);
+    const subTerms = sc === "all" ? [] : sc.toLowerCase().split(/[\s&']+/).filter((w) => w.length > 3);
+    const matchSub = sc === "all"
+      || subTerms.some((w) => `${p.name} ${p.bio}`.toLowerCase().includes(w));
     return matchQ
+      && matchSub
       && (c === "all" || p.category === c)
       && (s === "all" || (p.status ?? "reference") === s)
       && (country === "all" || p.country === country)
       && (city === "all" || p.city === city)
+      && (district === "all" || p.neighborhood === district)
       && (t === "all" || (p.contentType ?? "pro") === t);
   };
 
@@ -852,21 +874,22 @@ function SearchView({
       return weight(a.status) - weight(b.status) || b.rating - a.rating;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, cat, status, country, city, sort, ctype]);
+  }, [q, cat, status, country, city, district, sub, sort, ctype]);
 
-  const countFor = (o: { cat?: string; status?: ProStatus | "all"; ctype?: string }) => PROS.filter((p) => matches(p, o)).length;
+  const countFor = (o: { cat?: string; status?: ProStatus | "all"; ctype?: string; sub?: string }) => PROS.filter((p) => matches(p, o)).length;
 
-  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || ctype !== "all" || q.trim() !== "" || sort !== "pertinence";
-  const reset = () => { setQ(""); setCat("all"); setStatus("all"); setCountry("all"); setCity("all"); setCtype("all"); setSort("pertinence"); };
+  const hasFilters = cat !== "all" || status !== "all" || country !== "all" || city !== "all" || district !== "all" || sub !== "all" || ctype !== "all" || q.trim() !== "" || sort !== "pertinence";
+  const reset = () => { setQ(""); setCat("all"); setSub("all"); setStatus("all"); setCountry("all"); setCity("all"); setDistrict("all"); setCtype("all"); setSort("pertinence"); };
 
-  const loading = useLoading([q, cat, status, country, city, sort, ctype], 350);
+  const loading = useLoading([q, cat, sub, status, country, city, district, sort, ctype], 350);
+
 
 
 
   return (
     <div>
       <div className="rounded-3xl border border-border bg-white p-5 shadow-soft">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="icon-circle"><Search className="h-5 w-5" /></span>
           <input
             value={q}
@@ -884,27 +907,50 @@ function SearchView({
           </select>
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => handleCityChange(e.target.value)}
             className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
           >
             <option value="all">Toutes les villes</option>
             {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
+          {districts.length > 0 && (
+            <select
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="hidden rounded-full border border-border bg-muted px-4 py-2 text-sm font-medium md:block"
+            >
+              <option value="all">Tous les quartiers</option>
+              {districts.map((d) => <option key={d}>{d}</option>)}
+            </select>
+          )}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <FilterChip active={cat === "all"} onClick={() => setCat("all")}>
-            Toutes catégories <span className="opacity-60">{countFor({ cat: "all" })}</span>
+          <FilterChip active={cat === "all"} onClick={() => handleCatChange("all")}>
+            Toutes catégories <span className="opacity-60">{countFor({ cat: "all", sub: "all" })}</span>
           </FilterChip>
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICONS[c.icon];
-            const n = countFor({ cat: c.slug });
+            const n = countFor({ cat: c.slug, sub: "all" });
             return (
-              <FilterChip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
+              <FilterChip key={c.slug} active={cat === c.slug} onClick={() => handleCatChange(c.slug)}>
                 <Icon className="h-3.5 w-3.5" /> {c.label} <span className="opacity-60">{n}</span>
               </FilterChip>
             );
           })}
         </div>
+        {cat !== "all" && (SUBCATEGORIES[cat]?.length ?? 0) > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sous-catégorie</span>
+            <FilterChip active={sub === "all"} onClick={() => setSub("all")}>
+              Toutes <span className="opacity-60">{countFor({ sub: "all" })}</span>
+            </FilterChip>
+            {SUBCATEGORIES[cat]!.map((s) => (
+              <FilterChip key={s} active={sub === s} onClick={() => setSub(s)}>
+                {s} <span className="opacity-60">{countFor({ sub: s })}</span>
+              </FilterChip>
+            ))}
+          </div>
+        )}
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
           <FilterChip active={status === "all"} onClick={() => setStatus("all")}>
@@ -934,11 +980,18 @@ function SearchView({
             <option value="all">Tous les pays</option>
             {COUNTRIES.map((c) => <option key={c.name}>{c.name}</option>)}
           </select>
-          <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
+          <select value={city} onChange={(e) => handleCityChange(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
             <option value="all">Toutes les villes</option>
             {citiesForCountry.map((c) => <option key={c}>{c}</option>)}
           </select>
+          {districts.length > 0 && (
+            <select value={district} onChange={(e) => setDistrict(e.target.value)} className="w-full rounded-full border border-border bg-muted px-4 py-2 text-sm">
+              <option value="all">Tous les quartiers</option>
+              {districts.map((d) => <option key={d}>{d}</option>)}
+            </select>
+          )}
         </div>
+
       </div>
 
       <div className="mt-6 flex min-h-[32px] flex-wrap items-center justify-between gap-3">

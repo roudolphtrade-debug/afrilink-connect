@@ -13,7 +13,7 @@ import { JoinCommunityCta } from "@/components/JoinCommunityCta";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { useMagnetic } from "@/hooks/use-magnetic";
-import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS } from "@/lib/mock-data";
+import { STATS, MAIN_CITIES, OPENING_CITIES, PROS, CATEGORIES, HISTORIC_PROS, TESTIMONIALS, JOURNEYS } from "@/lib/mock-data";
 
 const CITY_META: Record<string, { country: string; flag: string }> = {
   Douala: { country: "Cameroun", flag: "🇨🇲" },
@@ -24,6 +24,12 @@ const CITY_META: Record<string, { country: string; flag: string }> = {
   Cotonou: { country: "Bénin", flag: "🇧🇯" },
   "Lomé": { country: "Togo", flag: "🇹🇬" },
   Brazzaville: { country: "Congo", flag: "🇨🇬" },
+  Kinshasa: { country: "RDC", flag: "🇨🇩" },
+  Conakry: { country: "Guinée", flag: "🇬🇳" },
+  Bamako: { country: "Mali", flag: "🇲🇱" },
+  Kigali: { country: "Rwanda", flag: "🇷🇼" },
+  "N'Djamena": { country: "Tchad", flag: "🇹🇩" },
+  Bujumbura: { country: "Burundi", flag: "🇧🇮" },
 };
 
 export const Route = createFileRoute("/")({
@@ -184,15 +190,17 @@ const steps = [
 ];
 
 const universes = [
-  { icon: Hammer, label: "Maison & Artisanat", examples: "Menuiserie · Plomberie · Électricité" },
-  { icon: HeartPulse, label: "Santé & Bien-être", examples: "Pédiatrie · Kiné · Dentiste" },
-  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · TOEFL · Écoles" },
-  { icon: Truck, label: "Transport & Logistique", examples: "Chauffeur · Aéroport · Déménagement" },
-  { icon: FileText, label: "Services administratifs", examples: "Visa · Permis · Banque" },
-  { icon: Sparkles, label: "Loisirs & Lifestyle", examples: "Excursions · Beauté · Restaurants" },
+  { icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
+  { icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
+  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
+  { icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
+  { icon: FileText, label: "Services administratifs & juridiques", examples: "Visa · État civil · Avocat" },
+  { icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
   { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
-  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Création" },
+  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
+  { icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
 ];
+
 
 const profiles = [
   { icon: Plane, label: "Expatriés", color: "var(--forest)" },
@@ -227,7 +235,7 @@ function LandingPage() {
               Trouvez les bonnes personnes avant les <span className="text-accent">bonnes adresses</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-              Douala, Yaoundé, Dakar, Abidjan — un contact vérifié plutôt qu'une recherche au hasard.
+              Douala, Yaoundé, Dakar, Abidjan, Libreville, Cotonou, Lomé, Brazzaville — un contact vérifié plutôt qu'une recherche au hasard.
             </p>
           </Reveal>
 
@@ -236,6 +244,32 @@ function LandingPage() {
           </Reveal>
 
           <Reveal delay={160}>
+            <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left sm:grid-cols-2">
+              <Link
+                to="/app"
+                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+              >
+                <span className="icon-circle shrink-0"><Handshake className="h-5 w-5" /></span>
+                <span>
+                  <span className="block font-semibold">Vous ne trouvez pas ? Demandez à la communauté</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Publiez votre besoin, les membres répondent avec leurs contacts éprouvés.
+                  </span>
+                </span>
+              </Link>
+              <Link
+                to="/app"
+                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+              >
+                <span className="icon-circle shrink-0"><Send className="h-5 w-5" /></span>
+                <span>
+                  <span className="block font-semibold">Partagez un bon plan</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">
+                    Un artisan fiable, un médecin, une adresse : faites-en profiter les autres.
+                  </span>
+                </span>
+              </Link>
+            </div>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <JoinCommunityCta size="pill-lg" className="shadow-elevated">
                 Rejoindre la communauté
@@ -245,6 +279,7 @@ function LandingPage() {
               </Button>
             </div>
           </Reveal>
+
 
           <Reveal delay={200}>
             <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-6">
@@ -415,6 +450,24 @@ function LandingPage() {
               </Reveal>
             ))}
           </div>
+
+          <Reveal delay={80}>
+            <p className="mt-16 text-center text-xs font-semibold uppercase tracking-widest text-accent">
+              Parcours diaspora
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {JOURNEYS.map((j) => (
+                <Link
+                  key={j.slug}
+                  to="/app"
+                  className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-medium"
+                >
+                  <p className="font-semibold">{j.label}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{j.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
