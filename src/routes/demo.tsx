@@ -290,7 +290,7 @@ export function AppShell() {
 
         {/* MAIN */}
         <main className="min-w-0">
-          {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
+          {tab === "feed" && <FeedView user={user} authed={!!session} onLogin={() => setTab("profile")} onOpenSearch={() => setTab("search")} />}
           {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView onCategory={searchFor} />}
