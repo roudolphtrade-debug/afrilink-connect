@@ -276,16 +276,17 @@ const ACTIONS = [
 ];
 
 const universes = [
-  { icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
-  { icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
-  { icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
-  { icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
-  { icon: FileText, label: "Administratif & juridique", examples: "Visa · État civil · Avocat" },
-  { icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
-  { icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
-  { icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
-  { icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
+  { slug: "maison", icon: Hammer, label: "Maison", examples: "Menuiserie · Plomberie · Électricité · Ménage" },
+  { slug: "sante", icon: HeartPulse, label: "Santé", examples: "Pédiatrie · Kiné · Dentiste · Pharmacie" },
+  { slug: "education", icon: GraduationCap, label: "Éducation", examples: "Cours à domicile · Langues · Écoles" },
+  { slug: "transport", icon: Truck, label: "Transport", examples: "Chauffeur · Aéroport · Déménagement" },
+  { slug: "admin", icon: FileText, label: "Administratif & juridique", examples: "Visa · État civil · Avocat" },
+  { slug: "loisirs", icon: Sparkles, label: "Loisirs", examples: "Restaurants · Excursions · Événementiel" },
+  { slug: "immobilier", icon: HomeIcon, label: "Immobilier", examples: "Meublés · Longue durée · Saisonnier" },
+  { slug: "emploi", icon: Briefcase, label: "Emploi & Business", examples: "Recrutement · Coaching · Freelance" },
+  { slug: "finance", icon: Wallet, label: "Finance & Assurance", examples: "Banque · Transfert · Assurance santé" },
 ];
+
 
 const TRUST_LEVELS = [
   { label: "Référencé", desc: "Fiche issue de l'historique Les Bons Plans du Bled, en attente de revalidation." },
