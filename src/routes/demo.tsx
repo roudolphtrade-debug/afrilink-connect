@@ -525,6 +525,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           <p className="mt-3 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
         )}
       </div>
+      )}
 
       {/* CATEGORY CHIPS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
