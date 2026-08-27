@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, Check, FileText, Mail, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Check, FileText, ShieldAlert } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Reveal } from "@/components/Reveal";
