@@ -35,6 +35,20 @@ const CATEGORY_ICONS: Record<string, typeof Hammer> = {
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase, Wallet,
 };
 
+/** Libellés courts — utilisés uniquement dans la zone "Explorer par univers" du fil.
+ *  Les intitulés complets restent dans la taxonomie (CATEGORIES). */
+const CATEGORY_SHORT_LABELS: Record<string, string> = {
+  maison: "Maison",
+  sante: "Santé",
+  education: "Éducation",
+  transport: "Transport",
+  admin: "Administratif",
+  loisirs: "Loisirs",
+  immobilier: "Immobilier",
+  emploi: "Business",
+  finance: "Finance",
+};
+
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
