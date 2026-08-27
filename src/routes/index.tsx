@@ -511,7 +511,7 @@ function LandingPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">Preuves historiques</span>
             <h2 className="mt-4 text-3xl font-bold md:text-4xl">Ce qui existe déjà, avant la plateforme</h2>
           </Reveal>
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-4 md:grid-cols-2">
             <Reveal>
               <div className="h-full rounded-2xl border border-border bg-card p-6">
                 <span className="icon-circle mb-4 inline-flex"><Users className="h-5 w-5" /></span>
