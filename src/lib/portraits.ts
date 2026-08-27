@@ -1,11 +1,3 @@
-import p1 from "@/assets/portraits/p1.jpg";
-import p2 from "@/assets/portraits/p2.jpg";
-import p3 from "@/assets/portraits/p3.jpg";
-import p4 from "@/assets/portraits/p4.jpg";
-import p5 from "@/assets/portraits/p5.jpg";
-import p6 from "@/assets/portraits/p6.jpg";
-import p7 from "@/assets/portraits/p7.jpg";
-import p8 from "@/assets/portraits/p8.jpg";
 import odileAsset from "@/assets/odile.jpg.asset.json";
 import roudolphAsset from "@/assets/roudolph.png.asset.json";
 
@@ -13,8 +5,24 @@ import roudolphAsset from "@/assets/roudolph.png.asset.json";
 export const ODILE_PHOTO = odileAsset.url;
 export const ROUDOLPH_PHOTO = roudolphAsset.url;
 
-const WOMEN = [p1, p3, p5, p7];
-const MEN = [p2, p4, p6, p8];
+// 18 portraits féminins + 18 portraits masculins, tous distincts.
+const womenModules = import.meta.glob<{ default: string }>(
+  "@/assets/portraits/w*.jpg",
+  { eager: true },
+);
+const menModules = import.meta.glob<{ default: string }>(
+  "@/assets/portraits/m*.jpg",
+  { eager: true },
+);
+
+function toSortedUrls(mods: Record<string, { default: string }>) {
+  return Object.keys(mods)
+    .sort()
+    .map((k) => mods[k]!.default);
+}
+
+const WOMEN = toSortedUrls(womenModules);
+const MEN = toSortedUrls(menModules);
 
 const FEMALE_FIRST_NAMES = new Set([
   "marie", "estelle", "nadège", "ariane", "christelle", "sandrine", "léa", "aline",
@@ -27,15 +35,25 @@ function firstName(name: string) {
   return name.replace(/^Dr\.?\s*/i, "").trim().split(/[\s-]+/)[0]?.toLowerCase() ?? "";
 }
 
+function hash(str: string) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
 /**
- * Attribution déterministe et *distincte* : chaque nouveau profil reçoit le
- * portrait suivant du pool de son genre (round-robin), ce qui évite les doublons
- * entre profils voisins (ex. Fatou D. et Nadia B.) tout en restant stable :
- * un même nom renvoie toujours la même photo partout dans l'app.
+ * Attribution déterministe et sans doublon : le portrait dépend uniquement du
+ * nom (hash stable côté serveur comme côté client, donc pas de décalage
+ * d'hydratation). En cas de collision sur un pool, on avance au slot libre
+ * suivant (probing linéaire) afin que deux profils affichés ensemble n'aient
+ * jamais la même photo.
  */
 const assigned = new Map<string, string>();
-let womenCursor = 0;
-let menCursor = 0;
+const takenWomen = new Set<number>();
+const takenMen = new Set<number>();
 
 export function portrait(seed: string) {
   const key = firstName(seed);
@@ -48,8 +66,19 @@ export function portrait(seed: string) {
 
   const female = FEMALE_FIRST_NAMES.has(key);
   const pool = female ? WOMEN : MEN;
-  const idx = female ? womenCursor++ : menCursor++;
-  const picked = pool[idx % pool.length];
+  const taken = female ? takenWomen : takenMen;
+  if (pool.length === 0) return ODILE_PHOTO;
+
+  let idx = hash(cacheKey) % pool.length;
+  if (taken.size < pool.length) {
+    let steps = 0;
+    while (taken.has(idx) && steps < pool.length) {
+      idx = (idx + 1) % pool.length;
+      steps++;
+    }
+  }
+  taken.add(idx);
+  const picked = pool[idx]!;
   assigned.set(cacheKey, picked);
   return picked;
 }
