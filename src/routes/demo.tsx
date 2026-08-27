@@ -290,7 +290,7 @@ export function AppShell() {
 
         {/* MAIN */}
         <main className="min-w-0">
-          {tab === "feed" && <FeedView user={user} onOpenSearch={() => setTab("search")} />}
+          {tab === "feed" && <FeedView user={user} authed={!!session} onLogin={() => setTab("profile")} onOpenSearch={() => setTab("search")} />}
           {tab === "search" && <SearchView query={query} setQuery={setQuery} favorites={favorites} toggleFav={toggleFav} onOpen={setOpenPro} />}
           {tab === "community" && <CommunityView onOpen={setOpenPro} />}
           {tab === "guides" && <GuidesView onCategory={searchFor} />}
@@ -392,7 +392,7 @@ export function AppShell() {
 
 type AppUser = { name: string; initials: string; color: string; city: string; role: string; avatar?: string };
 
-function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => void }) {
+function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; authed: boolean; onLogin: () => void; onOpenSearch: () => void }) {
   const [posts, setPosts] = useState(FEED);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
@@ -440,10 +440,16 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bonjour {user.name.split(" ")[0]}</p>
-            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Bienvenue à {user.city} 👋</h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+              {authed ? `Bonjour ${user.name.split(" ")[0]}` : "Bienvenue sur AfriLink"}
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">
+              {authed ? `Bienvenue à ${user.city} 👋` : `Le fil de la communauté à ${user.city} 👋`}
+            </h1>
             <p className="mt-2 max-w-md text-forest-foreground/80">
-              Voici ce qui se passe autour de vous aujourd'hui.
+              {authed
+                ? "Voici ce qui se passe autour de vous aujourd'hui."
+                : "Explorez librement. Connectez-vous pour publier, échanger et enregistrer vos plans."}
             </p>
           </div>
           <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
@@ -453,6 +459,19 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
       </div>
 
       {/* COMPOSER */}
+      {!authed ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-dashed border-accent/50 bg-accent/5 p-4">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Publier une demande ou un bon plan</span> — réservé aux membres AfriLink.
+          </p>
+          <button
+            onClick={onLogin}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+          >
+            <PenSquare className="h-3.5 w-3.5" /> Rejoindre la communauté
+          </button>
+        </div>
+      ) : (
       <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
         <div className="flex gap-3">
           <Avatar initials={user.initials} color={user.color} src={user.avatar} />
@@ -506,6 +525,7 @@ function FeedView({ user, onOpenSearch }: { user: AppUser; onOpenSearch: () => v
           <p className="mt-3 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
         )}
       </div>
+      )}
 
       {/* CATEGORY CHIPS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">

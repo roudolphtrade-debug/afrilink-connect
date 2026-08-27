@@ -42,7 +42,10 @@ export function initialsFrom(name: string) {
 }
 
 export function signIn(email: string, name?: string) {
-  const display = name?.trim() || email.split("@")[0].replace(/[._-]+/g, " ");
+  const display = (name?.trim() || email.split("@")[0].replace(/[._-]+/g, " "))
+    .split(/\s+/)
+    .map((w) => (w ? w[0]!.toUpperCase() + w.slice(1) : w))
+    .join(" ");
   cached = { email, name: display, initials: initialsFrom(display) };
   hydrated = true;
   try {
