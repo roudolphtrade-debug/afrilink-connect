@@ -815,14 +815,30 @@ function SearchView({
   const [city, setCity] = usePersistedState<string>("afrilink.filters.city", "all");
   const [sort, setSort] = usePersistedState<SortKey>("afrilink.filters.sort", "pertinence");
   const [ctype, setCtype] = usePersistedState<string>("afrilink.filters.ctype", "all");
+  const [district, setDistrict] = usePersistedState<string>("afrilink.filters.district", "all");
+  const [sub, setSub] = usePersistedState<string>("afrilink.filters.sub", "all");
 
 
   const citiesForCountry = country === "all" ? CITIES : (COUNTRIES.find((c) => c.name === country)?.cities ?? []);
+  const districts = districtsFor(city, country);
 
   const handleCountryChange = (next: string) => {
     setCountry(next);
     setCity("all");
+    setDistrict("all");
   };
+
+  const handleCityChange = (next: string) => {
+    setCity(next);
+    setDistrict("all");
+  };
+
+  const handleCatChange = (next: string) => {
+    setCat(next);
+    setSub("all");
+  };
+
+
 
   const matches = (p: Pro, o: { cat?: string; status?: ProStatus | "all"; ctype?: string } = {}) => {
     const term = q.trim().toLowerCase();
