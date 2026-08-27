@@ -16,6 +16,12 @@ import { PdfReader, FREE_PAGES } from "@/components/PdfReader";
 import { LIBRARY_ENTRIES, type LibraryEntry } from "@/data/library";
 import { useSession, signOut } from "@/lib/auth-store";
 import { usePersistedState, seededUnit } from "@/lib/use-persisted-state";
+import {
+  identityFor, ensureSeed, useThreads, conversationsFor, openThread, sendMessage,
+  markThreadRead, markAllRead as markAllThreadsRead, deleteThread, formatTime, autoReply,
+  displayNameOf, initialsOf, type ParticipantId, type ConversationView,
+} from "@/lib/messaging";
+
 
 import {
   PROS, CATEGORIES, CITIES, COUNTRIES, CITY_COORDS, MOCK_REVIEWS, MOCK_CONVERSATIONS,
