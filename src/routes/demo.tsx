@@ -63,22 +63,21 @@ export function AppShell() {
   const [favorites, setFavorites] = usePersistedState<string[]>("afrilink.favorites", ["pro-5", "pro-9"]);
   const [favLibrary, setFavLibrary] = usePersistedState<string[]>("afrilink.favLibrary", []);
   const [openPro, setOpenPro] = useState<Pro | null>(null);
-  const [activeConv, setActiveConv] = useState<string | null>("c1");
+  const [activeOther, setActiveOther] = useState<ParticipantId | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [readConvs, setReadConvs] = usePersistedState<string[]>("afrilink.readConvs", []);
   const [profileEdits, setProfileEdits] = usePersistedState<ProfileOverride>("afrilink.profile", { name: "", city: "", bio: "" });
   const [helpOpen, setHelpOpen] = useState(false);
 
-  const unreadMap = useMemo(() => {
-    const m: Record<string, number> = {};
-    MOCK_CONVERSATIONS.forEach((c) => { m[c.id] = readConvs.includes(c.id) ? 0 : c.unread; });
-    return m;
-  }, [readConvs]);
-  const unreadTotal = Object.values(unreadMap).reduce((a, b) => a + b, 0);
-  const unreadConvs = MOCK_CONVERSATIONS.filter((c) => (unreadMap[c.id] ?? 0) > 0)
-    .map((c) => ({ ...c, unread: unreadMap[c.id], pro: PROS.find((p) => p.id === c.proId)! }));
-  const markRead = (id: string) => setReadConvs((r) => (r.includes(id) ? r : [...r, id]));
-  const markAllRead = () => setReadConvs(MOCK_CONVERSATIONS.map((c) => c.id));
+  // Messagerie de démonstration : fils persistés et partagés entre comptes.
+  const me = identityFor(session);
+  useEffect(() => { ensureSeed(me); }, [me]);
+  const threads = useThreads();
+  const convs = useMemo(() => conversationsFor(threads, me), [threads, me]);
+  const unreadTotal = convs.reduce((a, c) => a + c.unread, 0);
+  const unreadConvs = convs.filter((c) => c.unread > 0);
+  const markRead = (key: string) => { if (me) markThreadRead(me, key); };
+  const markAllRead = () => { if (me) markAllThreadsRead(me); };
+
 
 
   const baseUser = session
