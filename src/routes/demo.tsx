@@ -35,6 +35,20 @@ const CATEGORY_ICONS: Record<string, typeof Hammer> = {
   Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase, Wallet,
 };
 
+/** Libellés courts — utilisés uniquement dans la zone "Explorer par univers" du fil.
+ *  Les intitulés complets restent dans la taxonomie (CATEGORIES). */
+const CATEGORY_SHORT_LABELS: Record<string, string> = {
+  maison: "Maison",
+  sante: "Santé",
+  education: "Éducation",
+  transport: "Transport",
+  admin: "Administratif",
+  loisirs: "Loisirs",
+  immobilier: "Immobilier",
+  emploi: "Business",
+  finance: "Finance",
+};
+
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
@@ -525,49 +539,46 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           </button>
         </div>
       ) : (
-      <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
-        <div className="flex gap-3">
+<div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => setKind("demande")}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "demande" ? "bg-forest text-forest-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+          >
+            Demande
+          </button>
+          <button
+            onClick={() => setKind("bon-plan")}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "bon-plan" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+          >
+            Bon plan
+          </button>
+          <select
+            value={postCat}
+            onChange={(e) => setPostCat(e.target.value)}
+            aria-label="Univers de la publication"
+            className="ml-auto rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-semibold"
+          >
+            {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+          </select>
+        </div>
+        <div className="flex items-start gap-2">
           <Avatar initials={user.initials} color={user.color} src={user.avatar} />
-          <div className="flex-1">
-            <div className="mb-2 flex flex-wrap items-center gap-1.5">
-              <button
-                onClick={() => setKind("demande")}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "demande" ? "bg-forest text-forest-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-              >
-                Demande
-              </button>
-              <button
-                onClick={() => setKind("bon-plan")}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "bon-plan" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-              >
-                Bon plan
-              </button>
-              <select
-                value={postCat}
-                onChange={(e) => setPostCat(e.target.value)}
-                aria-label="Univers de la publication"
-                className="ml-auto rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-semibold"
-              >
-                {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
-              </select>
-            </div>
+          <div className="min-w-0 flex-1">
             <textarea
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
               placeholder={kind === "demande"
                 ? "De quoi avez-vous besoin ? (métier, quartier, délai…)"
                 : "Partagez un bon plan : le lieu, le prix, pourquoi vous le recommandez."}
-              rows={2}
-              className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-4 py-2.5 text-sm outline-none focus:border-primary focus:bg-white"
+              rows={1}
+              className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-3.5 py-2 text-sm leading-snug outline-none focus:border-primary focus:bg-white"
             />
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <p className="text-[11px] text-muted-foreground">
-                Publication de démonstration : visible dans ce fil, sur cet appareil uniquement.
-              </p>
+            <div className="mt-1.5 flex justify-end">
               <button
                 onClick={publish}
                 disabled={!composer.trim()}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition disabled:opacity-40"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition disabled:opacity-40"
               >
                 <PenSquare className="h-3.5 w-3.5" /> Publier
               </button>
@@ -575,35 +586,48 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           </div>
         </div>
         {flash && (
-          <p className="mt-3 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
+          <p className="mt-2.5 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
         )}
       </div>
       )}
 
-      {/* CATEGORY CHIPS */}
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        <button
-          onClick={() => setFilter("all")}
-          className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white hover:border-primary/40"}`}
-        >
-          Pour vous <span className="opacity-60">{posts.length}</span>
-        </button>
-        {CATEGORIES.map((c) => {
-          const Icon = CATEGORY_ICONS[c.icon];
-          const active = filter === c.slug;
-          return (
-            <button
-              key={c.slug}
-              onClick={() => setFilter(active ? "all" : c.slug)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
-                active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-white hover:border-primary/40"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {c.label} <span className="opacity-60">{countFor(c.slug)}</span>
-            </button>
-          );
-        })}
+      {/* EXPLORER PAR UNIVERS */}
+      <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Explorer par univers</h2>
+          <button
+            onClick={() => setFilter("all")}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white text-muted-foreground hover:border-primary/40"}`}
+          >
+            Tous <span className="opacity-60">{posts.length}</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {CATEGORIES.map((c) => {
+            const Icon = CATEGORY_ICONS[c.icon];
+            const active = filter === c.slug;
+            return (
+              <button
+                key={c.slug}
+                onClick={() => setFilter(active ? "all" : c.slug)}
+                aria-pressed={active}
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-2.5 text-center transition ${
+                  active
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-white text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="w-full truncate text-[11px] font-semibold leading-tight">
+                  {CATEGORY_SHORT_LABELS[c.slug] ?? c.label}
+                </span>
+                <span className={`text-[10px] font-medium ${active ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                  {countFor(c.slug)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* POSTS */}
