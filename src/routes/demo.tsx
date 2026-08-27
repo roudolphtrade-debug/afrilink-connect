@@ -32,7 +32,7 @@ import {
 } from "@/lib/mock-data";
 
 const CATEGORY_ICONS: Record<string, typeof Hammer> = {
-  Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase,
+  Hammer, HeartPulse, GraduationCap, Truck, FileText, Sparkles, Home: HomeIcon, Briefcase, Wallet,
 };
 
 export const Route = createFileRoute("/demo")({
