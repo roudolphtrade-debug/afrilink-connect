@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as FinaliserMonCompteRouteImport } from './routes/finaliser-mon-compte'
 import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ConnexionRouteImport } from './routes/connexion'
@@ -28,6 +29,11 @@ const InscriptionRoute = InscriptionRouteImport.update({
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinaliserMonCompteRoute = FinaliserMonCompteRouteImport.update({
+  id: '/finaliser-mon-compte',
+  path: '/finaliser-mon-compte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EquipeRoute = EquipeRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
     | '/api/public/pdf'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
     | '/api/public/pdf'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
     | '/api/public/pdf'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   ConnexionRoute: typeof ConnexionRoute
   DemoRoute: typeof DemoRoute
   EquipeRoute: typeof EquipeRoute
+  FinaliserMonCompteRoute: typeof FinaliserMonCompteRoute
   GuideRoute: typeof GuideRoute
   InscriptionRoute: typeof InscriptionRoute
   ApiPublicPdfRoute: typeof ApiPublicPdfRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/guide'
       preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finaliser-mon-compte': {
+      id: '/finaliser-mon-compte'
+      path: '/finaliser-mon-compte'
+      fullPath: '/finaliser-mon-compte'
+      preLoaderRoute: typeof FinaliserMonCompteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/equipe': {
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConnexionRoute: ConnexionRoute,
   DemoRoute: DemoRoute,
   EquipeRoute: EquipeRoute,
+  FinaliserMonCompteRoute: FinaliserMonCompteRoute,
   GuideRoute: GuideRoute,
   InscriptionRoute: InscriptionRoute,
   ApiPublicPdfRoute: ApiPublicPdfRoute,
