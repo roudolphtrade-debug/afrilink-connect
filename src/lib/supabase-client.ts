@@ -14,16 +14,19 @@ import { createClient } from "@supabase/supabase-js";
  * fragment de session n'est présent dans l'URL), mais ne doit jamais être
  * supposée suffisante pour le flux d'invitation.
  */
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Repli public par conception : URL de projet + clé "publishable" (nouveau
+// format Supabase, équivalent de l'ancienne clé "anon" — protégée par RLS,
+// faite pour être visible côté client, jamais une clé secrète). Utilisé
+// uniquement si les variables d'environnement ne sont pas injectées au
+// build (cas de Lovable Pro sans Build secrets Enterprise). N'écrit
+// JAMAIS de `sb_secret_...`/`service_role` ici, ni ailleurs dans ce fichier.
+const PUBLIC_SUPABASE_URL_FALLBACK = "https://nciikoptkugwwrexxtod.supabase.co";
+const PUBLIC_SUPABASE_PUBLISHABLE_KEY_FALLBACK = "sb_publishable_yd1oAdYQlmZJU5sqHfNOkQ_FVBG8Yi2";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // Erreur explicite plutôt qu'un client silencieusement cassé : évite un
-  // échec opaque plus tard (ex. "fetch failed" sans contexte) si les
-  // variables d'environnement ne sont pas renseignées.
-  throw new Error(
-    "VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY doivent être définies (voir .env.example)."
-  );
-}
+const supabaseUrl =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) || PUBLIC_SUPABASE_URL_FALLBACK;
+const supabaseAnonKey =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  PUBLIC_SUPABASE_PUBLISHABLE_KEY_FALLBACK;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
