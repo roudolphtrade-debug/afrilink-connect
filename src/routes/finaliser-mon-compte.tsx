@@ -28,6 +28,11 @@ export const Route = createFileRoute("/finaliser-mon-compte")({
   head: () => ({
     meta: [
       { title: "Finaliser mon compte — AfriLink" },
+      { name: "description", content: "Page dédiée à la finalisation d'une invitation AfriLink, distincte de la démonstration locale." },
+      { property: "og:title", content: "Finaliser mon compte — AfriLink" },
+      { property: "og:description", content: "Page dédiée à la finalisation d'une invitation AfriLink, distincte de la démonstration locale." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),

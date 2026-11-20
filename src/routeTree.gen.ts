@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NosControlesRouteImport } from './routes/nos-controles'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as FinaliserMonCompteRouteImport } from './routes/finaliser-mon-compte'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ConnexionRouteImport } from './routes/connexion'
@@ -21,6 +23,11 @@ import { Route as AideRouteImport } from './routes/aide'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicPdfRouteImport } from './routes/api/public/pdf'
 
+const NosControlesRoute = NosControlesRouteImport.update({
+  id: '/nos-controles',
+  path: '/nos-controles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InscriptionRoute = InscriptionRouteImport.update({
   id: '/inscription',
   path: '/inscription',
@@ -34,6 +41,11 @@ const GuideRoute = GuideRouteImport.update({
 const FinaliserMonCompteRoute = FinaliserMonCompteRouteImport.update({
   id: '/finaliser-mon-compte',
   path: '/finaliser-mon-compte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EquipeRoute = EquipeRouteImport.update({
@@ -85,9 +97,11 @@ export interface FileRoutesByFullPath {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/faq': typeof FaqRoute
   '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/nos-controles': typeof NosControlesRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRoutesByTo {
@@ -98,9 +112,11 @@ export interface FileRoutesByTo {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/faq': typeof FaqRoute
   '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/nos-controles': typeof NosControlesRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRoutesById {
@@ -112,9 +128,11 @@ export interface FileRoutesById {
   '/connexion': typeof ConnexionRoute
   '/demo': typeof DemoRoute
   '/equipe': typeof EquipeRoute
+  '/faq': typeof FaqRoute
   '/finaliser-mon-compte': typeof FinaliserMonCompteRoute
   '/guide': typeof GuideRoute
   '/inscription': typeof InscriptionRoute
+  '/nos-controles': typeof NosControlesRoute
   '/api/public/pdf': typeof ApiPublicPdfRoute
 }
 export interface FileRouteTypes {
@@ -127,9 +145,11 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/faq'
     | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
+    | '/nos-controles'
     | '/api/public/pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -140,9 +160,11 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/faq'
     | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
+    | '/nos-controles'
     | '/api/public/pdf'
   id:
     | '__root__'
@@ -153,9 +175,11 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/demo'
     | '/equipe'
+    | '/faq'
     | '/finaliser-mon-compte'
     | '/guide'
     | '/inscription'
+    | '/nos-controles'
     | '/api/public/pdf'
   fileRoutesById: FileRoutesById
 }
@@ -167,14 +191,23 @@ export interface RootRouteChildren {
   ConnexionRoute: typeof ConnexionRoute
   DemoRoute: typeof DemoRoute
   EquipeRoute: typeof EquipeRoute
+  FaqRoute: typeof FaqRoute
   FinaliserMonCompteRoute: typeof FinaliserMonCompteRoute
   GuideRoute: typeof GuideRoute
   InscriptionRoute: typeof InscriptionRoute
+  NosControlesRoute: typeof NosControlesRoute
   ApiPublicPdfRoute: typeof ApiPublicPdfRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/nos-controles': {
+      id: '/nos-controles'
+      path: '/nos-controles'
+      fullPath: '/nos-controles'
+      preLoaderRoute: typeof NosControlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inscription': {
       id: '/inscription'
       path: '/inscription'
@@ -194,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/finaliser-mon-compte'
       fullPath: '/finaliser-mon-compte'
       preLoaderRoute: typeof FinaliserMonCompteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/equipe': {
@@ -263,9 +303,11 @@ const rootRouteChildren: RootRouteChildren = {
   ConnexionRoute: ConnexionRoute,
   DemoRoute: DemoRoute,
   EquipeRoute: EquipeRoute,
+  FaqRoute: FaqRoute,
   FinaliserMonCompteRoute: FinaliserMonCompteRoute,
   GuideRoute: GuideRoute,
   InscriptionRoute: InscriptionRoute,
+  NosControlesRoute: NosControlesRoute,
   ApiPublicPdfRoute: ApiPublicPdfRoute,
 }
 export const routeTree = rootRouteImport

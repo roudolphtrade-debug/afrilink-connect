@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep public navigation in `src/lib/site-nav.ts` so header and footer share the same valid destinations.
+- Keep future follow-up timing in `src/lib/planned-follow-up.ts` as an editorial specification only, never as an active scheduler; the housing service is not implemented.

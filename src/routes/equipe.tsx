@@ -2,90 +2,45 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Avatar } from "@/components/Avatar";
-import { portrait } from "@/lib/mock-data";
+import { ODILE_PHOTO, ROUDOLPH_PHOTO } from "@/lib/portraits";
 import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/equipe")({
-  head: () => ({
-    meta: [
-      { title: "Notre équipe — AfriLink" },
-      {
-        name: "description",
-        content: "L'équipe fondatrice derrière AfriLink, née de l'aventure Les Bons Plans du Bled, fondée en 2022.",
-      },
-    ],
-  }),
+  head: () => ({ meta: [
+    { title: "Notre histoire — AfriLink" },
+    { name: "description", content: "De Les Bons Plans du Bled à AfriLink : Odile Ebongue et Roudolph Doualla préparent un premier service logement à Douala." },
+    { property: "og:title", content: "Notre histoire — Des contacts partagés à un service suivi" },
+    { property: "og:description", content: "L'histoire d'AfriLink, les rôles de ses fondateurs et un développement conditionné à la capacité de suivi." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: TeamPage,
 });
-
 const team = [
-  {
-    name: "Odile Ebongue",
-    role: "Fondatrice",
-    initials: "OE",
-    color: "var(--forest)",
-    bio: "En s'installant au Cameroun, Odile a vécu de l'intérieur ce que tant d'expatriés traversent : arriver seule, sans réseau, en devant tout redécouvrir par tâtonnement. De cette expérience est née Les Bons Plans du Bled, pour que personne d'autre n'ait à repartir de zéro.",
-  },
-  {
-    name: "Roudolph Doualla",
-    role: "Co-fondateur",
-    initials: "RD",
-    color: "var(--accent)",
-    bio: "Issu du monde de la tech, Roudolph a rejoint l'aventure pour donner à cette intuition de terrain la solidité d'un vrai produit — celui qui transforme un réseau de confiance en plateforme capable de grandir.",
-  },
+  { name: "Odile Ebongue", role: "Fondatrice", initials: "OE", color: "var(--forest)", photo: ODILE_PHOTO, bio: "Odile porte les relations locales, l'organisation des contrôles et la qualité de l'accompagnement." },
+  { name: "Roudolph Doualla", role: "Cofondateur", initials: "RD", color: "var(--accent)", photo: ROUDOLPH_PHOTO, bio: "Roudolph porte le produit, le fonctionnement technique et la traçabilité des démarches." },
 ];
-
 function TeamPage() {
-  return (
-    <div>
-      <SiteHeader />
-
-      {/* INTRO */}
-      <section className="section-cream">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-8 md:py-28">
-          <Reveal>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              Qui sommes-nous
-            </span>
-            <h1 className="mt-4 text-3xl font-bold md:text-5xl">
-              L'Afrique a tout pour plaire. Une seule chose manque : la visibilité.
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground">
-              AfriLink prolonge l'aventure Les Bons Plans du Bled, fondée en 2022 par deux
-              Camerounais convaincus qu'un simple retour au pays ne devrait jamais ressembler à un
-              saut dans l'inconnu.
-            </p>
-          </Reveal>
+  return <div>
+    <SiteHeader />
+    <section className="section-cream">
+      <Reveal className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8 md:py-24">
+        <span className="text-sm font-semibold uppercase tracking-widest text-accent">Notre histoire</span>
+        <h1 className="mt-4 text-3xl font-bold md:text-5xl">Des contacts partagés à un service suivi.</h1>
+        <div className="mt-6 space-y-5 text-left text-lg leading-relaxed text-muted-foreground">
+          <p>AfriLink prolonge l'histoire de Les Bons Plans du Bled.</p>
+          <p>À son installation au Cameroun, Odile constate combien les adresses utiles et les contacts circulent par les relations personnelles. Elle crée Les Bons Plans du Bled pour les rendre plus accessibles.</p>
+          <p>Roudolph rejoint cette démarche pour construire le produit et son fonctionnement technique. Ensemble, ils développent AfriLink autour d'une exigence : expliquer l'origine des informations, rendre les contrôles compréhensibles et suivre les mises en relation.</p>
+          <p>Le projet commence à Douala, avec un premier service consacré à la recherche de logement et aux demandes de visite. Son développement suivra la capacité de l'équipe à assurer le même niveau de suivi dans chaque nouvelle zone.</p>
         </div>
-      </section>
-
-      {/* ÉQUIPE */}
-      <section className="bg-background">
-        <div className="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              L'équipe
-            </span>
-            <h2 className="mt-4 text-2xl font-bold md:text-4xl">L'équipe fondatrice</h2>
-          </Reveal>
-          <div className="mx-auto mt-14 grid max-w-3xl gap-6 sm:grid-cols-2">
-            {team.map((m, i) => (
-              <Reveal key={m.name} delay={i * 80}>
-                <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-soft transition hover:-translate-y-1 hover:shadow-medium">
-                  <div className="flex justify-center">
-                    <Avatar initials={m.initials} color={m.color} src={portrait(m.name)} alt={m.name} size={104} />
-                  </div>
-                  <p className="mt-5 font-display text-lg font-semibold">{m.name}</p>
-                  <p className="mt-1 text-sm text-accent">{m.role}</p>
-                  <p className="mt-4 text-left text-sm leading-relaxed text-muted-foreground">{m.bio}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <SiteFooter />
-    </div>
-  );
+      </Reveal>
+    </section>
+    <section className="bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-20">
+        <h2 className="text-center text-3xl font-bold">L'équipe fondatrice</h2>
+        <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-2">{team.map((m, i) => <Reveal key={m.name} delay={i * 80}><article className="h-full rounded-3xl border border-border bg-card p-8 text-center shadow-soft"><div className="flex justify-center"><Avatar initials={m.initials} color={m.color} src={m.photo} alt={m.name} size={104} /></div><h3 className="mt-5 text-xl font-semibold">{m.name}</h3><p className="mt-1 text-sm text-accent">{m.role}</p><p className="mt-4 text-left text-base leading-relaxed text-muted-foreground">{m.bio}</p></article></Reveal>)}</div>
+      </div>
+    </section>
+    <SiteFooter />
+  </div>;
 }

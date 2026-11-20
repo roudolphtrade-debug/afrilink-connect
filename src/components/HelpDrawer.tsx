@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ChevronDown, HelpCircle, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FAQ } from "@/lib/help-data";
+import { Button } from "@/components/ui/button";
 
 export function useFaqSearch(query: string, category: string) {
   return useMemo(() => {
@@ -21,8 +22,8 @@ export function FaqAccordion({ groups }: { groups: ReturnType<typeof useFaqSearc
   const [open, setOpen] = useState<string | null>(null);
   if (groups.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-        Aucune réponse ne correspond à votre recherche. Contactez l'équipe, nous répondons sous 48 h.
+      <div className="rounded-2xl border border-dashed border-border p-6 text-center text-base text-muted-foreground">
+        Aucune réponse ne correspond à votre recherche. Essayez un autre mot ou une autre catégorie.
       </div>
     );
   }
@@ -30,23 +31,24 @@ export function FaqAccordion({ groups }: { groups: ReturnType<typeof useFaqSearc
     <div className="space-y-6">
       {groups.map((g) => (
         <section key={g.id}>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">{g.label}</h3>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-accent">{g.label}</h3>
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {g.items.map((item) => {
               const id = g.id + item.q;
               const isOpen = open === id;
               return (
                 <div key={id} className="border-b border-border last:border-0">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => setOpen(isOpen ? null : id)}
                     aria-expanded={isOpen}
-                    className="flex w-full items-center gap-3 p-4 text-left text-sm font-semibold transition hover:bg-muted/50"
+                    className="h-auto w-full items-center gap-3 whitespace-normal rounded-none p-4 text-left text-base font-semibold hover:bg-muted/50"
                   >
                     <span className="flex-1">{item.q}</span>
                     <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                  </button>
+                  </Button>
                   {isOpen && (
-                    <p className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                    <p className="px-4 pb-4 text-base leading-relaxed text-muted-foreground">{item.a}</p>
                   )}
                 </div>
               );
@@ -84,7 +86,7 @@ export function HelpDrawer({ open, onClose }: { open: boolean; onClose: () => vo
           <span className="icon-circle"><HelpCircle className="h-5 w-5" /></span>
           <div className="flex-1">
             <p className="font-display font-semibold">Centre d'aide</p>
-            <p className="text-xs text-muted-foreground">Réponses rapides et règles de la communauté</p>
+            <p className="text-sm text-muted-foreground">Parcours prévu et démonstration locale</p>
           </div>
           <button onClick={onClose} aria-label="Fermer l'aide" className="rounded-full p-2 hover:bg-muted">
             <X className="h-5 w-5" />
@@ -98,13 +100,13 @@ export function HelpDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Rechercher une réponse…"
-              className="w-full bg-transparent text-sm outline-none"
+              className="w-full bg-transparent text-base outline-none"
             />
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
             <button
               onClick={() => setCat("all")}
-              className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${cat === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/40"}`}
+              className={`rounded-full border px-3 py-1 text-sm font-semibold transition ${cat === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/40"}`}
             >
               Tout
             </button>
@@ -112,7 +114,7 @@ export function HelpDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               <button
                 key={c.id}
                 onClick={() => setCat(c.id)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/40"}`}
+                className={`rounded-full border px-3 py-1 text-sm font-semibold transition ${cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/40"}`}
               >
                 {c.label}
               </button>

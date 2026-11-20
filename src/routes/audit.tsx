@@ -11,8 +11,12 @@ import {
 export const Route = createFileRoute("/audit")({
   head: () => ({
     meta: [
-      { title: "AfriLink — Audit de la démo" },
-      { name: "description", content: "Audit interne : unicité des portraits, cohérence des noms, statuts et verrouillage membre." },
+      { title: "Audit de la démonstration — AfriLink" },
+      { name: "description", content: "Contrôles internes de cohérence des portraits et contenus de la démonstration AfriLink." },
+      { property: "og:title", content: "Audit de la démonstration — AfriLink" },
+      { property: "og:description", content: "Contrôles internes de cohérence des portraits et contenus de la démonstration AfriLink." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),

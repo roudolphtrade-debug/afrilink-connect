@@ -52,8 +52,12 @@ const CATEGORY_SHORT_LABELS: Record<string, string> = {
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
-      { title: "AfriLink — Votre réseau" },
-      { name: "description", content: "Fil d'actualité, recommandations et messagerie AfriLink." },
+      { title: "Aperçu interactif — Démo AfriLink" },
+      { name: "description", content: "Aperçu local des écrans AfriLink : session, publications et messages simulés, sans réservation de visite." },
+      { property: "og:title", content: "Aperçu interactif — Démo AfriLink" },
+      { property: "og:description", content: "Une démonstration locale, distincte du service logement en préparation à Douala." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -202,9 +206,9 @@ export function AppShell() {
   const unreadNotif = NOTIFICATIONS.filter((n) => n.unread).length + unreadTotal;
 
   return (
-    <div className="min-h-screen bg-cream/40">
+    <div className="app-demo min-h-screen bg-background">
       {/* TOP BAR */}
-      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 md:px-6">
           <Link to="/" className="shrink-0"><Logo /></Link>
           <div className="hidden flex-1 md:flex">
@@ -215,7 +219,7 @@ export function AppShell() {
                 onChange={(e) => { setQuery(e.target.value); setTab("search"); }}
                 placeholder="Rechercher un pro, un service, une ville…"
                 onFocus={() => setTab("search")}
-                className="w-full rounded-full border border-border bg-muted/40 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-white"
+                className="w-full rounded-full border border-border bg-muted/40 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary focus:bg-card"
               />
             </div>
           </div>
@@ -224,31 +228,31 @@ export function AppShell() {
             <div className="relative">
               <button
                 onClick={() => setNotifOpen((o) => !o)}
-                className="relative rounded-full border border-border bg-white p-2.5 hover:border-primary/40"
+                className="relative rounded-full border border-border bg-card p-2.5 hover:border-primary/40"
                 aria-label="Notifications"
               >
                 <Bell className="h-4 w-4" />
                 {unreadNotif > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
                     {unreadNotif}
                   </span>
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-border bg-white shadow-elevated">
+                <div className="absolute right-0 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
                   <div className="flex items-center justify-between gap-2 border-b border-border p-3">
                     <span className="text-sm font-semibold">Notifications</span>
                     {unreadTotal > 0 && (
                       <button
                         onClick={markAllRead}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold transition hover:border-primary/40"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-sm font-semibold transition hover:border-primary/40"
                       >
                         <CheckCheck className="h-3.5 w-3.5" /> Tout marquer comme lu
                       </button>
                     )}
                   </div>
                   <div className="max-h-96 overflow-y-auto">
-                    <div className="flex items-center justify-between bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="flex items-center justify-between bg-muted/40 px-3 py-2 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
                       <span>Messages non lus</span>
                       <span>{unreadTotal}</span>
                     </div>
@@ -264,13 +268,13 @@ export function AppShell() {
                           <Avatar initials={c.initials} color={c.pro?.color ?? "#0F2B1E"} src={c.avatar} alt={c.name} size={32} />
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-semibold">{c.name}</p>
-                            <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
+                            <p className="truncate text-sm text-muted-foreground">{c.lastMessage}</p>
                           </div>
-                          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
+                          <span className="rounded-full bg-accent px-2 py-0.5 text-sm font-bold text-accent-foreground">{c.unread}</span>
                         </button>
                       ))
                     )}
-                    <div className="bg-muted/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="bg-muted/40 px-3 py-2 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
                       Activité
                     </div>
                     {NOTIFICATIONS.map((n) => (
@@ -278,7 +282,7 @@ export function AppShell() {
                         <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.unread ? "bg-accent" : "bg-transparent"}`} />
                         <div className="flex-1">
                           <p>{n.text}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{n.time}</p>
+                          <p className="mt-0.5 text-sm text-muted-foreground">{n.time}</p>
                         </div>
                       </div>
                     ))}
@@ -315,10 +319,18 @@ export function AppShell() {
         </div>
       </header>
 
+      <section aria-label="Démonstration locale" className="border-b border-border bg-secondary">
+        <div className="mx-auto max-w-[1400px] px-4 py-4 text-base md:px-6">
+          <p className="font-semibold">Démonstration locale — le service logement à Douala est en préparation.</p>
+          <p className="mt-1 text-muted-foreground">Session, demandes, publications, réponses et messages sont simulés sur cet appareil. Rien n'est envoyé à l'équipe ni à un annonceur. Les contenus ne sont pas des offres actuelles validées et aucune visite n'est réservable.</p>
+          <Link to="/nos-controles" className="mt-2 inline-block text-sm font-semibold underline underline-offset-4">Comprendre nos contrôles</Link>
+        </div>
+      </section>
+
       <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 md:grid-cols-[220px_1fr] md:px-6 lg:grid-cols-[240px_1fr_320px]">
         {/* SIDEBAR */}
         <aside className="hidden md:block">
-          <nav className="sticky top-24 space-y-1 rounded-2xl border border-border bg-white p-2 shadow-soft">
+          <nav className="sticky top-24 space-y-1 rounded-2xl border border-border bg-card p-2 shadow-soft">
             {nav.map((n) => (
               <button
                 key={n.id}
@@ -330,7 +342,7 @@ export function AppShell() {
                 <n.icon className="h-4 w-4" />
                 <span className="flex-1">{n.label}</span>
                 {n.badge && (
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tab === n.id ? "bg-white/20" : "bg-accent text-accent-foreground"}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-sm font-bold ${tab === n.id ? "bg-card/20" : "bg-accent text-accent-foreground"}`}>
                     {n.badge}
                   </span>
                 )}
@@ -409,9 +421,9 @@ export function AppShell() {
             <TrendingCard onTag={searchFor} />
             <SuggestedProsCard onOpen={setOpenPro} />
 
-            <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-xs text-muted-foreground">
+            <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-4 text-sm text-muted-foreground">
               <p className="font-semibold text-accent">Vous êtes en aperçu</p>
-              <p className="mt-1">Cette version utilise des données de démonstration. Les vraies connexions arrivent bientôt.</p>
+              <p className="mt-1">Essai local : aucune demande ou aucun message n'est transmis. Le service logement reste en préparation.</p>
             </div>
           </div>
         </aside>
@@ -424,14 +436,14 @@ export function AppShell() {
             <button
               key={n.id}
               onClick={() => setTab(n.id)}
-              className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold ${
+              className={`relative flex flex-col items-center gap-1 py-2.5 text-sm font-semibold ${
                 tab === n.id ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <n.icon className="h-5 w-5" />
-              {n.label}
+              {n.id === "library" ? "Livres" : n.id === "favorites" ? "Favoris" : n.label}
               {n.badge && (
-                <span className="absolute right-4 top-1.5 rounded-full bg-accent px-1.5 text-[9px] font-bold text-accent-foreground">{n.badge}</span>
+                <span className="absolute right-4 top-1.5 rounded-full bg-accent px-1.5 text-sm font-bold text-accent-foreground">{n.badge}</span>
               )}
             </button>
           ))}
@@ -441,7 +453,7 @@ export function AppShell() {
 
       {/* DISCREET DEMO BADGE */}
       <div className="pointer-events-none fixed bottom-20 right-4 z-30 md:bottom-4">
-        <span className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-accent/50 bg-white/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-accent shadow-soft">
+        <span className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-accent/50 bg-card/95 px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-accent shadow-soft">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           Démo
         </span>
@@ -450,7 +462,7 @@ export function AppShell() {
       {/* AIDE FLOTTANTE */}
       <button
         onClick={() => setHelpOpen(true)}
-        className="fixed bottom-20 left-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-xs font-bold shadow-elevated transition hover:-translate-y-0.5 hover:border-primary/40 md:bottom-4"
+        className="fixed bottom-20 left-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold shadow-elevated transition hover:-translate-y-0.5 hover:border-primary/40 md:bottom-4"
       >
         <HelpCircle className="h-4 w-4 text-accent" /> Aide
       </button>
@@ -512,7 +524,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
     setPosts((ps) => [newPost, ...ps]);
     setComposer("");
     setFilter("all");
-    setFlash(kind === "demande" ? "Votre demande est publiée dans le fil." : "Votre bon plan est publié dans le fil.");
+    setFlash("Publication simulée dans ce fil local : rien n'est envoyé à l'équipe ni à un annonceur.");
     setTimeout(() => setFlash(null), 4000);
   };
 
@@ -522,7 +534,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
       <div className="overflow-hidden rounded-3xl bg-forest p-6 text-forest-foreground shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+            <p className="text-sm font-semibold uppercase tracking-widest text-accent">
               {authed ? `Bonjour ${user.name.split(" ")[0]}` : "Bienvenue sur AfriLink"}
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">
@@ -530,8 +542,8 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             </h1>
             <p className="mt-2 max-w-md text-forest-foreground/80">
               {authed
-                ? "Voici ce qui se passe autour de vous aujourd'hui."
-                : "Explorez librement. Connectez-vous pour publier, échanger et enregistrer vos plans."}
+                ? "Essayez le fil et les publications de démonstration sur cet appareil."
+                : "Explorez les écrans. Une session locale permet d'essayer les publications, messages et favoris."}
             </p>
           </div>
           <button onClick={onOpenSearch} className="hidden shrink-0 items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 md:inline-flex">
@@ -548,23 +560,23 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           </p>
           <button
             onClick={onLogin}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
           >
             <PenSquare className="h-3.5 w-3.5" /> Rejoindre la communauté
           </button>
         </div>
       ) : (
-<div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
+<div className="rounded-3xl border border-border bg-card p-4 shadow-soft">
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setKind("demande")}
-            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "demande" ? "bg-forest text-forest-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${kind === "demande" ? "bg-forest text-forest-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
           >
             Demande
           </button>
           <button
             onClick={() => setKind("bon-plan")}
-            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${kind === "bon-plan" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${kind === "bon-plan" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
           >
             Bon plan
           </button>
@@ -572,7 +584,7 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
             value={postCat}
             onChange={(e) => setPostCat(e.target.value)}
             aria-label="Univers de la publication"
-            className="ml-auto rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-semibold"
+            className="ml-auto rounded-full border border-border bg-muted/50 px-3 py-1 text-sm font-semibold"
           >
             {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
           </select>
@@ -587,13 +599,13 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
                 ? "De quoi avez-vous besoin ? (métier, quartier, délai…)"
                 : "Partagez un bon plan : le lieu, le prix, pourquoi vous le recommandez."}
               rows={1}
-              className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-3.5 py-2 text-sm leading-snug outline-none focus:border-primary focus:bg-white"
+              className="w-full resize-none rounded-2xl border border-border bg-muted/30 px-3.5 py-2 text-base leading-snug outline-none focus:border-primary focus:bg-card"
             />
             <div className="mt-1.5 flex justify-end">
               <button
                 onClick={publish}
                 disabled={!composer.trim()}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition disabled:opacity-40"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition disabled:opacity-40"
               >
                 <PenSquare className="h-3.5 w-3.5" /> Publier
               </button>
@@ -601,18 +613,18 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
           </div>
         </div>
         {flash && (
-          <p className="mt-2.5 rounded-2xl bg-forest-sage/10 px-4 py-2 text-xs font-semibold text-forest-sage">{flash}</p>
+          <p className="mt-2.5 rounded-2xl bg-forest-sage/10 px-4 py-2 text-sm font-semibold text-forest-sage">{flash}</p>
         )}
       </div>
       )}
 
       {/* EXPLORER PAR UNIVERS */}
-      <div className="rounded-3xl border border-border bg-white p-4 shadow-soft">
+      <div className="rounded-3xl border border-border bg-card p-4 shadow-soft">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Explorer par univers</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Explorer par univers</h2>
           <button
             onClick={() => setFilter("all")}
-            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-white text-muted-foreground hover:border-primary/40"}`}
+            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:border-primary/40"}`}
           >
             Tous
           </button>
@@ -629,14 +641,14 @@ function FeedView({ user, authed, onLogin, onOpenSearch }: { user: AppUser; auth
                 className={`flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-2.5 text-center transition ${
                   active
                     ? "border-primary bg-primary/5 text-primary"
-                    : "border-border bg-white text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
-                <span className="w-full truncate text-[11px] font-semibold leading-tight">
+                <span className="w-full truncate text-sm font-semibold leading-tight">
                   {CATEGORY_SHORT_LABELS[c.slug] ?? c.label}
                 </span>
-                <span className={`text-[10px] font-medium ${active ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                <span className={`text-sm font-medium ${active ? "text-primary/70" : "text-muted-foreground/60"}`}>
                   {countFor(c.slug)}
                 </span>
               </button>
@@ -687,46 +699,46 @@ function PostCard({
 }) {
   const cat = CATEGORIES.find((c) => c.slug === post.category);
   const kindLabel: Record<FeedPost["kind"], { label: string; className: string }> = {
-    demande: { label: "Demande", className: "bg-forest/10 text-forest" },
+    demande: { label: "Demande", className: "bg-forest/10 text-foreground" },
     "bon-plan": { label: "Bon plan", className: "bg-accent/15 text-accent" },
     annonce: { label: "Annonce", className: "bg-blue-500/10 text-blue-700" },
     verif: { label: "AfriLink", className: "bg-primary text-primary-foreground" },
   };
   const k = kindLabel[post.kind];
   return (
-    <article className="rounded-3xl border border-border bg-white p-5 shadow-soft transition hover:shadow-elevated">
+    <article className="rounded-3xl border border-border bg-card p-5 shadow-soft transition hover:shadow-elevated">
       <div className="flex items-start gap-3">
         <Avatar initials={post.author.initials} color={post.author.color} src={post.author.avatar} alt={post.author.name} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold">{post.author.name}</p>
             {post.author.verified && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-accent">
-                <ShieldCheck className="h-2.5 w-2.5" /> Vérifié
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-1.5 py-0.5 text-sm font-bold text-accent">
+                <ShieldCheck className="h-2.5 w-2.5" /> Contrôlé par AfriLink
               </span>
             )}
-            <span className="text-xs text-muted-foreground">·</span>
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">·</span>
+            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-3 w-3" /> {post.author.city}
             </span>
-            <span className="text-xs text-muted-foreground">· {post.time}</span>
+            <span className="text-sm text-muted-foreground">· {post.time}</span>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${k.className}`}>{k.label}</span>
-            {cat && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{cat.label}</span>}
+            <span className={`rounded-full px-2 py-0.5 text-sm font-bold uppercase tracking-wide ${k.className}`}>{k.label}</span>
+            {cat && <span className="rounded-full bg-muted px-2 py-0.5 text-sm font-semibold text-muted-foreground">{cat.label}</span>}
           </div>
         </div>
       </div>
       <h3 className="mt-3 font-display text-lg font-semibold leading-snug">{post.title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-forest/85">{post.body}</p>
-      <div className="mt-4 flex items-center gap-4 border-t border-border pt-3 text-xs">
+      <p className="mt-2 text-base leading-relaxed text-foreground/85">{post.body}</p>
+      <div className="mt-4 flex items-center gap-4 border-t border-border pt-3 text-sm">
         <button onClick={onLike} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${liked ? "bg-accent/15 text-accent" : "text-muted-foreground hover:bg-muted"}`}>
           <ThumbsUp className={`h-3.5 w-3.5 ${liked ? "fill-accent" : ""}`} /> {post.likes}
         </button>
         <button
           onClick={onToggleReplies}
           aria-expanded={repliesOpen}
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${repliesOpen ? "bg-muted text-forest" : "text-muted-foreground hover:bg-muted"}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition ${repliesOpen ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}
         >
           <MessageCircle className="h-3.5 w-3.5" /> {post.replies} réponses
         </button>
@@ -756,12 +768,12 @@ function PostReplies({ onReply }: { onReply: () => void }) {
   return (
     <div className="mt-3 space-y-3 rounded-2xl bg-muted/40 p-3">
       {sent.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Aucune réponse affichée pour l'instant — écrivez la première.
         </p>
       ) : (
         sent.map((m, i) => (
-          <p key={i} className="rounded-2xl bg-white px-3 py-2 text-sm shadow-soft">{m}</p>
+          <p key={i} className="rounded-2xl bg-card px-3 py-2 text-sm shadow-soft">{m}</p>
         ))
       )}
       <div className="flex gap-2">
@@ -770,12 +782,12 @@ function PostReplies({ onReply }: { onReply: () => void }) {
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
           placeholder="Répondre…"
-          className="flex-1 rounded-full border border-border bg-white px-4 py-2 text-sm outline-none focus:border-primary"
+          className="flex-1 rounded-full border border-border bg-card px-4 py-2 text-sm outline-none focus:border-primary"
         />
         <button
           onClick={send}
           disabled={!draft.trim()}
-          className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40"
+          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40"
         >
           Envoyer
         </button>
@@ -795,7 +807,7 @@ function TrendingCard({ onTag }: { onTag: (term: string) => void }) {
     { tag: "#RetourAuBled", term: "Douala", posts: "15 posts" },
   ];
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-soft">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
       <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-accent" /> Tendances au Cameroun</h3>
       <ul className="mt-3 space-y-2">
         {trends.map((t) => (
@@ -805,7 +817,7 @@ function TrendingCard({ onTag }: { onTag: (term: string) => void }) {
               className="w-full rounded-xl p-2 text-left transition hover:bg-muted"
             >
               <p className="text-sm font-semibold">{t.tag}</p>
-              <p className="text-xs text-muted-foreground">{t.posts}</p>
+              <p className="text-sm text-muted-foreground">{t.posts}</p>
             </button>
           </li>
         ))}
@@ -818,7 +830,7 @@ function TrendingCard({ onTag }: { onTag: (term: string) => void }) {
 function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
   const suggested = PROS.filter((p) => p.verified && ["Douala", "Yaoundé", "Kribi"].includes(p.city)).slice(0, 3);
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-soft">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
       <h3 className="font-semibold">Suggestions près de vous</h3>
       <ul className="mt-3 space-y-3">
         {suggested.map((p) => (
@@ -827,7 +839,7 @@ function SuggestedProsCard({ onOpen }: { onOpen: (p: Pro) => void }) {
               <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={40} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{p.name}</p>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="truncate text-sm text-muted-foreground">
                   {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
                 </p>
               </div>
@@ -962,7 +974,7 @@ function SearchView({
 
   return (
     <div>
-      <div className="rounded-3xl border border-border bg-white p-5 shadow-soft">
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <div className="flex flex-wrap items-center gap-3">
           <span className="icon-circle"><Search className="h-5 w-5" /></span>
           <input
@@ -1014,7 +1026,7 @@ function SearchView({
         </div>
         {cat !== "all" && (SUBCATEGORIES[cat]?.length ?? 0) > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sous-catégorie</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Sous-catégorie</span>
             <FilterChip active={sub === "all"} onClick={() => setSub("all")}>
               Toutes <span className="opacity-60">{countFor({ sub: "all" })}</span>
             </FilterChip>
@@ -1026,7 +1038,7 @@ function SearchView({
           </div>
         )}
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Statut</span>
           <FilterChip active={status === "all"} onClick={() => setStatus("all")}>
             Tous <span className="opacity-60">{countFor({ status: "all" })}</span>
           </FilterChip>
@@ -1038,7 +1050,7 @@ function SearchView({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Type</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Type</span>
           <FilterChip active={ctype === "all"} onClick={() => setCtype("all")}>
             Tous <span className="opacity-60">{countFor({ ctype: "all" })}</span>
           </FilterChip>
@@ -1075,12 +1087,12 @@ function SearchView({
           <p className="text-sm text-muted-foreground">{results.length} professionnel(s) trouvé(s)</p>
         )}
         <div className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
             <ArrowUpDown className="h-3.5 w-3.5" />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold text-foreground"
               aria-label="Trier les résultats"
             >
               {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -1089,7 +1101,7 @@ function SearchView({
           {hasFilters && (
             <button
               onClick={reset}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-semibold transition hover:border-primary/40"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
             </button>
@@ -1124,8 +1136,8 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-        active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-white text-forest hover:border-primary/40"
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${
+        active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40"
       }`}
     >
       {children}
@@ -1172,7 +1184,7 @@ function ProCard({
         </button>
       </div>
       <p className="mt-4 line-clamp-2 text-sm text-muted-foreground">{pro.bio}</p>
-      {pro.price && <p className="mt-2 text-xs font-semibold text-accent">{pro.price}</p>}
+      {pro.price && <p className="mt-2 text-sm font-semibold text-accent">{pro.price}</p>}
       <button onClick={onOpen} className="mt-5 inline-flex items-center justify-center gap-1 rounded-full border border-border py-2 text-sm font-semibold hover:border-primary/40">
         Voir le profil <ArrowRight className="h-4 w-4" />
       </button>
@@ -1195,8 +1207,8 @@ function ProfileModal({
         onClick={(e) => e.stopPropagation()}
       >
         {isTeam && (
-          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-xs font-semibold text-forest-foreground">
-            <ShieldCheck className="h-4 w-4 text-accent" /> Profil Équipe AfriLink — vérifié par la plateforme
+          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-sm font-semibold text-forest-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Équipe AfriLink — rôle dans le projet, pas un niveau de confiance
           </div>
         )}
         <div className="p-6 md:p-8">
@@ -1227,7 +1239,7 @@ function ProfileModal({
           <span className="font-display text-5xl font-bold tracking-tight text-forest-foreground/90">
             {pro.initials}
           </span>
-          <span className="absolute bottom-3 left-4 rounded-full bg-black/25 px-3 py-1 text-[11px] font-medium text-white backdrop-blur">
+          <span className="absolute bottom-3 left-4 rounded-full bg-black/25 px-3 py-1 text-sm font-medium text-white backdrop-blur">
             {pro.kind === "place"
               ? "Visuels officiels en cours de collecte"
               : `${cat?.label} · ${pro.city}`}
@@ -1243,7 +1255,7 @@ function ProfileModal({
           </p>
         </div>
 
-        <p className="mt-6 leading-relaxed text-forest/90">{pro.bio}</p>
+        <p className="mt-6 leading-relaxed text-foreground/90">{pro.bio}</p>
         {pro.price && (
           <p className="mt-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">{pro.price}</p>
         )}
@@ -1256,7 +1268,7 @@ function ProfileModal({
               lng={CITY_COORDS[pro.city][1]}
               label={`${pro.name} · ${pro.city}${pro.neighborhood ? `, ${pro.neighborhood}` : ""}`}
             />
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               Position approximative (centre-ville de {pro.city}) — pas d'adresse précise vérifiée.
             </p>
           </div>
@@ -1348,7 +1360,7 @@ function FavoritesView({
           {resources.map((item) => (
             <div key={item.id} className="rounded-3xl border border-border bg-card p-5 shadow-soft">
               <div className="flex items-start justify-between gap-3">
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-sm font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
                 <button onClick={() => toggleLibFav(item.id)} aria-label="Retirer des favoris" className="rounded-full border border-border p-2 text-accent">
                   <Heart className="h-4 w-4 fill-current" />
                 </button>
@@ -1448,7 +1460,7 @@ function MessagingView({
           <h3 className="font-semibold">Conversations</h3>
           <button
             onClick={() => setPicker((v) => !v)}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold transition hover:border-primary/40"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-sm font-semibold transition hover:border-primary/40"
           >
             <PenSquare className="h-3.5 w-3.5" /> Nouveau
           </button>
@@ -1463,20 +1475,20 @@ function MessagingView({
                 value={pickerQuery}
                 onChange={(e) => setPickerQuery(e.target.value)}
                 placeholder="Rechercher un pro…"
-                className="w-full rounded-full border border-border bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+                className="w-full rounded-full border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
               />
             </div>
             <div className="mt-2 max-h-56 space-y-1 overflow-y-auto">
-              {contacts.length === 0 && <p className="p-2 text-xs text-muted-foreground">Aucun contact trouvé.</p>}
+              {contacts.length === 0 && <p className="p-2 text-sm text-muted-foreground">Aucun contact trouvé.</p>}
               {contacts.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => startWith(p)}
-                  className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-sm transition hover:bg-white"
+                  className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-sm transition hover:bg-card"
                 >
                   <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={28} />
                   <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
-                  <span className="truncate text-[11px] text-muted-foreground">{p.city}</span>
+                  <span className="truncate text-sm text-muted-foreground">{p.city}</span>
                 </button>
               ))}
             </div>
@@ -1501,14 +1513,14 @@ function MessagingView({
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-2 truncate font-semibold">
                   <span className="truncate">{c.name}</span>
-                  <span className="ml-auto shrink-0 text-[10px] font-medium text-muted-foreground">
+                  <span className="ml-auto shrink-0 text-sm font-medium text-muted-foreground">
                     {c.lastTs ? formatTime(c.lastTs) : ""}
                   </span>
                 </p>
-                <p className={`truncate text-xs ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.lastMessage}</p>
+                <p className={`truncate text-sm ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.lastMessage}</p>
               </div>
               {c.unread > 0 && (
-                <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">{c.unread}</span>
+                <span className="rounded-full bg-accent px-2 py-0.5 text-sm font-bold text-accent-foreground">{c.unread}</span>
               )}
             </button>
           ))}
@@ -1533,7 +1545,7 @@ function MessagingView({
                   {headerName}
                   {activePro && <StatusBadge status={activePro.status ?? "reference"} />}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="truncate text-sm text-muted-foreground">
                   {activePro
                     ? `${CATEGORIES.find((c) => c.slug === activePro.category)?.label ?? ""} · ${activePro.city}`
                     : "Membre AfriLink"}
@@ -1543,7 +1555,7 @@ function MessagingView({
                 {activePro && (
                   <button
                     onClick={() => onOpenProfile(activePro)}
-                    className="rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold transition hover:border-primary/40"
+                    className="rounded-full border border-border px-3 py-1.5 text-sm font-semibold transition hover:border-primary/40"
                   >
                     Voir le profil
                   </button>
@@ -1551,7 +1563,7 @@ function MessagingView({
                 {current && (
                   <button
                     onClick={removeThread}
-                    className="rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition hover:border-destructive/40 hover:text-destructive"
+                    className="rounded-full border border-border px-3 py-1.5 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:text-destructive"
                   >
                     Supprimer
                   </button>
@@ -1559,7 +1571,7 @@ function MessagingView({
               </div>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto bg-cream/50 p-4">
+            <div className="flex-1 space-y-3 overflow-y-auto bg-muted/50 p-4">
               {messages.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">Envoyez le premier message ✨</p>
               )}
@@ -1567,9 +1579,9 @@ function MessagingView({
                 const mine = m.from === me;
                 return (
                   <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-primary text-primary-foreground" : "border border-border bg-white"}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-primary text-primary-foreground" : "border border-border bg-card"}`}>
                       <p>{m.text}</p>
-                      <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(m.ts)}</p>
+                      <p className={`mt-1 text-sm ${mine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(m.ts)}</p>
                     </div>
                   </div>
                 );
@@ -1593,7 +1605,7 @@ function MessagingView({
                 <Send className="h-4 w-4" />
               </button>
             </div>
-            <p className="border-t border-border px-4 py-2 text-[10px] text-muted-foreground">
+            <p className="border-t border-border px-4 py-2 text-sm text-muted-foreground">
               Démo : messagerie simulée et enregistrée sur cet appareil, sans temps réel.
             </p>
           </>
@@ -1604,7 +1616,7 @@ function MessagingView({
               <p className="mt-4 font-semibold">Sélectionnez une conversation</p>
               <button
                 onClick={() => setPicker(true)}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
               >
                 <PenSquare className="h-3.5 w-3.5" /> Nouveau message
               </button>
@@ -1631,7 +1643,7 @@ function ProfileView({
       <EmptyState
         icon={<User className="h-5 w-5" />}
         title="Créez votre profil AfriLink"
-        desc="Connectez-vous pour publier, échanger avec les pros et retrouver vos favoris sur tous vos appareils."
+        desc="Ouvrez une session de démonstration pour essayer les publications, messages et favoris sur cet appareil."
         action={
           <div className="flex flex-wrap justify-center gap-2">
             <Link to="/inscription" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
@@ -1650,8 +1662,8 @@ function ProfileView({
     <div className="space-y-4">
       <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
         {isFounder && (
-          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-xs font-semibold text-forest-foreground">
-            <ShieldCheck className="h-4 w-4 text-accent" /> Profil Équipe AfriLink — fondatrice de la communauté
+          <div className="flex items-center gap-2 bg-gradient-to-r from-forest to-forest-light px-6 py-2.5 text-sm font-semibold text-forest-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Équipe AfriLink — rôle dans le projet
           </div>
         )}
         <div className="h-32 bg-gradient-to-br from-forest to-forest-light" />
@@ -1672,10 +1684,10 @@ function ProfileView({
             </div>
             <p className="text-sm text-muted-foreground">{user.role} · {user.city}</p>
             {isFounder && (
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
             )}
             {!isFounder && bio.trim() && (
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{bio}</p>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">{bio}</p>
             )}
           </div>
           <button
@@ -1699,7 +1711,7 @@ function ProfileView({
             onClick={s.onClick}
             className="rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-medium"
           >
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
+            <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
             <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
           </button>
         ))}
@@ -1739,7 +1751,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">La communauté</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-accent">La communauté</p>
         <h2 className="mt-2 font-display text-2xl font-bold">Une confiance construite depuis 2022</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {[
@@ -1749,7 +1761,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
           ].map(([v, l]) => (
             <div key={l} className="rounded-2xl bg-muted/50 p-4">
               <p className="font-display text-2xl font-bold text-accent">{v}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{l}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{l}</p>
             </div>
           ))}
         </div>
@@ -1766,7 +1778,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
             <p className="text-sm text-muted-foreground">{FOUNDER.role} · {FOUNDER.city}</p>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">{FOUNDER.bio}</p>
         <button
           onClick={() => onOpen(FOUNDER)}
           className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:border-primary/40"
@@ -1789,7 +1801,7 @@ function CommunityView({ onOpen }: { onOpen: (p: Pro) => void }) {
                   <Avatar initials={p.initials} color={p.color} src={p.avatar} alt={p.name} size={44} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{p.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate text-sm text-muted-foreground">
                       {CATEGORIES.find((c) => c.slug === p.category)?.label} · {p.city}
                     </p>
                   </div>
@@ -1808,7 +1820,7 @@ function GuidesView({ onCategory }: { onCategory: (term: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Guides</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-accent">Guides</p>
         <h2 className="mt-2 font-display text-2xl font-bold">Préparer votre arrivée, étape par étape</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Démarches, bonnes pratiques et contacts indispensables par pays.
@@ -1832,9 +1844,9 @@ function GuidesView({ onCategory }: { onCategory: (term: string) => void }) {
               <span className="icon-circle mb-4"><Icon className="h-5 w-5" /></span>
               <p className="font-semibold">{c.label}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Les repères essentiels de l'univers {c.label.toLowerCase()} dans les villes couvertes.
+                Les repères de démonstration de l'univers {c.label.toLowerCase()}, sans engagement de couverture géographique.
               </p>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">
+              <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent">
                 Voir les pros <ArrowRight className="h-3 w-3" />
               </span>
             </button>
@@ -1864,11 +1876,11 @@ function LibraryCover({ item, className = "" }: { item: LibraryEntry; className?
   }
   return (
     <div
-      className={`relative flex flex-col justify-end p-2.5 text-[10px] font-semibold leading-tight text-white ${className}`}
+      className={`relative flex flex-col justify-end p-2.5 text-sm font-semibold leading-tight text-white ${className}`}
       aria-hidden="true"
       style={{ background: `linear-gradient(150deg, ${palette[0]}, ${palette[1]})` }}
     >
-      <span className="absolute inset-y-0 left-1.5 w-px bg-white/25" />
+      <span className="absolute inset-y-0 left-1.5 w-px bg-card/25" />
       <span className="line-clamp-4">{item.title}</span>
       <span className="mt-1 opacity-70">{item.year}</span>
     </div>
@@ -1896,7 +1908,7 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Bibliothèque</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-accent">Bibliothèque</p>
         <h2 className="mt-2 font-display text-2xl font-bold">{LIBRARY_ENTRIES.length} ouvrages & publications</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Fonds importé de la bibliothèque Les Bons Plans du Bled (doublons et fiches de test retirés),
@@ -1932,7 +1944,7 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
           ))}
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Format</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Format</span>
           <FilterChip active={format === "all"} onClick={() => setFormat("all")}>Tous</FilterChip>
           {formats.map((f) => (
             <FilterChip key={f} active={format === f} onClick={() => setFormat(f)}>{f}</FilterChip>
@@ -1940,7 +1952,7 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
           {(cat !== "all" || format !== "all" || term) && (
             <button
               onClick={() => { setCat("all"); setFormat("all"); setQ(""); }}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold transition hover:border-primary/40"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-sm font-semibold transition hover:border-primary/40"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Réinitialiser
             </button>
@@ -1967,15 +1979,15 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
                     <LibraryCover item={item} className="h-32 w-24 shrink-0 rounded-xl shadow-medium" />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-sm font-bold uppercase tracking-wide text-muted-foreground">{item.format}</span>
                         {item.archived
-                          ? <span className="rounded-full bg-forest/10 px-2 py-0.5 text-[10px] font-bold text-forest">Archive LBPD</span>
-                          : <span className="rounded-full bg-forest-sage/15 px-2 py-0.5 text-[10px] font-bold text-forest-sage">Lecture intégrée</span>}
+                          ? <span className="rounded-full bg-forest/10 px-2 py-0.5 text-sm font-bold text-foreground">Archive LBPD</span>
+                          : <span className="rounded-full bg-forest-sage/15 px-2 py-0.5 text-sm font-bold text-forest-sage">Lecture intégrée</span>}
                       </div>
                       <p className="mt-2 font-display text-base font-semibold leading-snug">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.author} · {item.year}</p>
+                      <p className="text-sm text-muted-foreground">{item.author} · {item.year}</p>
                       {item.desc && <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.desc}</p>}
-                      <p className="mt-2 text-[11px] text-muted-foreground">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         {CATEGORIES.find((c) => c.slug === item.category)?.label} · {item.source}
                       </p>
                     </div>
@@ -2022,22 +2034,22 @@ function LibraryView({ locked, favLibrary, toggleLibFav }: { locked: boolean; fa
 function CoverageCard({ onCity }: { onCity: (term: string) => void }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-      <h3 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Villes couvertes</h3>
+      <h3 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Villes de la démonstration</h3>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {MAIN_CITIES.map((c) => (
           <button
             key={c}
             onClick={() => onCity(c)}
-            className="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest transition hover:bg-forest hover:text-forest-foreground"
+            className="rounded-full bg-forest/10 px-2.5 py-1 text-sm font-semibold text-foreground transition hover:bg-forest hover:text-forest-foreground"
           >
             {c}
           </button>
         ))}
       </div>
-      <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">En cours d'ouverture</p>
+      <p className="mt-4 text-sm font-semibold uppercase tracking-widest text-muted-foreground">Autres zones envisagées — sans ouverture annoncée</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {OPENING_CITIES.map((c) => (
-          <span key={c} title="Ouverture prochaine — pas encore de pros référencés" className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">{c}</span>
+          <span key={c} title="Aucun service ouvert ou calendrier annoncé" className="rounded-full border border-dashed border-accent/50 px-2.5 py-1 text-sm font-medium text-muted-foreground">{c}</span>
         ))}
       </div>
     </div>
@@ -2081,7 +2093,7 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc?: stri
     <label className="flex cursor-pointer items-start justify-between gap-4">
       <span>
         <span className="block text-sm font-semibold">{label}</span>
-        {desc && <span className="block text-xs text-muted-foreground">{desc}</span>}
+        {desc && <span className="block text-sm text-muted-foreground">{desc}</span>}
       </span>
       <button
         type="button"
@@ -2091,7 +2103,7 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc?: stri
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-primary" : "bg-muted-foreground/30"}`}
       >
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${checked ? "left-[22px]" : "left-0.5"}`} />
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all ${checked ? "left-[22px]" : "left-0.5"}`} />
       </button>
     </label>
   );
@@ -2143,7 +2155,7 @@ function SettingsView({
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">Paramètres</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-accent">Paramètres</p>
         <h2 className="mt-2 font-display text-2xl font-bold">Votre compte AfriLink</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Les réglages sont enregistrés sur cet appareil pendant la phase de démonstration.
@@ -2161,13 +2173,13 @@ function SettingsView({
             onChange={onAvatarChange}
             showRemove
           />
-          <p className="max-w-xs text-xs text-muted-foreground">
+          <p className="max-w-xs text-sm text-muted-foreground">
             Photo recadrée en carré et enregistrée sur cet appareil. JPG, PNG ou WebP, 8 Mo maximum.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Nom affiché</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Nom affiché</span>
             <input
               value={draft.name}
               onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
@@ -2175,7 +2187,7 @@ function SettingsView({
             />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Ville</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Ville</span>
             <select
               value={draft.city}
               onChange={(e) => setDraft((d) => ({ ...d, city: e.target.value }))}
@@ -2188,7 +2200,7 @@ function SettingsView({
           </label>
         </div>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Présentation</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Présentation</span>
           <textarea
             value={draft.bio}
             onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
@@ -2201,7 +2213,7 @@ function SettingsView({
           <button onClick={save} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
             Enregistrer
           </button>
-          {saved && <span className="text-xs font-semibold text-forest-sage">Profil mis à jour.</span>}
+          {saved && <span className="text-sm font-semibold text-forest-sage">Profil mis à jour.</span>}
         </div>
       </SettingsSection>
 
@@ -2236,7 +2248,7 @@ function SettingsView({
       <SettingsSection title="Préférences">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Langue</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Langue</span>
             <select
               value={settings.langue}
               onChange={(e) => set("langue", e.target.value)}
@@ -2246,7 +2258,7 @@ function SettingsView({
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Devise affichée</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Devise affichée</span>
             <select
               value={settings.devise}
               onChange={(e) => set("devise", e.target.value)}
@@ -2267,25 +2279,25 @@ function SettingsView({
         </button>
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
           <p className="text-sm font-semibold text-destructive">Supprimer mon compte</p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Efface vos favoris, votre profil et vos préférences enregistrés sur cet appareil. Action définitive.
           </p>
           {confirmDelete ? (
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 onClick={onDeleteAccount}
-                className="rounded-full bg-destructive px-4 py-2 text-xs font-semibold text-destructive-foreground"
+                className="rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground"
               >
                 Oui, tout supprimer
               </button>
-              <button onClick={() => setConfirmDelete(false)} className="rounded-full border border-border px-4 py-2 text-xs font-semibold">
+              <button onClick={() => setConfirmDelete(false)} className="rounded-full border border-border px-4 py-2 text-sm font-semibold">
                 Annuler
               </button>
             </div>
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="mt-3 rounded-full border border-destructive/40 px-4 py-2 text-xs font-semibold text-destructive"
+              className="mt-3 rounded-full border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive"
             >
               Supprimer mon compte
             </button>

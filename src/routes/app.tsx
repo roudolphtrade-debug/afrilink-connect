@@ -22,8 +22,12 @@ export const Route = createFileRoute("/app")({
   }),
   head: () => ({
     meta: [
-      { title: "AfriLink — Votre réseau" },
-      { name: "description", content: "Fil d'actualité, recommandations et messagerie AfriLink." },
+      { title: "Explorer la démonstration — AfriLink" },
+      { name: "description", content: "Démonstration locale AfriLink : demandes, publications et messages simulés, sans offres actuelles validées ni visites réservables." },
+      { property: "og:title", content: "Explorer la démonstration — AfriLink" },
+      { property: "og:description", content: "Le service logement à Douala est en préparation. Rien n'est transmis à l'équipe depuis cette démonstration." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),

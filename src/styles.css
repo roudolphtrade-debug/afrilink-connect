@@ -127,11 +127,11 @@
   }
 
   h1, h2 {
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
   }
 
   h3, h4, h5 {
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 }
 
@@ -154,4 +154,13 @@
   border-radius: 9999px;
   background-color: color-mix(in oklab, var(--gold) 18%, transparent);
   color: var(--gold);
+}
+
+/* Preserve the demo layout while making body copy readable in both themes. */
+.app-demo p:not(.font-semibold):not(.font-bold):not(.font-display):not(.uppercase) {
+  font-size: max(1rem, 1em);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }

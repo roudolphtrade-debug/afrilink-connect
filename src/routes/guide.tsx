@@ -8,10 +8,11 @@ export const Route = createFileRoute("/guide")({
   head: () => ({
     meta: [
       { title: "Guide d'arrivée — AfriLink" },
-      {
-        name: "description",
-        content: "Démarches essentielles, bonnes pratiques et contacts indispensables pour réussir votre arrivée au Cameroun, en Côte d'Ivoire et au Sénégal.",
-      },
+      { name: "description", content: "Informations générales à vérifier auprès des sources officielles pour préparer votre arrivée." },
+      { property: "og:title", content: "Guide d'arrivée — AfriLink" },
+      { property: "og:description", content: "Informations générales à vérifier auprès des sources officielles pour préparer votre arrivée." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: GuidePage,

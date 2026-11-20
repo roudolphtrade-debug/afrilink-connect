@@ -1,118 +1,43 @@
+import { PLANNED_FOLLOW_UP } from "./planned-follow-up";
+
 export type FaqItem = { q: string; a: string };
 export type FaqCategory = { id: string; label: string; items: FaqItem[] };
 
 export const FAQ: FaqCategory[] = [
   {
-    id: "compte",
-    label: "Compte & profil",
-    items: [
-      {
-        q: "Comment créer un compte AfriLink ?",
-        a: "Depuis « S'inscrire », renseignez votre nom, votre email et un mot de passe. Dans cette version de démonstration, la session est conservée localement sur votre appareil : aucune donnée n'est envoyée à un serveur.",
-      },
-      {
-        q: "Comment modifier mon profil ?",
-        a: "Onglet Profil → « Modifier le profil ». Vous pouvez changer votre nom affiché, votre ville et votre présentation. Les modifications sont enregistrées sur votre appareil tant que le backend n'est pas branché.",
-      },
-      {
-        q: "J'ai oublié mon mot de passe, que faire ?",
-        a: "Sur l'écran de connexion, utilisez « Mot de passe oublié ». En démonstration, aucun email n'est réellement envoyé : l'écran vous confirme la procédure et vous pouvez vous reconnecter avec n'importe quel mot de passe.",
-      },
-      {
-        q: "Comment supprimer mon compte ?",
-        a: "Paramètres → Sécurité → « Supprimer mon compte ». La suppression efface immédiatement vos favoris, filtres et session enregistrés sur cet appareil. L'action est irréversible.",
-      },
+    id: "logement", label: "Parcours logement prévu", items: [
+      { q: "Une annonce référencée est-elle contrôlée ?", a: "Pas nécessairement. Référencé signifie que l'information est intégrée sans validation globale. Recommandé renvoie à une expérience membre, avec contexte et date. Contrôlé par AfriLink renverra à des vérifications précises par un membre habilité, avec objet, date et méthode. Ce protocole est prévu au lancement : il ne requalifie pas les fiches historiques." },
+      { q: "Une demande confirme-t-elle une visite ?", a: "Non. Dans le parcours en préparation, une demande envoyée ne confirmera pas une visite. Seule l'acceptation de l'annonceur permettra de la présenter comme confirmée. Aucune visite n'est actuellement réservable sur ce site." },
+      { q: "Que se passera-t-il sans réponse de l'annonceur ?", a: `La règle prévue est un rappel à ${PLANNED_FOLLOW_UP.reminderAfterHours} h si la demande est encore ouverte, puis une clôture à ${PLANNED_FOLLOW_UP.closeAfterHours} h${PLANNED_FOLLOW_UP.closeAtSlotStartIfEarlier ? " ou au début du créneau si celui-ci arrive plus tôt" : ""}. Ce suivi fait partie du parcours en préparation : aucune automatisation de rappel ou de clôture n'est actuellement implémentée.` },
+      { q: "Les frais peuvent-ils changer ?", a: "Oui. Dans le parcours prévu, la source et la date des frais annoncés seront précisées. Toute différence devra être clarifiée avant un engagement. Une modification significative imposera une nouvelle vérification des frais avant de les présenter comme contrôlés." },
+      { q: "AfriLink est-il réservé aux expatriés ?", a: "Non. Le premier service en préparation s'adresse aux personnes qui s'installent ou déménagent à Douala, qu'elles viennent d'une autre région du Cameroun ou de l'étranger." },
     ],
   },
   {
-    id: "confiance",
-    label: "Statuts & confiance",
-    items: [
-      {
-        q: "Que signifie « Référencé » ?",
-        a: "La fiche existe dans l'annuaire AfriLink mais n'a pas encore reçu de recommandation de la communauté. C'est un point de départ, pas une garantie.",
-      },
-      {
-        q: "Que signifie « Recommandé » ?",
-        a: "Plusieurs membres ont travaillé avec ce contact et l'ont recommandé publiquement. La recommandation vient de la communauté, pas de l'équipe.",
-      },
-      {
-        q: "Que signifie « Vérifié AfriLink » ?",
-        a: "L'équipe a contrôlé manuellement l'identité, l'activité réelle et au moins deux références du professionnel. C'est notre niveau de confiance le plus élevé pour un prestataire.",
-      },
-      {
-        q: "Qu'est-ce que le badge « Équipe AfriLink » ?",
-        a: "Il identifie les membres fondateurs de la plateforme : Odile Ebongue et Roudolph Doualla. Ils ne sont pas des prestataires mais les responsables de la communauté.",
-      },
+    id: "confiance", label: "Contrôles & limites", items: [
+      { q: "Que signifie « Contrôlé par AfriLink » ?", a: "Ce libellé désignera des contrôles précis et documentés, pas une certification globale. Contact, autorisation de diffusion, visite physique ou contrôle vidéo, frais et disponibilité devront rester distincts. Une information déclarée ne deviendra pas contrôlée par simple référencement." },
+      { q: "« Équipe AfriLink » est-il un niveau de confiance ?", a: "Non. C'est un rôle dans le projet, pas un niveau de confiance d'une annonce. Odile Ebongue et Roudolph Doualla sont les fondateurs d'AfriLink." },
+      { q: "Un contrôle prouve-t-il la propriété du logement ?", a: "Non. Un contact joignable ne prouve pas la propriété. Une visite n'est ni une expertise technique ni une validation juridique. Le protocole prévu conservera les inconnues visibles et les preuves justificatives privées. Un badge favorable ne s'achète pas." },
     ],
   },
   {
-    id: "usage",
-    label: "Rechercher & publier",
-    items: [
-      {
-        q: "Comment trouver un professionnel ?",
-        a: "Onglet Explorer : tapez un métier, un besoin ou une ville, puis affinez par univers, statut, pays, ville et tri (pertinence, distance, prix, nouveauté). Le compteur indique le nombre de résultats pour chaque filtre.",
-      },
-      {
-        q: "Comment publier une demande ou un bon plan ?",
-        a: "Onglet Accueil : choisissez « Demande » ou « Bon plan » dans le composeur, sélectionnez un univers, écrivez votre message et publiez. Votre publication apparaît immédiatement en haut du fil.",
-      },
-      {
-        q: "Comment signaler un problème ou un contact douteux ?",
-        a: "Utilisez « Signaler un problème » depuis l'Aide. Décrivez la situation : l'équipe traite les signalements sous 48 h et peut retirer un statut ou une fiche.",
-      },
-      {
-        q: "Quelles villes sont couvertes ?",
-        a: "Douala, Yaoundé, Dakar et Abidjan sont ouvertes. Libreville, Cotonou, Lomé et Brazzaville sont en cours d'ouverture. D'autres villes apparaissent dans l'annuaire mais avec une couverture partielle.",
-      },
-    ],
-  },
-  {
-    id: "bibliotheque",
-    label: "Bibliothèque",
-    items: [
-      {
-        q: "Comment accéder à la bibliothèque ?",
-        a: "Les fiches et l'aperçu de chaque ouvrage sont visibles par tous. La lecture complète, le sommaire et l'enregistrement en favoris sont réservés aux membres connectés.",
-      },
-      {
-        q: "D'où viennent les ouvrages proposés ?",
-        a: "Uniquement d'œuvres du domaine public (Project Gutenberg, Wikisource, Gallica/BnF). Chaque fiche indique l'auteur, l'année, la licence et un lien vers la source officielle.",
-      },
-    ],
-  },
-  {
-    id: "securite",
-    label: "Sécurité & confidentialité",
-    items: [
-      {
-        q: "Mes données sont-elles protégées ?",
-        a: "Cette version de démonstration ne stocke rien sur un serveur : session, favoris, filtres et préférences restent dans le stockage local de votre navigateur et peuvent être effacés à tout moment depuis les Paramètres.",
-      },
-      {
-        q: "Qui voit mon profil et mes publications ?",
-        a: "Par défaut, votre profil est visible par les membres connectés. Paramètres → Confidentialité permet de le passer en visibilité restreinte et de masquer votre ville.",
-      },
-      {
-        q: "Comment sécuriser mon compte ?",
-        a: "Paramètres → Sécurité : changement de mot de passe et double authentification (à venir sur la version production). Ne partagez jamais vos identifiants dans la messagerie.",
-      },
+    id: "demo", label: "Démonstration actuelle", items: [
+      { q: "Que puis-je faire dans la démonstration ?", a: "Explorer les écrans, essayer une publication, des favoris ou des messages locaux. Les demandes, les réponses et les messages sont simulés et conservés sur cet appareil : rien n'est envoyé à l'équipe ni à un annonceur. Les contenus de la démo ne constituent ni des offres actuelles validées ni des visites réservables." },
+      { q: "Comment fonctionne la connexion dans la démo ?", a: "Les écrans de connexion et d'inscription créent une session locale de démonstration, pas un compte opérationnel pour le futur service logement. N'utilisez pas un mot de passe personnel ou des informations sensibles pour cet essai." },
+      { q: "Comment modifier mon profil de démonstration ?", a: "L'onglet Profil permet de modifier le nom, la ville, la présentation et la photo. Ces modifications restent locales à cet appareil et ne sont pas transmises à l'équipe." },
+      { q: "Comment accéder à la bibliothèque de la démo ?", a: "Les aperçus des ouvrages sont visibles sans session. La lecture complète et les favoris nécessitent une connexion locale de démonstration. Les sources indiquées sur chaque fiche restent à consulter pour les informations sur l'ouvrage." },
     ],
   },
 ];
-
 export const COMMUNITY_RULES = [
-  "Recommander uniquement des personnes avec qui on a réellement traité.",
-  "Indiquer un prix ou un ordre de grandeur quand on partage un bon plan.",
-  "Pas de démarchage commercial déguisé ni de publication en série.",
-  "Respect strict de la vie privée : aucun numéro ni adresse d'un tiers sans accord.",
-  "Signaler plutôt que régler un litige publiquement dans le fil.",
+  "Recommander uniquement à partir d'une expérience personnelle, en précisant le contexte et la date.",
+  "Distinguer les informations annoncées des éléments réellement contrôlés.",
+  "Respecter la vie privée : ne pas diffuser les coordonnées d'un tiers sans accord.",
+  "Clarifier les écarts de frais avant tout engagement.",
 ];
-
 export const PRIVACY_POINTS = [
-  "Aucune donnée n'est vendue ni transmise à des tiers.",
-  "Les informations de session sont stockées localement sur votre appareil.",
-  "Vous pouvez exporter ou supprimer vos données depuis les Paramètres.",
-  "Les échanges en messagerie ne sont pas utilisés à des fins publicitaires.",
+  "Dans /app, session, favoris, publications et messages de démonstration restent sur cet appareil.",
+  "Aucune demande de visite ni aucun message de la démo n'est transmis à l'équipe ou à un annonceur.",
+  "N'entrez pas de données sensibles dans la démonstration.",
+  "Les justificatifs de contrôle du futur service seront privés.",
 ];

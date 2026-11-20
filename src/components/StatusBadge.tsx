@@ -14,7 +14,7 @@ export function StatusBadge({ status, className = "" }: { status: ProStatus; cla
   return (
     <span
       title={STATUS_META[status].description}
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-tight ${s.className} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-bold ${s.className} ${className}`}
     >
       <Icon className="h-3 w-3" />
       {STATUS_META[status].label}

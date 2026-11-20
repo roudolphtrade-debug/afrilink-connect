@@ -121,19 +121,19 @@ export type ProStatus = "reference" | "recommande" | "verifie" | "equipe";
 export const STATUS_META: Record<ProStatus, { label: string; description: string }> = {
   reference: {
     label: "Référencé",
-    description: "Fiche ajoutée à l'annuaire AfriLink, en attente de recommandations de la communauté.",
+    description: "Information intégrée sans validation globale.",
   },
   recommande: {
     label: "Recommandé",
-    description: "Plusieurs membres de la communauté ont recommandé ce contact.",
+    description: "Expérience partagée par un membre, avec contexte et date.",
   },
   verifie: {
-    label: "Vérifié AfriLink",
-    description: "Identité, activité et références contrôlées manuellement par l'équipe AfriLink.",
+    label: "Contrôlé par AfriLink",
+    description: "Vérifications précises par un membre habilité, avec objet, date et méthode; pas de certification globale.",
   },
   equipe: {
     label: "Équipe AfriLink",
-    description: "Membre de l'équipe fondatrice d'AfriLink.",
+    description: "Rôle dans le projet, pas un niveau de confiance.",
   },
 };
 
@@ -540,7 +540,7 @@ export const LIBRARY: LibraryItem[] = [
     cover: ["#3E7A5C", "#B8863A"],
     desc: "Essai court sur l'organisation sociale africaine : famille élargie, entraide, transmission et institutions locales.",
     preview:
-      "Note de lecture AfriLink — Blyden formalise ce que la communauté vit tous les jours : l'entraide comme institution. Une grille de lecture utile pour comprendre nos statuts Référencé, Recommandé et Vérifié.",
+      "Note de lecture AfriLink — Blyden formalise ce que la communauté vit tous les jours : l'entraide comme institution. Une grille de lecture utile pour comprendre nos indications Référencé, Recommandé et Contrôlé par AfriLink.",
     chapters: [
       "The African family",
       "Communal life",

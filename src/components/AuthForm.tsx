@@ -3,7 +3,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { signIn } from "@/lib/auth-store";
-import { STATS } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const isSignup = mode === "signup";
@@ -37,12 +37,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             <Logo />
           </Link>
           <h1 className="mt-10 font-display text-3xl font-bold tracking-tight">
-            {isSignup ? "Créer votre compte" : "Content de vous revoir"}
+            {isSignup ? "Créer une session de démo" : "Connexion à la démonstration"}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-base text-muted-foreground">
             {isSignup
-              ? "Rejoignez la communauté et accédez à la bibliothèque AfriLink."
-              : "Connectez-vous pour retrouver votre réseau et vos échanges."}
+              ? "Essayez les écrans et la bibliothèque avec une session locale."
+              : "Retrouvez vos essais locaux sur cet appareil."}
           </p>
 
           <form onSubmit={submit} className="mt-8 space-y-3">
@@ -87,22 +87,23 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </Field>
 
             {error && (
-              <p className="rounded-2xl bg-destructive/10 px-4 py-2.5 text-xs font-medium text-destructive">
+              <p className="rounded-2xl bg-destructive/10 px-4 py-2.5 text-sm font-medium text-destructive">
                 {error}
               </p>
             )}
 
-            <button
+            <Button
+              variant="pill"
               type="submit"
               disabled={loading}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSignup ? "Créer mon compte" : "Se connecter"}
-            </button>
+              {isSignup ? "Créer ma session de démo" : "Ouvrir la session de démo"}
+            </Button>
           </form>
 
-          <p className="mt-6 text-sm text-muted-foreground">
+          <p className="mt-6 text-base text-muted-foreground">
             {isSignup ? "Déjà membre ? " : "Pas encore de compte ? "}
             <Link
               to={isSignup ? "/connexion" : "/inscription"}
@@ -111,8 +112,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               {isSignup ? "Se connecter" : "Créer un compte"}
             </Link>
           </p>
-          <p className="mt-8 text-xs text-muted-foreground">
-            Aperçu produit — la session est simulée localement sur votre appareil.
+          <p className="mt-8 text-base text-muted-foreground">
+            Démonstration : session et messages locaux. Rien n'est envoyé à l'équipe. N'utilisez pas de mot de passe personnel ni d'informations sensibles.
           </p>
         </div>
       </div>
@@ -121,22 +122,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <div className="relative hidden overflow-hidden section-forest lg:flex lg:items-center">
         <div className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative px-16">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent">Depuis 2022</p>
-          <p className="mt-6 max-w-md font-display text-3xl font-bold leading-tight">
-            Trouvez les bonnes personnes avant les bonnes adresses.
-          </p>
-          <div className="mt-12 space-y-6">
-            {[
-              [STATS.plans, STATS.plansLabel],
-              [STATS.members, STATS.membersLabel],
-              [STATS.pros, STATS.prosLabel],
-            ].map(([v, l]) => (
-              <div key={l} className="border-l-2 border-accent/60 pl-4">
-                <p className="font-display text-3xl font-bold text-accent">{v}</p>
-                <p className="text-sm text-forest-foreground/70">{l}</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-accent">Service en préparation à Douala</p>
+          <p className="mt-6 max-w-md font-display text-3xl font-bold leading-tight">Les bonnes personnes avant les bonnes adresses.</p>
+          <p className="mt-6 max-w-md text-base text-forest-foreground/80">AfriLink prolonge Les Bons Plans du Bled et prépare un premier parcours consacré au logement. Cet écran permet uniquement d'essayer la démonstration locale.</p>
         </div>
       </div>
     </div>
